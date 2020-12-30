@@ -21,7 +21,7 @@ RUN pip install scipy==1.1.0
 
 ## Obtaining model weights and dataset
 - The pose estimation model can be downloaded here:
-  - <a href="/../../files/1353/pose_estimation_pytorch.gz">
+  - <a href="/../../releases/download/pose_estimation_pytorch/pose_estimation_pytorch.gz">
     Pose Estimation pytorch model
     </a>
 - coco dataset can be downloaded here:

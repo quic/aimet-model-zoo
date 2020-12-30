@@ -22,7 +22,7 @@ RUN pip install scipy==1.1.0
 ## Obtaining model weights and dataset
 
 - The pose estimation model can be downloaded here:
-  - <a href="/../../files/1326/pose_estimation.tar.gz">
+  - <a href="/../../releases/download/pose_estimation/pose_estimation_tensorflow.tar.gz">
     pose_estimation.tar.gz
     </a>
 - This model has been compressed and its weights are optimized by applying DFQ 

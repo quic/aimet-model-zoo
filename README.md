@@ -53,7 +53,7 @@ An original FP32 source model is quantized either using post-training quantizati
   <tr>
     <td>EfficientNet Lite</td>
     <td><a href="https://github.com/tensorflow/tpu/tree/master/models/official/efficientnet/lite">GitHub Repo</a></td>
-    <td><a href="https://storage.googleapis.com/cloud-tpu-checkpoints/efficientnet/lite/efficientnet-lite0.tar.gz">Pretrained Model</a </td>
+    <td><a href="https://storage.googleapis.com/cloud-tpu-checkpoints/efficientnet/lite/efficientnet-lite0.tar.gz">Pretrained Model</a> </td>
     <td><a href="/../../releases/download/efficientnet-lite0/efficientnet-lite0.tar.gz">Quantized Model</a></td>
     <td>(ImageNet) Top-1 Accuracy <br> FP32: 74.93% <br> INT8: 74.99%</td>
     <td><a href="zoo_tensorflow/Docs/EfficientNetLite.md">EfficientNetLite.md</a></td>
@@ -78,7 +78,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>Pose Estimation</td>
     <td><a href="https://arxiv.org/abs/1611.08050">Based on Ref.</a></td>
     <td><a href="https://arxiv.org/abs/1611.08050">Based on Ref.</a></td>
-    <td><a href="/../../files/1321/pose_estimation_ckpt.tar.gz">Quantized Model</a></td>
+    <td><a href="/../../releases/download/pose_estimation/pose_estimation_tensorflow.tar.gz">Quantized Model</a></td>
     <td>(COCO) mAP <br>FP32: 0.383 <br> INT8: 0.379, <br> Mean Avg.Recall (mAR) <br> FP32: 0.452<br> INT8: 0.446</td>
     <td><a href="zoo_tensorflow/Docs/PoseEstimation.md">PoseEstimation.md</a></td>
   </tr>
@@ -227,7 +227,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>MobileNetV2</td>
     <td><a href="https://github.com/tonylins/pytorch-mobilenet-v2">GitHub Repo</a></td>
     <td><a href="https://drive.google.com/file/d/1jlto6HRVD3ipNkAl1lNhDbkBp7HylaqR/view">Pretrained Model</a></td>
-    <td><a href="zoo_torch/examples/eval_mobilenetv2.py">See Example</a></td>
+    <td><a href="/../../releases/download/mobilenetv2-pytorch/mv2qat_modeldef.tar.gz">Quantized Model</a></td>
     <td>(ImageNet) Top-1 Accuracy <br>FP32: 71.67%<br> INT8: 71.14%</td>
     <td><a href="zoo_torch/Docs/MobilenetV2.md">MobileNetV2.md</a></td>
   </tr>
@@ -243,7 +243,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>DeepLabV3+</td>
     <td><a href="https://github.com/jfzhang95/pytorch-deeplab-xception">GitHub Repo</a></td>
     <td><a href="https://drive.google.com/file/d/1G9mWafUAj09P4KvGSRVzIsV_U5OqFLdt/view">Pretrained Model</a></td>
-    <td><a href="zoo_torch/examples/eval_deeplabv3.py">See Example</a></td>
+    <td><a href="/../../releases/download/DeepLabV3-Torch/dlv3+_qat_renamed.tar.gz">Quantized Model</a></td>
     <td>(PascalVOC) mIOU <br>FP32: 72.32%<br> INT8: 72.08%</a></td>
     <td><a href="zoo_torch/Docs/DeepLabV3.md">DeepLabV3.md</a></td>
   </tr>
@@ -251,7 +251,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>MobileNetV2-SSD-Lite</td>
     <td><a href="https://github.com/qfgaohao/pytorch-ssd">GitHub Repo</a></td>
     <td><a href="https://storage.googleapis.com/models-hao/mb2-ssd-lite-mp-0_686.pth">Pretrained Model</a></td>
-    <td><a href="zoo_torch/examples/eval_ssd.py">See Example</a></td>
+    <td><a href="/../../releases/download/MV2SSD-Lite-Torch/adaround_mv2ssd_model_new.tar.gz">Quantized Model</a></td>
     <td>(PascalVOC) mAP<br> FP32: 68.7%<br> INT8: 68.6%</td>
     <td><a href="zoo_torch/Docs/MobileNetV2-SSD-lite.md">MobileNetV2-SSD-lite.md</a></td>
   </tr>
@@ -259,15 +259,15 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>Pose Estimation</td>
     <td><a href="https://github.com/CMU-Perceptual-Computing-Lab/openpose">Based on Ref.</a></td>
     <td><a href="https://github.com/CMU-Perceptual-Computing-Lab/openpose">Based on Ref.</a></td>
-    <td><a href="/../../files/1353/pose_estimation_pytorch.gz">Quantized Model</a></td>
+    <td><a href="/../../releases/download/pose_estimation_pytorch/pose_estimation_pytorch.gz">Quantized Model</a></td>
     <td>(COCO) mAP<br>FP32: 0.364<br>INT8: 0.359<br> mAR <br> FP32: 0.436<br> INT8: 0.432</td>
     <td><a href="zoo_torch/Docs/PoseEstimation.md">PoseEstimation.md</a></td>
   </tr>
   <tr> 
     <td>SRGAN</td>
     <td><a href="https://github.com/andreas128/mmsr">GitHub Repo</a></td>
-    <td><a href="/../../files/1361/srgan_mmsr_MSRGANx4.gz">Pretrained Model</a> (older version from <a href="https://github.com/open-mmlab/mmediting/tree/master/configs/restorers/srresnet_srgan">here</a>)</td>
-    <td>N/A</td>
+    <td><a href="/../../releases/download/srgan_mmsr_model/srgan_mmsr_MSRGANx4.gz">Pretrained Model</a> (older version from <a href="https://github.com/open-mmlab/mmediting/tree/master/configs/restorers/srresnet_srgan">here</a>)</td>    
+    <td><a href="zoo_torch/examples/srgan_quanteval.py">See Example</a></td>
     <td>(BSD100) PSNR/SSIM <br> FP32: 25.51/0.653<br> INT8: 25.5/0.648<br><a href="#srgan-pytorch"> Detailed Results</a></td>
     <td><a href="zoo_torch/Docs/SRGAN.md">SRGAN.md</a></td>
   </tr>

@@ -45,7 +45,7 @@ x = x.squeeze()
 
 - The original MobileNetV2 checkpoint can be downloaded here:
   - https://github.com/tonylins/pytorch-mobilenet-v2
-- Optimized MobileNetV2 checkpoint can be downloaded from releases
+- Optimized MobileNetV2 checkpoint can be downloaded from the [Releases](/../../releases) page.
 - ImageNet can be downloaded here:
   - http://www.image-net.org/
 

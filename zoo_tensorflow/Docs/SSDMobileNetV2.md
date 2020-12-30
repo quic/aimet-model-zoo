@@ -4,12 +4,10 @@
 Please [install and setup AIMET](../../README.md#install-aimet) before proceeding further.
 
 ## Obtaining model checkpoint and dataset
-
-- SSD MobileNet v2 checkpoint used for AIMET quantization can be downloaded from release page
-- Or you could follow the steps below to obtain the checkpoint
+- SSD MobileNet v2 checkpoint used for AIMET quantization can be downloaded from the [Releases](/../../releases) page.
+- OR you could follow the steps below to obtain the checkpoint
 
 ### export inference graph
-
 The following steps are need to have a model ready for AIMET quantization
 
 - ```bash

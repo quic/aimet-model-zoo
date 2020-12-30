@@ -27,14 +27,14 @@ mv dataloaders ../aimet-model-zoo/zoo_torch/examples/
 mv utils/metrics.py ../aimet-model-zoo/zoo_torch/examples/
 mv mypath.py ../aimet-model-zoo/zoo_torch/examples/
 ```
-4. Download Optimized DeepLabV3+ checkpoint from [Releases](/../../releases).
+4. Download Optimized DeepLabV3+ checkpoint from the [Releases](/../../releases) page.
 5. Change data location as located in mypath.py
 
 ## Obtaining model checkpoint and dataset
 
 - The original DeepLabV3+ checkpoint can be downloaded here:
   - https://drive.google.com/file/d/1G9mWafUAj09P4KvGSRVzIsV_U5OqFLdt/view
-- Optimized DeepLabV3+ checkpoint can be downloaded from  [Releases](/../../releases).
+- Optimized DeepLabV3+ checkpoint can be downloaded from the [Releases](/../../releases) page.
 - Pascal Dataset can be downloaded here:
   - http://host.robots.ox.ac.uk/pascal/VOC/voc2012/
 
