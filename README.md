@@ -243,7 +243,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>DeepLabV3+</td>
     <td><a href="https://github.com/jfzhang95/pytorch-deeplab-xception">GitHub Repo</a></td>
     <td><a href="https://drive.google.com/file/d/1G9mWafUAj09P4KvGSRVzIsV_U5OqFLdt/view">Pretrained Model</a></td>
-    <td><a href="zoo_torch/examples/eval_deeplabv3.py">See Example</a></td>
+    <td><a href="/../../releases/download/DeepLabV3-Torch/dlv3+_qat_renamed.tar.gz">Quantized Model</a></td>
     <td>(PascalVOC) mIOU <br>FP32: 72.32%<br> INT8: 72.08%</a></td>
     <td><a href="zoo_torch/Docs/DeepLabV3.md">DeepLabV3.md</a></td>
   </tr>
