@@ -12,6 +12,7 @@ sudo -H pip install geffnet
 
 - The original EfficientNet-lite0 checkpoint can be downloaded from here:
   - https://github.com/rwightman/gen-efficientnet-pytorch
+- Optimized EfficientNet-lite0 checkpoint can be downloaded from the [Releases](/../../releases) page.
 - ImageNet can be downloaded from here:
   - http://www.image-net.org/
 
@@ -19,13 +20,12 @@ sudo -H pip install geffnet
 - To run evaluation with QuantSim in AIMET, use the following
 ```bash
 python eval_efficientnetlite0.py \
+		--checkpoint <path to optimiezd checkpoint> \
 		--images-dir <path to imagenet root directory> \
 		--quant-scheme <quantization schme to run>  \
 		--quant-tricks <preprocessing steps prior to Quantization> \
 		--default-output-bw <bitwidth for activation quantization> \
-		--default-param-bw <bitwidth for weight quantization> \
-		--num-iterations <Number of iterations used for adaround optimization If adaround is used> \
-		--num-batches <Number of batches used for adaround optimization If adaround is used> \
+		--default-param-bw <bitwidth for weight quantization>
 ```
 
 ## Quantization Configuration
@@ -34,5 +34,5 @@ python eval_efficientnetlite0.py \
 - Activation quantization: 8 bits, asymmetric quantization
 - Model inputs are not quantized
 - TF_enhanced was used as quantization scheme
-- Batch norm folding and Adaround has been applied on efficientnet-lite in the eval script
+- Batch norm folding and Adaround has been applied on optimized efficientnet-lite checkpoint
 - [Conv - Relu6] layers has been fused as one operation via manual configurations

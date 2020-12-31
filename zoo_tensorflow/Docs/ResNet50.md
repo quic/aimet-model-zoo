@@ -23,7 +23,7 @@ Please [install and setup AIMET](../../README.md#install-aimet) before proceedin
 
 ## Obtaining model checkpoint and dataset
 
-- The optimized ResNet 50 checkpoint can be downloaded from [Releases](/../../releases).
+- The original ResNet 50 checkpoint can be downloaded from [TensorFlow Models repo](http://download.tensorflow.org/models/resnet_v1_50_2016_08_28.tar.gz).
 
 - ImageNet can be downloaded here:
   - http://www.image-net.org/
@@ -35,17 +35,17 @@ Please [install and setup AIMET](../../README.md#install-aimet) before proceedin
 - To run evaluation with QuantSim in AIMET, use the following
 
 ```bash
-python resnet_v1_50.py \
+python resnet_v1_50_quanteval.py \
     --model-name=resnet_v1_50 \
     --checkpoint-path=<path to resnet_v1_50 checkpoint> \
     --dataset-dir=<path to imagenet validation TFRecords> \
     --quantsim-config-file=<path to config file with symmetric weights>
 ```
 
-- If you are using a model checkpoint which has Batch Norms already folded (such as the optimized model checkpoint), please specify the `--ckpt-bn-folded` flag:
+- If you are using a model checkpoint which has Batch Norms already folded, please specify the `--ckpt-bn-folded` flag:
 
 ```bash
-python resnet_v1_50.py \
+python resnet_v1_50_quanteval.py \
     --model-name=resnet_v1_50 \
     --checkpoint-path=<path to resnet_v1_50 checkpoint> \
     --dataset-dir=<path to imagenet validation TFRecords> \

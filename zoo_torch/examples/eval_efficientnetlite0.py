@@ -24,7 +24,6 @@ from aimet_torch import cross_layer_equalization
 from aimet_torch import batch_norm_fold
 from aimet_common.defs import QuantScheme
 from aimet_torch.pro.quantsim import QuantizationSimModel
-from aimet_torch.adaround.adaround_weight import Adaround, AdaroundParameters
 from aimet_torch.onnx_utils import onnx_pytorch_conn_graph_type_pairs
 from aimet_common.utils import AimetLogger
 import logging
@@ -107,36 +106,15 @@ def run_pytorch_cross_layer_equalization(config, model):
     cross_layer_equalization.equalize_model(model.cpu(), config.input_shape)
     return model
 
-def run_pytorch_adaround(config, model, data_loaders):
-    if hasattr(config, 'quant_scheme'):
-        if config.quant_scheme == 'range_learning_tf':
-            quant_scheme = QuantScheme.post_training_tf
-        elif config.quant_scheme == 'range_learning_tfe':
-            quant_scheme = QuantScheme.post_training_tf_enhanced
-        elif config.quant_scheme == 'tf':
-            quant_scheme = QuantScheme.post_training_tf
-        elif config.quant_scheme == 'tf_enhanced':
-            quant_scheme = QuantScheme.post_training_tf_enhanced
-        else:
-            raise ValueError("Got unrecognized quant_scheme: " + config.quant_scheme)
-
-    params = AdaroundParameters(data_loader = data_loaders, num_batches = config.num_batches, default_num_iterations = config.num_iterations,
-                                    default_reg_param = 0.01, default_beta_range = (20, 2))
-    ada_model = Adaround.apply_adaround(model.cuda(), params, default_param_bw= config.default_param_bw,
-                                  default_quant_scheme = quant_scheme,
-                                  default_config_file  = config.config_file
-                                  )
-    return ada_model
-
-
 def arguments():
     parser = argparse.ArgumentParser(description='Evaluation script for PyTorch EfficientNet-lite0 networks.')
 
+    parser.add_argument('--checkpoint',                 help='Path to optimized checkpoint', default=None, type=str)
     parser.add_argument('--images-dir',         		help='Imagenet eval image', default='./ILSVRC2012_PyTorch/', type=str)
     parser.add_argument('--input-shape',				help='Model to an input image shape, (ex : [batch, channel, width, height]', default=(1,3,224,224))
     parser.add_argument('--seed',						help='Seed number for reproducibility', default=0)
 
-    parser.add_argument('--quant-tricks', 				help='Preprocessing prior to Quantization', choices=['BNfold', 'CLE', 'adaround'], nargs = "+")
+    parser.add_argument('--quant-tricks', 				help='Preprocessing prior to Quantization', default=[], choices=['BNfold', 'CLE'], nargs = "+")
     parser.add_argument('--quant-scheme',               help='Quant scheme to use for quantization (tf, tf_enhanced, range_learning_tf, range_learning_tf_enhanced).', default='tf', choices = ['tf', 'tf_enhanced', 'range_learning_tf', 'range_learning_tf_enhanced'])
     parser.add_argument('--round-mode',                 help='Round mode for quantization.', default='nearest')
     parser.add_argument('--default-output-bw',          help='Default output bitwidth for quantization.', default=8)
@@ -147,9 +125,6 @@ def arguments():
     parser.add_argument('--batch-size',					help='Data batch size for a model', default=64)
     parser.add_argument('--num-workers',                help='Number of workers to run data loader in parallel', default=16)
 
-    parser.add_argument('--num-iterations',				help='Number of iterations used for adaround optimization', default=10000, type = int)
-    parser.add_argument('--num-batches',				help='Number of batches used for adaround optimization', default=16, type = int)
-
     args = parser.parse_args()
     return args
 
@@ -157,8 +132,10 @@ def arguments():
 def main():
     args = arguments()
     seed(args)
-
-    model = load_model()
+    if args.checkpoint:
+        model = torch.load(args.checkpoint)
+    else:
+        model = load_model()
     model.eval()
 
     image_size = args.input_shape[-1]
@@ -183,9 +160,6 @@ def main():
     if 'CLE' in args.quant_tricks:
         print("CLE")
         model = run_pytorch_cross_layer_equalization(args, model)
-    print(model)
-    if 'adaround' in args.quant_tricks:
-        model = run_pytorch_adaround(args, model, val_dataloader)
 
     if hasattr(args, 'quant_scheme'):
         if args.quant_scheme == 'range_learning_tf':
