@@ -1,9 +1,7 @@
 ![Qualcomm Innovation Center, Inc.](images/logo-quic-on@h68.png)
 
 # Model Zoo for AI Model Efficiency Toolkit
-
-We provide a collection of popular neural network models and compare their floating point (FP32) and quantized (INT8 weights/activations or INT8 weights/INT16 activations) performance. Results demonstrate that quantized models can provide good accuracy, comparable to floating point (FP32) models. Together with results, we also provide recipes for users to quantize floating-point models using the [AI Model Efficiency ToolKit (AIMET)](https://github.com/quic/aimet).  
-
+We provide a collection of popular neural network models and compare their floating point and quantized performance. Results demonstrate that quantized models can provide good accuracy, comparable to floating point models. Together with results, we also provide recipes for users to quantize floating-point models using the [AI Model Efficiency ToolKit (AIMET)](https://github.com/quic/aimet).
 
 ## Table of Contents
 - [Introduction](#introduction)
