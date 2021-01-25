@@ -67,6 +67,10 @@ def evaluate_generator(generator,
         img_path = data['GT_path'][0] if need_GT else data['LQ_path'][0]
         img_name = os.path.splitext(os.path.basename(img_path))[0]
 
+        if var_L.shape[1] == 1:
+            var_L = var_L.repeat(1, 3, 1, 1)
+            real_H = real_H.repeat(1, 3, 1, 1)
+
         generator.eval()
         with torch.no_grad():
             fake_H = generator(var_L)
