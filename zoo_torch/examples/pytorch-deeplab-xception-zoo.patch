@@ -1,18 +1,22 @@
 diff --git a/modeling/aspp.py b/modeling/aspp.py
-index 5a97879..770e60f 100644
+index 5a97879..e37ef0f 100644
 --- a/modeling/aspp.py
 +++ b/modeling/aspp.py
-@@ -68,7 +68,7 @@ class ASPP(nn.Module):
+@@ -68,7 +68,11 @@ class ASPP(nn.Module):
          x3 = self.aspp3(x)
          x4 = self.aspp4(x)
          x5 = self.global_avg_pool(x)
 -        x5 = F.interpolate(x5, size=x4.size()[2:], mode='bilinear', align_corners=True)
-+        x5 = F.interpolate(x5, size=x4.size()[2:], mode='nearest', align_corners=None)
++        # x5 = F.interpolate(x5, size=x4.size()[2:], mode='nearest', align_corners=None)
++        # x5 = F.interpolate(x5, size=x4.size()[2:], mode='bilinear', align_corners=True)
++        # x5 = F.upsample(x5, size=(33, 33), mode='nearest', align_corners=None)
++        x5 = F.upsample(x5, size=(33, 33), mode='bilinear', align_corners=None)
++
          x = torch.cat((x1, x2, x3, x4, x5), dim=1)
  
          x = self.conv1(x)
 diff --git a/modeling/backbone/mobilenet.py b/modeling/backbone/mobilenet.py
-index 6fff541..9edce54 100644
+index 6fff541..4821d39 100644
 --- a/modeling/backbone/mobilenet.py
 +++ b/modeling/backbone/mobilenet.py
 @@ -5,22 +5,21 @@ import math
@@ -124,11 +128,13 @@ index 6fff541..9edce54 100644
 +        # self.features = nn.Sequential(*self.features)
          self._initialize_weights()
  
+-        if pretrained:
+-            self._load_pretrained_model()
 +        
 +        # self.low_level_features = self.features[0:4]
 +        # self.high_level_features = self.features[4:]
-         if pretrained:
-             self._load_pretrained_model()
++        # if pretrained:
++            # self._load_pretrained_model()
 +        self.low_level_features = nn.Sequential(*features[0:4])
  
 -        self.low_level_features = self.features[0:4]
@@ -149,28 +155,36 @@ index 6fff541..9edce54 100644
      input = torch.rand(1, 3, 512, 512)
      model = MobileNetV2(output_stride=16, BatchNorm=nn.BatchNorm2d)
 diff --git a/modeling/decoder.py b/modeling/decoder.py
-index 5ed41d0..ec4485e 100644
+index 5ed41d0..32eb7a5 100644
 --- a/modeling/decoder.py
 +++ b/modeling/decoder.py
-@@ -36,7 +36,7 @@ class Decoder(nn.Module):
+@@ -36,7 +36,10 @@ class Decoder(nn.Module):
          low_level_feat = self.bn1(low_level_feat)
          low_level_feat = self.relu(low_level_feat)
  
 -        x = F.interpolate(x, size=low_level_feat.size()[2:], mode='bilinear', align_corners=True)
-+        x = F.interpolate(x, size=low_level_feat.size()[2:], mode='nearest', align_corners=None)
++        # x = F.interpolate(x, size=low_level_feat.size()[2:], mode='nearest', align_corners=None)
++        # x = F.interpolate(x, size=low_level_feat.size()[2:], mode='bilinear', align_corners=True)
++        # x = F.upsample(x, size=(129, 129), mode='nearest', align_corners=None)
++        x = F.upsample(x, size=(129, 129), mode='bilinear', align_corners=None)
          x = torch.cat((x, low_level_feat), dim=1)
          x = self.last_conv(x)
  
 diff --git a/modeling/deeplab.py b/modeling/deeplab.py
-index 91907f8..8308934 100644
+index 91907f8..cbf05a2 100644
 --- a/modeling/deeplab.py
 +++ b/modeling/deeplab.py
-@@ -28,7 +28,7 @@ class DeepLab(nn.Module):
+@@ -28,8 +28,11 @@ class DeepLab(nn.Module):
          x, low_level_feat = self.backbone(input)
          x = self.aspp(x)
          x = self.decoder(x, low_level_feat)
 -        x = F.interpolate(x, size=input.size()[2:], mode='bilinear', align_corners=True)
-+        x = F.interpolate(x, size=input.size()[2:], mode='nearest', align_corners=None)
- 
+-
++        # x = F.interpolate(x, size=input.size()[2:], mode='nearest', align_corners=None)
++        # x = F.interpolate(x, size=input.size()[2:], mode='bilinear', align_corners=True)
++        
++        # x = F.upsample(x, size=(513, 513), mode='nearest', align_corners=None)
++        x = F.upsample(x, size=(513, 513), mode='bilinear', align_corners=None)
          return x
  
+     def freeze_bn(self):
