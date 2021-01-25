@@ -233,7 +233,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>EfficientNet-lite0</td>
     <td><a href="https://github.com/rwightman/gen-efficientnet-pytorch">GitHub Repo</a></td>
     <td><a href="https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-weights/efficientnet_lite0_ra-37913777.pth">Pretrained Model</a></td>
-    <td><a href="zoo_torch/examples/eval_efficientnetlite0.py">See Example</a></td>
+    <td><a href="/../../releases/download/pt-effnet-checkpoint/adaround_efficient_lite.pth">Quantized Model</a></td>
     <td>(ImageNet) Top-1 Accuracy <br> FP32: 75.42%<br> INT8: 74.44%</td>
     <td><a href="zoo_torch/Docs/EfficientNet-lite0.md">EfficientNet-lite0.md</a></td>
   </tr>

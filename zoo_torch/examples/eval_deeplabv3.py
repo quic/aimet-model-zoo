@@ -47,28 +47,26 @@ def model_eval(args, data_loader):
     return func_wrapper
     
 
-
-
 def arguments():
     parser = argparse.ArgumentParser(description='Evaluation script for PyTorch ImageNet networks.')
 
     parser.add_argument('--checkpoint-path',            help='Path to optimized checkpoint directory to load from.', default = None, type=str)
-    parser.add_argument('--base-size',				    help='Base size for Random Crop', default=513)
-    parser.add_argument('--crop-size',                  help='Crop size for Random Crop', default=513)
-    parser.add_argument('--num-classes',                help='Number of classes in a dataset', default=21)
-    parser.add_argument('--dataset',                    help='dataset used for evaluation', default='pascal')
+    parser.add_argument('--base-size',				    help='Base size for Random Crop', type = int, default=513)
+    parser.add_argument('--crop-size',                  help='Crop size for Random Crop', type = int, default=513)
+    parser.add_argument('--num-classes',                help='Number of classes in a dataset', type = int, default=21)
+    parser.add_argument('--dataset',                    help='dataset used for evaluation', default='pascal', type = str)
 
     parser.add_argument('--seed',						help='Seed number for reproducibility', default=0)
     parser.add_argument('--use-sbd',                    help='Use SBD data for data augmentation during training', default=False)
 
     parser.add_argument('--quant-scheme',               help='Quant scheme to use for quantization (tf, tf_enhanced, range_learning_tf, range_learning_tf_enhanced).', default='tf', choices = ['tf', 'tf_enhanced', 'range_learning_tf', 'range_learning_tf_enhanced'])
     parser.add_argument('--round-mode',                 help='Round mode for quantization.', default='nearest')
-    parser.add_argument('--default-output-bw',          help='Default output bitwidth for quantization.', default=8)
-    parser.add_argument('--default-param-bw',           help='Default parameter bitwidth for quantization.', default=8)
+    parser.add_argument('--default-output-bw',          help='Default output bitwidth for quantization.', type = int, default=8)
+    parser.add_argument('--default-param-bw',           help='Default parameter bitwidth for quantization.', type = int, default=8)
     parser.add_argument('--config-file',       			help='Quantsim configuration file.', default=None, type=str)
     parser.add_argument('--cuda',						help='Enable cuda for a model', default=True)
 
-    parser.add_argument('--batch-size',					help='Data batch size for a model', default=16)
+    parser.add_argument('--batch-size',					help='Data batch size for a model', type = int, default=16)
     args = parser.parse_args()
     return args
 
@@ -87,13 +85,13 @@ def main():
     model = DeepLab(backbone='mobilenet', output_stride=16, num_classes=21,
                  sync_bn=False)
     model.eval()
-
+    
     from aimet_torch import batch_norm_fold
     from aimet_torch import utils
     args.input_shape = (1,3,513,513)
     batch_norm_fold.fold_all_batch_norms(model, args.input_shape)
     utils.replace_modules_of_type1_with_type2(model, torch.nn.ReLU6, torch.nn.ReLU)
-    # from IPython import embed; embed()
+
     if args.checkpoint_path:
         model.load_state_dict(torch.load(args.checkpoint_path))
     else:
@@ -105,7 +103,7 @@ def main():
     eval_func = model_eval(args, val_loader)
 
     from aimet_common.defs import QuantScheme
-    from aimet_torch.pro.quantsim import QuantizationSimModel
+    from aimet_torch.quantsim import QuantizationSimModel
     if hasattr(args, 'quant_scheme'):
         if args.quant_scheme == 'range_learning_tf':
             quant_scheme = QuantScheme.training_range_learning_with_tf_init
