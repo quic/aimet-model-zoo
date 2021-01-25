@@ -9,6 +9,10 @@ Please [install and setup AIMET](../../README.md#install-aimet) before proceedin
   `git clone https://github.com/andreas128/mmsr.git`  
   `git checkout a73b318f0f07feb6505ef5cb1abf0db33e33807a`
 
+- Comment out the following line 10 in mmsr/codes/models/archs/EDVR_arch.py
+
+  ```raise ImportError('Failed to import DCNv2 module.')```
+
 - Append the repo location to your `PYTHONPATH` with the following:  
   `export PYTHONPATH=<path to mmsr repo>:<path to mmsr repo>/codes:$PYTHONPATH`
   
@@ -64,6 +68,7 @@ Run the script as follows:
   ```bash
   python ./zoo_torch/examples/srgan_quanteval.py [--options] -opt <path to .yml file>
   ```
+
 
 ## Quantizer Op Assumptions
 In the evaluation script included, we have used the default config file, which configures the quantizer ops with the following assumptions:
