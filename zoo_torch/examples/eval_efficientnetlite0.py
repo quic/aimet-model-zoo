@@ -23,7 +23,7 @@ from aimet_torch import utils
 from aimet_torch import cross_layer_equalization
 from aimet_torch import batch_norm_fold
 from aimet_common.defs import QuantScheme
-from aimet_torch.pro.quantsim import QuantizationSimModel
+from aimet_torch.quantsim import QuantizationSimModel
 from aimet_torch.onnx_utils import onnx_pytorch_conn_graph_type_pairs
 from aimet_common.utils import AimetLogger
 import logging
@@ -111,19 +111,18 @@ def arguments():
 
     parser.add_argument('--checkpoint',                 help='Path to optimized checkpoint', default=None, type=str)
     parser.add_argument('--images-dir',         		help='Imagenet eval image', default='./ILSVRC2012_PyTorch/', type=str)
-    parser.add_argument('--input-shape',				help='Model to an input image shape, (ex : [batch, channel, width, height]', default=(1,3,224,224))
-    parser.add_argument('--seed',						help='Seed number for reproducibility', default=0)
+    parser.add_argument('--seed',						help='Seed number for reproducibility', type = int, default=0)
 
     parser.add_argument('--quant-tricks', 				help='Preprocessing prior to Quantization', default=[], choices=['BNfold', 'CLE'], nargs = "+")
     parser.add_argument('--quant-scheme',               help='Quant scheme to use for quantization (tf, tf_enhanced, range_learning_tf, range_learning_tf_enhanced).', default='tf', choices = ['tf', 'tf_enhanced', 'range_learning_tf', 'range_learning_tf_enhanced'])
     parser.add_argument('--round-mode',                 help='Round mode for quantization.', default='nearest')
-    parser.add_argument('--default-output-bw',          help='Default output bitwidth for quantization.', default=8)
-    parser.add_argument('--default-param-bw',           help='Default parameter bitwidth for quantization.', default=8)
+    parser.add_argument('--default-output-bw',          help='Default output bitwidth for quantization.', type = int, default=8)
+    parser.add_argument('--default-param-bw',           help='Default parameter bitwidth for quantization.', type = int, default=8)
     parser.add_argument('--config-file',       			help='Quantsim configuration file.', default=None, type=str)
     parser.add_argument('--cuda',						help='Enable cuda for a model', default=True)
 
-    parser.add_argument('--batch-size',					help='Data batch size for a model', default=64)
-    parser.add_argument('--num-workers',                help='Number of workers to run data loader in parallel', default=16)
+    parser.add_argument('--batch-size',					help='Data batch size for a model', type = int, default=64)
+    parser.add_argument('--num-workers',                help='Number of workers to run data loader in parallel', type = int, default=16)
 
     args = parser.parse_args()
     return args
@@ -137,8 +136,9 @@ def main():
     else:
         model = load_model()
     model.eval()
-
-    image_size = args.input_shape[-1]
+    input_shape = (1,3,224,224)
+    args.input_shape = input_shape
+    image_size = input_shape[-1]
 
     data_loader_kwargs = { 'worker_init_fn':work_init, 'num_workers' : args.num_workers}
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -179,7 +179,7 @@ def main():
             'config_file': args.config_file
         }
     print(kwargs)
-    sim = QuantizationSimModel(model.cpu(), input_shapes=args.input_shape, **kwargs)
+    sim = QuantizationSimModel(model.cpu(), input_shapes=input_shape, **kwargs)
 
     # Manually Config Super group, AIMET currently does not support [Conv-ReLU6] in a supergroup
     from aimet_torch.qc_quantize_op import QcPostTrainingWrapper

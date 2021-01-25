@@ -16,43 +16,7 @@ git apply ../aimet-model-zoo/zoo_torch/examples/torch_ssd_eval.patch
 mv vision ../aimet-model-zoo/zoo_torch/examples/
 mv eval_ssd.py ../aimet-model-zoo/zoo_torch/examples/
 ```
-3. Change __init__ function from line #27 in vision/ssd/ssd.py as follows:
-```
-self.config = None #############Change 1
 
-self.image_size = 300
-self.image_mean = np.array([127, 127, 127])  # RGB layout
-self.image_std = 128.0
-self.iou_threshold = 0.45
-self.center_variance = 0.1
-self.size_variance = 0.2
-
-self.specs = [box_utils.SSDSpec(19, 16, box_utils.SSDBoxSizes(60, 105), [2, 3]),
-              box_utils.SSDSpec(10, 32, box_utils.SSDBoxSizes(105, 150), [2, 3]),
-              box_utils.SSDSpec(5, 64, box_utils.SSDBoxSizes(150, 195), [2, 3]),
-              box_utils.SSDSpec(3, 100, box_utils.SSDBoxSizes(195, 240), [2, 3]),
-              box_utils.SSDSpec(2, 150, box_utils.SSDBoxSizes(240, 285), [2, 3]),
-              box_utils.SSDSpec(1, 300, box_utils.SSDBoxSizes(285, 330), [2, 3])]
-
-self.gen_priors = box_utils.generate_ssd_priors(self.specs, self.image_size)
-
-# register layers in source_layer_indexes by adding them to a module list
-self.source_layer_add_ons = nn.ModuleList([t[1] for t in source_layer_indexes
-                                           if isinstance(t, tuple) and not isinstance(t, GraphPath)])
-
-if device:
-    self.device = device
-else:
-    self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-if is_test:
-    self.priors = self.gen_priors.to(self.device)
-```
-4. Change line #93 in vision/ssd/ssd.py as follows:
-```
-boxes = box_utils.convert_locations_to_boxes(
-                locations.cpu(), self.priors.cpu(), self.center_variance, self.size_variance
-)
-```
 
 ## Obtaining model checkpoint and dataset
 - The original MobileNetV2-SSD-lite checkpoint can be downloaded here:

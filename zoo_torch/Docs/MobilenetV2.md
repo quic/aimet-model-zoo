@@ -26,10 +26,6 @@ self.last_channel = int(last_channel * width_mult) if width_mult > 1.0 else last
 ```
 output_channel = int(c * width_mult)
 ```
-  - Append line #100 as follows in MobileNetV2.py
-```
-self.features.append(nn.AvgPool2d(input_size // 32)
-```
   - Change line #104 as follows in MobileNetV2.py
 ```
 self.classifier = nn.Sequential(
@@ -40,6 +36,10 @@ self.classifier = nn.Sequential(
   - Change line #110 as follows in MobileNetV2.py
 ```
 x = x.squeeze()
+```
+  - Append line #100 as follows in MobileNetV2.py
+```
+self.features.append(nn.AvgPool2d(input_size // 32))
 ```
 ## Obtaining model checkpoint and dataset
 
@@ -56,7 +56,6 @@ python eval_mobilenetv2.py \
 	--model-path <path to optimized mobilenetv2 checkpoint> \
 	--images-dir <path to imagenet root directory> \
 	--quant-scheme <quantization schme to run> \
-	--input-shape <input shape to model> \
 	--default-output-bw <bitwidth for activation quantization> \
 	--default-param-bw <bitwidth for weight quantization>     		
 ```

@@ -59,7 +59,7 @@ def model_eval(args, predictor, dataset):
 
 def get_simulations(model, args):
 	from aimet_common.defs import QuantScheme
-	from aimet_torch.pro.quantsim import QuantizationSimModel
+	from aimet_torch.quantsim import QuantizationSimModel
 	if hasattr(args, 'quant_scheme'):
 		if args.quant_scheme == 'range_learning_tf':
 		    quant_scheme = QuantScheme.training_range_learning_with_tf_init
