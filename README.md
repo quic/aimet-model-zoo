@@ -257,7 +257,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>Pose Estimation</td>
     <td><a href="https://github.com/CMU-Perceptual-Computing-Lab/openpose">Based on Ref.</a></td>
     <td><a href="https://github.com/CMU-Perceptual-Computing-Lab/openpose">Based on Ref.</a></td>
-    <td><a href="/../../releases/download/pose_estimation_pytorch/pose_estimation_pytorch.tar.gz">Quantized Model</a></td>
+    <td><a href="/../../releases/download/pose_estimation_pytorch/pose_estimation_pytorch_weights.tgz">Quantized Model</a></td>
     <td>(COCO) mAP<br>FP32: 0.364<br>INT8: 0.359<br> mAR <br> FP32: 0.436<br> INT8: 0.432</td>
     <td><a href="zoo_torch/Docs/PoseEstimation.md">PoseEstimation.md</a></td>
   </tr>

@@ -26,11 +26,208 @@ from tqdm import tqdm
 import cv2
 from scipy.ndimage.filters import gaussian_filter
 import torch
+import torch.nn as nn
 import numpy as np
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 
 from aimet_torch import quantsim
+
+
+def get_pre_stage_net():
+    network_dict = {'block_pre_stage': [{'sequential_CPM':
+                                             [[512, 256, (3, 1), 1, (1, 0), False],
+                                              [256, 256, (1, 3), 1, (0, 1)]]},
+                                        {'conv4_4_CPM': [256, 128, 3, 1, 1]}]}
+    return network_dict
+
+
+def get_shared_network_dict():
+    network_dict = get_pre_stage_net()
+    stage_channel = [0, 128, 185, 185, 185, 185, 185]
+    shared_channel = [0, 112, 128]
+    sequential4_channel = [0, 32, 48]
+    for i in range(1, 3):
+        network_dict['block%d_shared' % i] = \
+            [{'sequential1_stage%d_L1' % i:
+                  [[stage_channel[i], shared_channel[i], (7, 1), 1, (3, 0), False],
+                   [shared_channel[i], 128, (1, 7), 1, (0, 3)]]},
+             {'sequential2_stage%d_L1' % i:
+                  [[128, 112, (7, 1), 1, (3, 0), False],
+                   [112, 128, (1, 7), 1, (0, 3)]]}]
+
+        network_dict['block%d_1' % i] = [{'sequential3_stage%d_L1' % i:
+                                              [[128, 32, (3, 1), 1, (1, 0), False],
+                                               [32, 128, (1, 3), 1, (0, 1)]]},
+                                         {'sequential4_stage%d_L1' % i:
+                                              [[128, 32, (3, 1), 1, (1, 0), False],
+                                               [32, 128, (1, 3), 1, (0, 1)]]},
+                                         {'sequential5_stage%d_L1' % i:
+                                              [[128, 32, (3, 1), 1, (1, 0), False],
+                                               [32, 128, (1, 3), 1, (0, 1)]]},
+                                         {'Mconv6_stage%d_L1' % i: [128, 128, 1, 1, 0]},
+                                         {'Mconv7_stage%d_L1' % i: [128, 38, 1, 1, 0]}]
+        network_dict['block%d_2' % i] = [{'sequential3_stage%d_L1' % i:
+                                              [[128, 32, (3, 1), 1, (1, 0), False],
+                                               [32, 128, (1, 3), 1, (0, 1)]]},
+                                         {'sequential4_stage%d_L1' % i:
+                                              [[128, sequential4_channel[i], (3, 1), 1, (1, 0), False],
+                                               [sequential4_channel[i], 128, (1, 3), 1, (0, 1)]]},
+                                         {'sequential5_stage%d_L1' % i:
+                                              [[128, 48, (3, 1), 1, (1, 0), False],
+                                               [48, 128, (1, 3), 1, (0, 1)]]},
+                                         {'Mconv6_stage%d_L2' % i: [128, 128, 1, 1, 0]},
+                                         {'Mconv7_stage%d_L2' % i: [128, 19, 1, 1, 0]}]
+    return network_dict
+
+
+def get_model(upsample=False):
+    block0 = [{'conv0': [3, 32, 3, 1, 1]},
+              {'sequential1':
+                   [[32, 16, (3, 1), 1, (1, 0), False],
+                    [16, 32, (1, 3), 1, (0, 1)]]}, {'pool1_stage1': [2, 2, 0]},
+              {'sequential2':
+                   [[32, 32, (3, 1), 1, (1, 0), False],
+                    [32, 64, (1, 3), 1, (0, 1)]]},
+              {'sequential3':
+                   [[64, 32, (3, 1), 1, (1, 0), False],
+                    [32, 96, (1, 3), 1, (0, 1)]]}, {'pool2_stage1': [2, 2, 0]},
+              {'sequential4':
+                   [[96, 80, (3, 1), 1, (1, 0), False],
+                    [80, 256, (1, 3), 1, (0, 1)]]},
+              {'sequential5':
+                   [[256, 80, (3, 1), 1, (1, 0), False],
+                    [80, 256, (1, 3), 1, (0, 1)]]},
+              {'sequential6':
+                   [[256, 48, (3, 1), 1, (1, 0), False],
+                    [48, 128, (1, 3), 1, (0, 1)]]},
+              {'sequential7':
+                   [[128, 48, (3, 1), 1, (1, 0), False],
+                    [48, 256, (1, 3), 1, (0, 1)]]}, {'pool3_stage1': [2, 2, 0]},
+              {'sequential8':
+                   [[256, 96, (3, 1), 1, (1, 0), False],
+                    [96, 512, (1, 3), 1, (0, 1)]]},
+              {'sequential9':
+                   [[512, 192, (3, 1), 1, (1, 0), False],
+                    [192, 512, (1, 3), 1, (0, 1)]]}]
+
+
+    print("defining network with shared weights")
+    network_dict = get_shared_network_dict()
+
+    def define_base_layers(block, layer_size):
+        layers = []
+        for i in range(layer_size):
+            one_ = block[i]
+            for k, v in zip(one_.keys(), one_.values()):
+                if 'pool' in k:
+                    layers += [nn.MaxPool2d(kernel_size=v[0], stride=v[1], padding=v[2])]
+                elif 'sequential' in k:
+                    conv2d_1 = nn.Conv2d(in_channels=v[0][0], out_channels=v[0][1], kernel_size=v[0][2],
+                                         stride=v[0][3], padding=v[0][4], bias=v[0][5])
+                    conv2d_2 = nn.Conv2d(in_channels=v[1][0], out_channels=v[1][1], kernel_size=v[1][2],
+                                         stride=v[1][3], padding=v[1][4])
+                    sequential = nn.Sequential(conv2d_1, conv2d_2)
+                    layers += [sequential, nn.ReLU(inplace=True)]
+                else:
+                    conv2d = nn.Conv2d(in_channels=v[0], out_channels=v[1], kernel_size=v[2],
+                                        stride=v[3], padding=v[4])
+                    layers += [conv2d, nn.ReLU(inplace=True)]
+        return layers
+
+    def define_stage_layers(cfg_dict):
+        layers = define_base_layers(cfg_dict, len(cfg_dict) - 1)
+        one_ = cfg_dict[-1].keys()
+        k = list(one_)[0]
+        v = cfg_dict[-1][k]
+        conv2d = nn.Conv2d(in_channels=v[0], out_channels=v[1], kernel_size=v[2], stride=v[3],
+                           padding=v[4])
+        layers += [conv2d]
+        return nn.Sequential(*layers)
+
+    # create all the layers of the model
+    base_layers = define_base_layers(block0, len(block0))
+    pre_stage_layers = define_base_layers(network_dict['block_pre_stage'],
+                                          len(network_dict['block_pre_stage']))
+    models = {'block0': nn.Sequential(*base_layers),
+              'block_pre_stage': nn.Sequential(*pre_stage_layers)}
+
+    shared_layers_s1 = define_base_layers(network_dict['block1_shared'],
+                                          len(network_dict['block1_shared']))
+    shared_layers_s2 = define_base_layers(network_dict['block2_shared'],
+                                          len(network_dict['block2_shared']))
+    models['block1_shared'] = nn.Sequential(*shared_layers_s1)
+    models['block2_shared'] = nn.Sequential(*shared_layers_s2)
+
+    for k, v in zip(network_dict.keys(), network_dict.values()):
+        if 'shared' not in k and 'pre_stage' not in k:
+            models[k] = define_stage_layers(v)
+
+    model = PoseModel(models, upsample=upsample)
+    return model
+
+
+class PoseModel(nn.Module):
+    """
+
+    CMU pose estimation model.
+
+    Based on: "Realtime Multi-Person 2D Pose Estimation using Part Affinity Fields":
+    https://arxiv.org/pdf/1611.08050.pdf
+
+    Made lighter and more efficient by Amir (ahabibian@qti.qualcomm.com) in the
+    Morpheus team.
+
+    Some layers of the original commented out to reduce model complexity
+
+    """
+    def __init__(self, model_dict, upsample=False):
+        super(PoseModel, self).__init__()
+        self.upsample = upsample
+        self.basemodel = model_dict['block0']
+        self.pre_stage = model_dict['block_pre_stage']
+
+        self.stage1_shared = model_dict['block1_shared']
+        self.stage1_1 = model_dict['block1_1']
+        self.stage2_1 = model_dict['block2_1']
+
+        self.stage2_shared = model_dict['block2_shared']
+        self.stage1_2 = model_dict['block1_2']
+        self.stage2_2 = model_dict['block2_2']
+
+    def forward(self, x):
+        out1_vgg = self.basemodel(x)
+        out1 = self.pre_stage(out1_vgg)
+
+        out1_shared = self.stage1_shared(out1)
+        out1_1 = self.stage1_1(out1_shared)
+        out1_2 = self.stage1_2(out1_shared)
+
+        out2 = torch.cat([out1_1, out1_2, out1], 1)
+
+        out2_shared = self.stage2_shared(out2)
+        out2_1 = self.stage2_1(out2_shared)
+        out2_2 = self.stage2_2(out2_shared)
+
+        if self.upsample:
+            # parameters to check for up-sampling: align_corners = True, mode='nearest'
+            upsampler = nn.Upsample(scale_factor=2, mode='bilinear')
+            out2_1_up = upsampler(out2_1)
+            out2_2_up = upsampler(out2_2)
+            return out1_1, out1_2, out2_1, out2_2, out2_1_up, out2_2_up
+        else:
+            return out1_1, out1_2, out2_1, out2_2
+
+
+class ModelBuilder(object):
+    def __init__(self, upsample=False):
+        self.model = None
+        self.upsample = upsample
+
+    def create_model(self):
+        model = get_model(self.upsample)
+        self.model = model
+        return self.model
 
 
 def non_maximum_suppression(map, thresh):
@@ -450,7 +647,7 @@ def parse_args():
 
     parser.add_argument('model_dir',
                         help='The location where the the .pth file is saved,'
-                             'the whole model should be saved by torch.save()',
+                             'the .pth contains model weights',
                         type=str)
     parser.add_argument('coco_path',
                         help='The location coco images and annotations are saved. '
@@ -476,7 +673,15 @@ def parse_args():
 
 def pose_estimation_quanteval(args):
     # load the model checkpoint from meta
-    model = torch.load(args.model_dir)
+    model_builder = ModelBuilder()
+    model_builder.create_model()
+    model = model_builder.model
+
+    state_dict = torch.load(args.model_dir)
+    state = model.state_dict()
+    state.update(state_dict)
+
+    model.load_state_dict(state)
 
     # create quantsim object which inserts quant ops between layers
     sim = quantsim.QuantizationSimModel(model,
@@ -484,7 +689,7 @@ def pose_estimation_quanteval(args):
                                         quant_scheme=args.quant_scheme)
 
     evaluate = partial(evaluate_model,
-                       num_imgs=100
+                       num_imgs=500
                        )
     sim.compute_encodings(evaluate, args.coco_path)
 
