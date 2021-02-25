@@ -21,7 +21,7 @@ RUN pip install scipy==1.1.0
 
 ## Obtaining model weights and dataset
 - The pose estimation model can be downloaded here:
-  - <a href="/../../releases/download/pose_estimation_pytorch/pose_estimation_pytorch.tar.gz">
+  - <a href="/../../releases/download/pose_estimation_pytorch/pose_estimation_pytorch_weights.tgz">
     Pose Estimation pytorch model
     </a>
 - coco dataset can be downloaded here:
@@ -39,3 +39,10 @@ RUN pip install scipy==1.1.0
 - We only support evaluation on COCO 2014 val images with person keypoints.
   
 - The results reported was evaluation on the whole dataset, which contains over 40k images and takes 15+ hours on a single RTX 2080Ti GPU. So in case you want to run a faster evaluation, specifiy <em>num_imgs</em> argument to the second call with a small number to  <em>evaluate_session</em> so that you run evaluation only on a partial dataset.
+
+## Quantizer Op Assumptions
+In the evaluation script included, we have used the default config file, which configures the quantizer ops with the following assumptions:
+- Weight quantization: 8 bits, asymmetric quantization
+- Bias parameters are not quantized
+- Activation quantization: 8 bits, asymmetric quantization
+- Model inputs are not quantized
