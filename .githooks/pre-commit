@@ -1,0 +1,121 @@
+#!/bin/bash
+# =============================================================================
+#  @@-COPYRIGHT-START-@@
+#
+#  Copyright (c) 2022 of Qualcomm Innovation Center, Inc. All rights reserved.
+#
+#  @@-COPYRIGHT-END-@@
+# =============================================================================
+
+# update the git username and email address
+GITREMOTE=$(git config --get remote.origin.url) || exit 1
+if [[ "$GITREMOTE" == *"github.qualcomm.com"* ]]; then
+  if [ "$USER" != "" ]; then
+    git config --local user.email quic_$USER@quicinc.com
+    #TODO Can we set it to the user's first and last name?
+    # git config --local user.name quic-$USER
+  fi
+fi
+
+# Check if Pylint related git hooks are
+# supported in the environment
+which git-pylint-commit-hook
+rc=$?
+
+if [[ $rc != 0 ]]; then 
+  echo "ERROR: No Pylint checks can be run as part of this commit!" 
+  echo "Please commit from within the development docker"
+  echo "Or install the git-pylint-commit-hook tool as documented here: https://git-pylint-commit-hook.readthedocs.io/en/latest/installation.html"
+  exit 1
+else
+  # enforce running pylint before commiting
+  # using highest level
+
+  # determine the project root
+  prj_root=`dirname "$(readlink -f "$0")"`/..
+  prj_root=$(realpath -s $prj_root)
+
+  # Verify that the pylint config file exists
+  if [ ! -f $prj_root/.pylintrc ]; then
+    echo "ERROR: .pylintrc does not exist in your root directory ($prj_root). Aborting commit..."
+    exit 1
+  fi
+
+  echo "Running Pylint - using $prj_root/.pylintrc" 
+  export PYTHONPATH=$prj_root/zoo_tensorflow/examples:$prj_root/zoo_torch/examples
+  # Verify that each of the source path directories exist
+  for path in ${PYTHONPATH//:/ }; do
+    if [[ ! -d $path ]]; then
+      exit 1
+    fi
+  done
+
+  git-pylint-commit-hook --pylintrc $prj_root/.pylintrc --limit 1 --ignore test 
+  rc=$?
+  if [[ $rc != 0 ]]; then
+    echo "WARNING: Pylint violations occcurred but NOT preventing commit from occurring"
+    #TODO We are not yet exiting because of pylint failures
+    # exit $rc
+  else
+    echo "INFO: Pylint checks passed"
+  fi
+fi
+
+
+# enforce file size limits 
+MAX_FILE_SIZE=1000000
+MAX_FILE_SIZE_HUMAN="1000kb"
+FILE_SIZE_VIOLATED=false
+
+STAT_CMD="stat -c %s"
+if [ $(uname) == Darwin ]; then
+   STAT_CMD="stat -f%z"
+fi
+
+# the file extensions that can be checked in if they are big...
+ALLOWED_EXT_LIST="c cxx cpp hpp h py"
+
+# Get LFS tracked files
+GIT_LFS_FILES=`git lfs status --porcelain | cut -f3 -d' '`
+
+# Prevent any files larger than 100K from being checked in.
+for FILE in `git diff-index --diff-filter=ACUXB --name-only HEAD` ; do
+
+   FILE_SIZE=$($STAT_CMD "$FILE")
+   FILE_EXT="${FILE##*.}"
+   NOT_ALLOWED_FILE=true
+
+   # If git-lfs tracked, dont check for the filesize
+   for LFS_TRACKED in $GIT_LFS_FILES ; do
+      if [ "$LFS_TRACKED" = "$FILE" ]; then
+         FILE_SIZE=0
+	 break
+      fi
+   done
+
+   if [[ FILE_SIZE -gt MAX_FILE_SIZE ]]; then
+      # Allow regular source files that maybe too big
+      for EXT in $ALLOWED_EXT_LIST; do
+         if [[ $EXT = $FILE_EXT ]]; then
+            NOT_ALLOWED_FILE=false
+            break
+         fi
+      done
+      if $NOT_ALLOWED_FILE; then
+         echo "$FILE is too big...unstaging it."
+         cmd="git reset HEAD $FILE"
+         $cmd
+         FILE_SIZE_VIOLATED=true
+      fi
+   fi
+done
+
+if $FILE_SIZE_VIOLATED; then
+   echo ""
+   echo "Attempted to commit one or more files larger than $MAX_FILE_SIZE_HUMAN."
+   echo "Large files were unstaged and commit was aborted."
+   echo ""
+   echo "Please use git-lfs ('git lfs track [file]' and "
+   echo "'git add [file] .gitattributes') to add the large file to git."
+   exit 1
+fi
