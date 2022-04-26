@@ -277,6 +277,14 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>(Librispeech Test Clean) WER <br> FP32<br> 9.92%<br> INT8: 10.22%</td>
     <td><a href="zoo_torch/Docs/DeepSpeech2.md">DeepSpeech2.md</a></td>
   </tr>
+  <tr>
+    <td>Anchor-based Plain Net (ABPN)</td>
+    <td><a href="https://arxiv.org/abs/2105.09750">Based on Ref.</a></td>
+    <td><a href="/../../releases/tag/abpn-checkpoint-pytorch">See Tarballs</a></td>
+    <td><a href="zoo_torch/examples/superres/notebooks/superres_quanteval.ipynb">See Example</a></td>
+    <td><a href="#abpn-pytorch"> Average PSNR Results</a></td>
+    <td><a href="zoo_torch/Docs/SuperRes.md">SuperRes.md</a></td>
+  </tr>
 </table>
 
 *<sup>[1]</sup>* Original FP32 model source  
@@ -309,13 +317,51 @@ An original FP32 source model is quantized either using post-training quantizati
   </tr>
 </table>
 
+#### ABPN Pytorch <a name="abpn-pytorch"></a>
+<table style= " width:50%">
+   <tr>
+    <th>Model</th>
+    <th>Dataset</th>
+    <th>Channels</th>
+    <th>Scaling</th>
+    <th>PSNR</th>
+  </tr>
+  <tr>
+    <td>FP32</td>
+    <td>Set14</td>
+    <td>28</td>
+    <th>2x</th>
+    <td>32.71</td>
+  </tr>
+  <tr>
+    <td>INT8</td>
+    <td>Set14</td>
+    <td>28</td>
+    <th>2x</th>
+    <td>32.64</td>
+  </tr>
+  <tr>
+    <td>FP32</td>
+    <td>Set14</td>
+    <td>32</td>
+    <th>2x</th>
+    <td>32.75</td>
+  </tr>
+  <tr>
+    <td>INT8</td>
+    <td>Set14</td>
+    <td>32</td>
+    <th>2x</th>
+    <td>32.69</td>
+  </tr>
+</table>
 
 ## Examples
 
 ### Install AIMET
 Before you can run the example script for a specific model, you need to install the AI Model Efficiency ToolKit (AIMET) software. Please see this [Getting Started](https://github.com/quic/aimet#getting-started) page for an overview. Then install AIMET and its dependencies using these [Installation instructions](https://github.com/quic/aimet/blob/1.13.0/packaging/INSTALL.txt).
 
-> **NOTE:** To obtain the exact version of AIMET software that was used to test this model zoo, please install release [1.13.0](https://github.com/quic/aimet/releases/tag/1.13.0) when following the above instructions.
+> **NOTE:** To obtain the exact version of AIMET software that was used to test this model zoo, please install release [1.13.0](https://github.com/quic/aimet/releases/tag/1.13.0) when following the above instructions *except where specified otherwise within the model documentation file*.
 
 ### Running the scripts
 Download the necessary datasets and code required to run the example for the model of interest. The examples run quantized evaluation and if necessary apply AIMET techniques to improve quantized model performance. They generate the final accuracy results noted in the table above. Refer to the Docs for [TensorFlow](zoo_tensorflow/Docs) or [PyTorch](zoo_torch/Docs) folder to access the documentation and procedures for a specific model.

@@ -1,0 +1,13 @@
+# Ignore IDE files
+.idea
+.vscode
+
+# MAC OS
+.DS_Store
+
+# Python
+*__pycache__*
+*.cpython-26.pyc
+
+# Jupyter notebooks
+.ipynb_checkpoints/

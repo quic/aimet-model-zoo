@@ -1,0 +1,41 @@
+#!/bin/bash
+# =============================================================================
+#  @@-COPYRIGHT-START-@@
+#
+#  Copyright (c) 2022 of Qualcomm Innovation Center, Inc. All rights reserved.
+#
+#  @@-COPYRIGHT-END-@@
+# =============================================================================
+
+#
+# Hook to check whether each commit is DCO-signed and validate internal user email domain
+#
+
+test "" = "$(grep '^Signed-off-by: ' "$1" |
+	sort | uniq -c | sed -e '/^[ 	]*1[ 	]/d')" || {
+	echo >&2 "Duplicate Signed-off-by lines in commit message. Aborting commit."
+	exit 1
+}
+
+AUTHORINFO=$(git var GIT_AUTHOR_IDENT) || exit 1
+
+if [ "$(grep '^Signed-off-by: ' "$1" | wc -l)" -le 0 ]; then
+	echo >&2 "Error: Commit was not signed off."
+	SOB=$(echo ${AUTHORINFO} | sed -n 's/^\(.*>\).*$/Signed-off-by: \1/p')
+	echo >&2 "Please use the \"git commit -s \" option OR"
+	echo >&2 "Append the following text to your commit message:"
+	echo >&2 "  $SOB"
+	echo >&2 "Aborting commit."
+	exit 1
+fi
+
+FORBIDDEN_DOMAIN="qualcomm.com"
+EMAIL_DOMAIN=$(printf '%s\n' "$AUTHORINFO" | grep -o "${FORBIDDEN_DOMAIN}")
+if [[ "$EMAIL_DOMAIN" == "${FORBIDDEN_DOMAIN}" ]]; then
+	echo >&2 "Error: Invalid email domain. Please commit with the correct email domain name."
+	echo >&2 "  Your author information was $AUTHORINFO."
+	echo >&2 "  Your remote information was $GITREMOTE."
+	echo >&2 "Run the following in your local repository and then re-try your commit:"
+	echo >&2 "  git config user.email \"quic_${USER}@quicinc.com\" "
+	exit 1
+fi
