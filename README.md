@@ -282,7 +282,23 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="https://arxiv.org/abs/2105.09750">Based on Ref.</a></td>
     <td><a href="/../../releases/tag/abpn-checkpoint-pytorch">See Tarballs</a></td>
     <td><a href="zoo_torch/examples/superres/notebooks/superres_quanteval.ipynb">See Example</a></td>
-    <td><a href="#abpn-pytorch"> Average PSNR Results</a></td>
+    <td><a href="#superres-family-pytorch"> Average PSNR Results</a></td>
+    <td><a href="zoo_torch/Docs/SuperRes.md">SuperRes.md</a></td>
+  </tr>
+  <tr>
+    <td>Extremely Lightweight Quantization Robust Real-Time Single-Image Super Resolution (XLSR)</td>
+    <td><a href="https://arxiv.org/abs/2105.10288">Based on Ref.</a></td>
+    <td><a href="/../../releases/tag/xlsr-checkpoint-pytorch">See Tarballs</a></td>
+    <td><a href="zoo_torch/examples/superres/notebooks/superres_quanteval.ipynb">See Example</a></td>
+    <td><a href="#superres-family-pytorch"> Average PSNR Results</a></td>
+    <td><a href="zoo_torch/Docs/SuperRes.md">SuperRes.md</a></td>
+  </tr>
+  <tr>
+    <td>Super-Efficient Super Resolution (SESR)</td>
+    <td><a href="https://arxiv.org/abs/2103.09404">Based on Ref.</a></td>
+    <td><a href="/../../releases/tag/sesr-checkpoint-pytorch">See Tarballs</a></td>
+    <td><a href="zoo_torch/examples/superres/notebooks/superres_quanteval.ipynb">See Example</a></td>
+    <td><a href="#superres-family-pytorch"> Average PSNR Results</a></td>
     <td><a href="zoo_torch/Docs/SuperRes.md">SuperRes.md</a></td>
   </tr>
 </table>
@@ -317,51 +333,82 @@ An original FP32 source model is quantized either using post-training quantizati
   </tr>
 </table>
 
-#### ABPN Pytorch <a name="abpn-pytorch"></a>
+#### Super Resolution Model Family (PyTorch) <a name="superres-family-pytorch"></a>
+
+**NOTE:** 
+All results below used a *Scaling factor (LR-to-HR upscaling) of 2x* and the *Set14 dataset*.
 <table style= " width:50%">
    <tr>
-    <th>Model</th>
-    <th>Dataset</th>
-    <th>Channels</th>
-    <th>Scaling</th>
-    <th>PSNR</th>
+    <th rowspan="2">Model</th>
+    <th rowspan="2">Config<sup>[1]</sup></th>
+    <th rowspan="2">Channels</th>
+    <th colspan="2" style="text-align:center;">PSNR</th>
   </tr>
   <tr>
-    <td>FP32</td>
-    <td>Set14</td>
+    <th>FP32</td>
+    <th>INT8</td>
+  </tr>
+  <tr>
+    <td rowspan="2">ABPN</td>
+    <td>N/A</td>
     <td>28</td>
-    <th>2x</th>
     <td>32.71</td>
-  </tr>
-  <tr>
-    <td>INT8</td>
-    <td>Set14</td>
-    <td>28</td>
-    <th>2x</th>
     <td>32.64</td>
   </tr>
   <tr>
-    <td>FP32</td>
-    <td>Set14</td>
+    <td>N/A</td>
     <td>32</td>
-    <th>2x</th>
     <td>32.75</td>
-  </tr>
-  <tr>
-    <td>INT8</td>
-    <td>Set14</td>
-    <td>32</td>
-    <th>2x</th>
     <td>32.69</td>
   </tr>
+  <tr>
+    <td>XLSR</td>
+    <td>N/A</td>
+    <td>32</td>
+    <td>32.57</td>
+    <td>32.30</td>
+  </tr>
+  <tr>
+    <td rowspan="5">SESR</td>
+    <td>M3</td>
+    <td>16</td>
+    <td>32.41</td>
+    <td>32.25</td>
+  </tr>
+  <tr>
+    <td>M5</td>
+    <td>16</td>
+    <td>32.57</td>
+    <td>32.50</td>
+  </tr>
+  <tr>
+    <td>M7</td>
+    <td>16</td>
+    <td>32.66</td>
+    <td>32.58</td>
+  </tr>
+  <tr>
+    <td>M11</td>
+    <td>16</td>
+    <td>32.73</td>
+    <td>32.59</td>
+  </tr>
+  <tr>
+    <td>XL</td>
+    <td>32</td>
+    <td>33.03</td>
+    <td>32.92</td>
+  </tr>
 </table>
+
+*<sup>[1]</sup>* Config: This parameter denotes a model configuration corresponding to a certain number of residual blocks used. The M*x* models have 16 feature channels, whereas the XL model has 32 feature channels.
 
 ## Examples
 
 ### Install AIMET
-Before you can run the example script for a specific model, you need to install the AI Model Efficiency ToolKit (AIMET) software. Please see this [Getting Started](https://github.com/quic/aimet#getting-started) page for an overview. Then install AIMET and its dependencies using these [Installation instructions](https://github.com/quic/aimet/blob/1.13.0/packaging/INSTALL.txt).
+Before you can run the example script for a specific model, you need to install the AI Model Efficiency ToolKit (AIMET) software. Please see this [Getting Started](https://github.com/quic/aimet#getting-started) page for an overview. Then install AIMET and its dependencies using these [Installation instructions](https://github.com/quic/aimet/blob/develop/packaging/install.md).
 
-> **NOTE:** To obtain the exact version of AIMET software that was used to test this model zoo, please install release [1.13.0](https://github.com/quic/aimet/releases/tag/1.13.0) when following the above instructions *except where specified otherwise within the model documentation file*.
+> **NOTE:** To obtain the exact version of AIMET software that was used to test this model zoo, please install release [1.13.0](https://github.com/quic/aimet/releases/tag/1.13.0) when following the above instructions *except where specified otherwise within the individual model documentation markdown file*.
 
 ### Running the scripts
 Download the necessary datasets and code required to run the example for the model of interest. The examples run quantized evaluation and if necessary apply AIMET techniques to improve quantized model performance. They generate the final accuracy results noted in the table above. Refer to the Docs for [TensorFlow](zoo_tensorflow/Docs) or [PyTorch](zoo_torch/Docs) folder to access the documentation and procedures for a specific model.
