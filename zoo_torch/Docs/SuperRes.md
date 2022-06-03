@@ -1,6 +1,8 @@
 # Super Resolution Family of Models
-This document describes how to run AIMET quantization on the following model(s) and verify the performance of the quantized models. Example code is provided in the form of Jupyter Notebook(s).
-- [Anchor-based Plain Net (ABPN)](../examples/superres/notebooks/superres_quanteval.ipynb)
+This document describes how to run AIMET quantization on the following model(s) and verify the performance of the quantized models. Example code is provided in the form of a [Jupyter Notebook](../examples/superres/notebooks/superres_quanteval.ipynb).
+- Anchor-based Plain Net (ABPN)
+- Extremely Lightweight Quantization Robust Real-Time Single-Image Super Resolution (XLSR)
+- Super-Efficient Super Resolution (SESR)
 
 **Table of Contents**
 - [Workspace setup](#workspace-setup)
@@ -45,7 +47,7 @@ The images of interest are located in the following path:
 `<root-path>/set5/SR_testing_datasets/Set14`
 
 ## Download model
-Download the *PyTorch ABPN* model checkpoints from the [Releases](/../../releases) page to any location in your workspace. Extract the tarball files corresponding to your model variant(s) of interest.
+Download the checkpoints corresponding to *your model* from the [Releases](/../../releases) page to any location in your workspace. Extract the tarball files corresponding to your model variant(s) of interest.
 
 Please note the following regarding the downloaded checkpoints:
 - All model architectures were reimplemented from scratch and trained on the *DIV2k* dataset (available [here](https://data.vision.ee.ethz.ch/cvl/DIV2K/)).
