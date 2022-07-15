@@ -234,7 +234,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="https://github.com/rwightman/gen-efficientnet-pytorch">GitHub Repo</a></td>
     <td><a href="https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-weights/efficientnet_lite0_ra-37913777.pth">Pretrained Model</a></td>
     <td><a href="/../../releases/download/pt-effnet-checkpoint/adaround_efficient_lite.pth">Quantized Model</a></td>
-    <td>(ImageNet) Top-1 Accuracy <br> FP32: 75.42%<br> INT8: 74.44%</td>
+    <td>(ImageNet) Top-1 Accuracy <br> FP32: 75.40%<br> INT8: 75.36%</td>
     <td><a href="zoo_torch/Docs/EfficientNet-lite0.md">EfficientNet-lite0.md</a></td>
   </tr>
   <tr>
@@ -242,7 +242,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="https://github.com/jfzhang95/pytorch-deeplab-xception">GitHub Repo</a></td>
     <td><a href="https://drive.google.com/file/d/1G9mWafUAj09P4KvGSRVzIsV_U5OqFLdt/view">Pretrained Model</a></td>
     <td><a href="/../../releases/download/DeepLabV3-Torch/dlv3+_qat_renamed.tar.gz">Quantized Model</a></td>
-    <td>(PascalVOC) mIOU <br>FP32: 72.62%<br> INT8: 72.22%</a></td>
+    <td>(PascalVOC) mIOU <br>FP32: 72.91%<br> INT8: 72.44%</a></td>
     <td><a href="zoo_torch/Docs/DeepLabV3.md">DeepLabV3.md</a></td>
   </tr>
   <tr>
@@ -300,6 +300,14 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="zoo_torch/examples/superres/notebooks/superres_quanteval.ipynb">See Example</a></td>
     <td><a href="#superres-family-pytorch"> Average PSNR Results</a></td>
     <td><a href="zoo_torch/Docs/SuperRes.md">SuperRes.md</a></td>
+  </tr>
+  <tr>
+    <td>HRNet-W48</td>
+    <td><a href="https://github.com/HRNet/HRNet-Semantic-Segmentation/tree/pytorch-v1.1">GitHub Repo</a></td>
+    <td><a href="https://1drv.ms/u/s!Aus8VCZ_C_33gSlK7Fju_sXCxFUt?e=WZ96Ck">Pretrained Model</a></td>
+    <td><a href="zoo_torch/examples/eval_hrnet.py.py">See Example</a></td>
+    <td>(Cityscapes) mIOU <br> FP32<br> 81.04%<br> INT8: 80.78%</td>
+    <td><a href="zoo_torch/Docs/HRNet-pytorch-v1.1.md">DeepSpeech2.md</a></td>
   </tr>
 </table>
 

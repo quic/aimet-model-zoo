@@ -1,166 +1,150 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3
 # -*- mode: python -*-
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
 #
-#  Copyright (c) 2020 of Qualcomm Innovation Center, Inc. All rights reserved.
+#  Copyright (c) 2022 of Qualcomm Innovation Center, Inc. All rights reserved.
 #
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
 
-''' AIMET Post Quantization code for EfficientNet-Lite0 '''
+''' AIMET evaluation code for Efficientnet Lite0 '''
 
-import random
-import numpy as np
-import torch
-import geffnet
-from torch.utils.data import DataLoader
-from torchvision import transforms, datasets
-from tqdm import tqdm
+# general python imports
 import argparse
 
-from aimet_torch import utils
-from aimet_torch import cross_layer_equalization
-from aimet_torch import batch_norm_fold
+#torch imports
+import torch
+import torchvision
+from torchvision import transforms as T
+from torch.utils.data import Dataset, DataLoader
+import geffnet
+
+#aimet imports
+from aimet_torch.quantsim import load_checkpoint
 from aimet_common.defs import QuantScheme
 from aimet_torch.quantsim import QuantizationSimModel
-from aimet_torch.onnx_utils import onnx_pytorch_conn_graph_type_pairs
-from aimet_common.utils import AimetLogger
-import logging
-AimetLogger.set_level_for_all_areas(logging.DEBUG)
-onnx_pytorch_conn_graph_type_pairs.append([["Clip"], ["hardtanh"]])
 
-def work_init(work_id):
-    seed = torch.initial_seed() % 2**32
-    random.seed(seed + work_id)
-    np.random.seed(seed + work_id)
+# ImageNet data loader
+def get_imagenet_dataloader(image_dir, BATCH_SIZE=64):
 
-def model_eval(data_loader, image_size, batch_size=64, quant = False):
-    def func_wrapper_quant(model, arguments):
-        top1_acc = 0.0
-        total_num = 0
-        idx = 0
-        iterations , use_cuda = arguments[0], arguments[1]
-        if use_cuda:
-            model.cuda()
-        for sample, label in tqdm(data_loader):
-            total_num += sample.size()[0]
-            if use_cuda:
-                sample = sample.cuda()
-                label = label.cuda()
-            logits = model(sample)
-            pred = torch.argmax(logits, dim = 1)
-            correct = sum(torch.eq(pred, label)).cpu().numpy()
-            top1_acc += correct
-            idx += 1
-            if idx > iterations:
-                break
-        avg_acc = top1_acc * 100. / total_num
-        print("Top 1 ACC : {:0.2f}".format(avg_acc))
-        return avg_acc
+    def generate_dataloader(data, transform, batch_size=BATCH_SIZE):
+        if data is None:
+            return None
 
-    def func_wrapper(model, arguments):
-        top1_acc = 0.0
-        total_num = 0
-        iterations , use_cuda = arguments[0], arguments[1]
-        if use_cuda:
-            model.cuda()
-        for sample, label in tqdm(data_loader):
-            total_num += sample.size()[0]
-            if use_cuda:
-                sample = sample.cuda()
-                label = label.cuda()
-            logits = model(sample)
-            pred = torch.argmax(logits, dim = 1)
-            correct = sum(torch.eq(pred, label)).cpu().numpy()
-            top1_acc += correct
-        avg_acc = top1_acc * 100. / total_num
-        print("Top 1 ACC : {:0.2f}".format(avg_acc))
-        return avg_acc
-    if quant:
-        func = func_wrapper_quant
-    else:
-        func = func_wrapper
-    return func
+        if transform is None:
+            dataset = torchvision.datasets.ImageFolder(data, transform=T.ToTensor())
+        else:
+            dataset = torchvision.datasets.ImageFolder(data, transform=transform)
 
-def seed(args):
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
-    torch.manual_seed(args.seed)
-    torch.cuda.manual_seed(args.seed)
-    torch.cuda.manual_seed_all(args.seed)
+        dataloader = DataLoader(dataset, batch_size=batch_size,
+                                shuffle=False, num_workers=4)
 
+        return dataloader
 
-def load_model(pretrained = True):
-    model = getattr(geffnet, 'efficientnet_lite0')(pretrained)
-    return model
+    #Define transformation
+    preprocess_transform_pretrain = T.Compose([
+        T.Resize(256),  # Resize images to 256 x 256
+        T.CenterCrop(224),  # Center crop image
+        T.RandomHorizontalFlip(),
+        T.ToTensor(),  # Converting cropped images to tensors
+        T.Normalize(mean=[0.485, 0.456, 0.406],
+                    std=[0.229, 0.224, 0.225])
+    ])
 
-def run_pytorch_bn_fold(config, model):
-    folded_pairs = batch_norm_fold.fold_all_batch_norms(model.cpu(), config.input_shape)
-    conv_bn_pairs = {}
-    for conv_bn in folded_pairs:
-        conv_bn_pairs[conv_bn[0]] = conv_bn[1]
-    return model, conv_bn_pairs
+    dataloader = generate_dataloader(image_dir, transform=preprocess_transform_pretrain, batch_size=BATCH_SIZE)
+    return dataloader
 
-def run_pytorch_cross_layer_equalization(config, model):
-    cross_layer_equalization.equalize_model(model.cpu(), config.input_shape)
-    return model
+# Evaluates the model on validation dataset and returns the classification accuracy
+def eval_func(model, DATA_DIR, BATCH_SIZE=64):
 
+    #Get Dataloader
+    dataloader_eval = get_imagenet_dataloader(DATA_DIR,BATCH_SIZE)
+
+    correct = 0
+    total_samples = 0
+    on_cuda = next(model.parameters()).is_cuda
+
+    with torch.no_grad():
+        for data, label in dataloader_eval:
+            if on_cuda:
+                data, label = data.cuda(), label.cuda()
+            output = model(data)
+            _, prediction = torch.max(output, 1)
+            correct += (prediction == label).sum()
+            total_samples += len(output)
+
+    return float(100* correct / total_samples)
+
+# Forward pass for encoding calculations
+def forward_pass(model, DATA_DIR):
+    #Get Dataloader
+    dataloader_encoding = get_imagenet_dataloader(DATA_DIR)
+
+    on_cuda = next(model.parameters()).is_cuda
+
+    with torch.no_grad():
+        for data, _ in dataloader_encoding:
+            if on_cuda:
+                data= data.cuda()
+
+            output = model(data)
+
+# add arguments
 def arguments():
-    parser = argparse.ArgumentParser(description='Evaluation script for PyTorch EfficientNet-lite0 networks.')
-
-    parser.add_argument('--checkpoint',                 help='Path to optimized checkpoint', default=None, type=str)
-    parser.add_argument('--images-dir',         		help='Imagenet eval image', default='./ILSVRC2012_PyTorch/', type=str)
-    parser.add_argument('--seed',						help='Seed number for reproducibility', type = int, default=0)
-
-    parser.add_argument('--quant-tricks', 				help='Preprocessing prior to Quantization', default=[], choices=['BNfold', 'CLE'], nargs = "+")
-    parser.add_argument('--quant-scheme',               help='Quant scheme to use for quantization (tf, tf_enhanced, range_learning_tf, range_learning_tf_enhanced).', default='tf', choices = ['tf', 'tf_enhanced', 'range_learning_tf', 'range_learning_tf_enhanced'])
-    parser.add_argument('--round-mode',                 help='Round mode for quantization.', default='nearest')
-    parser.add_argument('--default-output-bw',          help='Default output bitwidth for quantization.', type = int, default=8)
-    parser.add_argument('--default-param-bw',           help='Default parameter bitwidth for quantization.', type = int, default=8)
-    parser.add_argument('--config-file',       			help='Quantsim configuration file.', default=None, type=str)
-    parser.add_argument('--cuda',						help='Enable cuda for a model', default=True)
-
-    parser.add_argument('--batch-size',					help='Data batch size for a model', type = int, default=64)
-    parser.add_argument('--num-workers',                help='Number of workers to run data loader in parallel', type = int, default=16)
-
+    parser = argparse.ArgumentParser(description='script for efficientnet_lite0 quantization')
+    parser.add_argument('--checkpoint', help='Path to optimized checkpoint', default=None, type=str)
+    parser.add_argument('--encodings', help='Path to optimized encodings', default=None, type=str)
+    parser.add_argument('--use_cuda', help='Use cuda', default=True, type=bool)
+    parser.add_argument('--calibration_dataset', help='path to calibration dataset',type=str)
+    parser.add_argument('--evaluation_dataset', help='path to evaluation dataset',type=str)
+    parser.add_argument('--seed', help='Seed number for reproducibility', default=1000)
+    parser.add_argument('--input-shape', help='Model input shape for quantization.', type = tuple, default=(1,3,224,224))
+    parser.add_argument('--quant-scheme', help='Quant scheme to use for quantization (tf, tf_enhanced, range_learning_tf, range_learning_tf_enhanced).', default='tf', choices = ['tf', 'tf_enhanced', 'range_learning_tf', 'range_learning_tf_enhanced'])
+    parser.add_argument('--default-output-bw', help='Default output bitwidth for quantization.', type = int, default=8)
+    parser.add_argument('--default-param-bw', help='Default parameter bitwidth for quantization.', type = int, default=8)
+    parser.add_argument('--config-file', help='Quantsim configuration file.', default=None, type=str)
     args = parser.parse_args()
     return args
 
+# set seed for reproducibility
+def seed(seednum, use_cuda):
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    torch.manual_seed(seednum)
+    if use_cuda:
+        torch.cuda.manual_seed(seednum)
+        torch.cuda.manual_seed_all(seednum)
+
 
 def main():
+    #Load parameters from arguments
     args = arguments()
-    seed(args)
-    if args.checkpoint:
-        model = torch.load(args.checkpoint)
-    else:
-        model = load_model()
+    seed(args.seed, args.use_cuda)
+
+    # Get fp32 model and convert to eval mode
+    model = getattr(geffnet, 'efficientnet_lite0')(pretrained=True)
     model.eval()
-    input_shape = (1,3,224,224)
-    args.input_shape = input_shape
-    image_size = input_shape[-1]
 
-    data_loader_kwargs = { 'worker_init_fn':work_init, 'num_workers' : args.num_workers}
-    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                std=[0.229, 0.224, 0.225])
-    val_transforms = transforms.Compose([
-            transforms.Resize(image_size + 24),
-            transforms.CenterCrop(image_size),
-            transforms.ToTensor(),
-            normalize])
-    val_data = datasets.ImageFolder(args.images_dir + '/val/', val_transforms)
-    val_dataloader = DataLoader(val_data, args.batch_size, shuffle = False, pin_memory = True, **data_loader_kwargs)
-    
-    eval_func_quant = model_eval(val_dataloader, image_size, batch_size=args.batch_size, quant = True)
-    eval_func = model_eval(val_dataloader, image_size, batch_size=args.batch_size)
+    if args.use_cuda:
+        model.cuda()
 
-    if 'BNfold' in args.quant_tricks:
-        print("BN fold")
-        model, conv_bn_pairs = run_pytorch_bn_fold(args, model)
-    if 'CLE' in args.quant_tricks:
-        print("CLE")
-        model = run_pytorch_cross_layer_equalization(args, model)
+    #Print FP32 accuracy
+    fp32_acc = eval_func(model, args.evaluation_dataset)
+    print(f'FP32 accuracy: {fp32_acc:0.2f}%')
 
+    # Get optimized fp32 model by loading checkpoint
+    if args.checkpoint:
+        print(args.checkpoint)
+        ada_model = torch.load(args.checkpoint)
+    else:
+        raise ValueError('checkpoint path {} must be specified'.format(args.checkpoint_path))
+    ada_model.eval()
+
+    if args.use_cuda:
+        ada_model.cuda()
+
+    # Initial Quantized model
     if hasattr(args, 'quant_scheme'):
         if args.quant_scheme == 'range_learning_tf':
             quant_scheme = QuantScheme.training_range_learning_with_tf_init
@@ -172,43 +156,34 @@ def main():
             quant_scheme = QuantScheme.post_training_tf_enhanced
         else:
             raise ValueError("Got unrecognized quant_scheme: " + args.quant_scheme)
+        if args.use_cuda:
+            dummy_input = torch.rand(args.input_shape, device = 'cuda')
+        else:
+            dummy_input = torch.rand(args.input_shape)
         kwargs = {
             'quant_scheme': quant_scheme,
             'default_param_bw': args.default_param_bw,
             'default_output_bw': args.default_output_bw,
-            'config_file': args.config_file
+            'config_file': args.config_file,
+            'dummy_input': dummy_input
         }
-    print(kwargs)
-    sim = QuantizationSimModel(model.cpu(), input_shapes=input_shape, **kwargs)
+    sim = QuantizationSimModel(ada_model, **kwargs)
 
-    # Manually Config Super group, AIMET currently does not support [Conv-ReLU6] in a supergroup
-    from aimet_torch.qc_quantize_op import QcPostTrainingWrapper
-    for quant_wrapper in sim.model.modules():
-        if isinstance(quant_wrapper, QcPostTrainingWrapper):
-            if isinstance(quant_wrapper._module_to_wrap, torch.nn.Conv2d):
-                quant_wrapper.output_quantizer.enabled = False
-                
-    sim.model.blocks[0][0].conv_pw.output_quantizer.enabled = True
-    sim.model.blocks[1][0].conv_pwl.output_quantizer.enabled = True
-    sim.model.blocks[1][1].conv_pwl.output_quantizer.enabled = True
-    sim.model.blocks[2][0].conv_pwl.output_quantizer.enabled = True
-    sim.model.blocks[2][1].conv_pwl.output_quantizer.enabled = True
-    sim.model.blocks[3][0].conv_pwl.output_quantizer.enabled = True
-    sim.model.blocks[3][1].conv_pwl.output_quantizer.enabled = True
-    sim.model.blocks[3][2].conv_pwl.output_quantizer.enabled = True
-    sim.model.blocks[4][0].conv_pwl.output_quantizer.enabled = True
-    sim.model.blocks[4][1].conv_pwl.output_quantizer.enabled = True
-    sim.model.blocks[4][2].conv_pwl.output_quantizer.enabled = True
-    sim.model.blocks[5][0].conv_pwl.output_quantizer.enabled = True
-    sim.model.blocks[5][1].conv_pwl.output_quantizer.enabled = True
-    sim.model.blocks[5][2].conv_pwl.output_quantizer.enabled = True
-    sim.model.blocks[5][3].conv_pwl.output_quantizer.enabled = True
-    sim.model.blocks[6][0].conv_pwl.output_quantizer.enabled = True
+    # Get optimized encodings
+    if args.encodings:
+        print(args.encodings)
+        sim.set_and_freeze_param_encodings(encoding_path=args.encodings)
+    else:
+        raise ValueError('encodings path {} must be specified'.format(args.encodings))
 
-    sim.compute_encodings(eval_func_quant, (32, True))
-    print(sim)
-    post_quant_top1 = eval_func(sim.model.cuda(), (0, True))
-    print("Post Quant Top1 :", post_quant_top1)
+    sim.compute_encodings(forward_pass, forward_pass_callback_args=args.calibration_dataset)
+
+    quant_acc = eval_func(sim.model, args.evaluation_dataset)
+    print(f'Quantized W8A8 accuracy: {quant_acc:0.2f}%')
+
 
 if __name__ == '__main__':
     main()
+
+
+
