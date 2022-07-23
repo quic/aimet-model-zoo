@@ -307,7 +307,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="https://1drv.ms/u/s!Aus8VCZ_C_33gSlK7Fju_sXCxFUt?e=WZ96Ck">Pretrained Model</a></td>
     <td><a href="zoo_torch/examples/eval_hrnet.py.py">See Example</a></td>
     <td>(Cityscapes) mIOU <br> FP32<br> 81.04%<br> INT8: 80.78%</td>
-    <td><a href="zoo_torch/Docs/HRNet-pytorch-v1.1.md">DeepSpeech2.md</a></td>
+    <td><a href="zoo_torch/Docs/HRNet-pytorch-v1.1.md">HRNet.md</a></td>
   </tr>
 </table>
 

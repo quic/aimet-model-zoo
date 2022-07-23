@@ -75,13 +75,13 @@ def arguments():
     return args
 
 # Set seed for reproducibility
-def seed(seed_number， use_cuda):
+def seed(seed_number, use_cuda):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
     torch.manual_seed(seed_number)
     if use_cuda:
-        torch.cuda.manual_seed(seednum)
-        torch.cuda.manual_seed_all(seednum)
+        torch.cuda.manual_seed(seed_number)
+        torch.cuda.manual_seed_all(seed_number)
 
 
 def main():

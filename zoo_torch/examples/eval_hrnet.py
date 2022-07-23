@@ -66,8 +66,8 @@ def arguments():
 	parser = argparse.ArgumentParser(description='Evaluation script for HRNet')
 	parser.add_argument('--checkpoint-prefix', help='Optimized checkpoint and encodings prefix.', default=None, type=str)
 	parser.add_argument('--quant-scheme',help='Quant scheme to use for quantization (tf, tf_enhanced)',default='tf_enhanced', choices=['tf', 'tf_enhanced'])
-	parser.add_argument('--output-bw', help='Default output bitwidth for quantization.', type=int, default=8)
-	parser.add_argument('--param-bw', help='Default parameter bitwidth for quantization.', type=int, default=4)
+	parser.add_argument('--default-output-bw', help='Default output bitwidth for quantization.', type=int, default=8)
+	parser.add_argument('--default-param-bw', help='Default parameter bitwidth for quantization.', type=int, default=8)
 	parser.add_argument('--config-file', help='Quantsim configuration file.', type=str)
 	parser.add_argument('--seed', help='Seed number for reproducibility', default=0)
 	parser.add_argument('--cuda', help='Enable cuda for a model', default=True)
@@ -111,8 +111,8 @@ def main():
 
 	# Compute encodings and eval
 	sim = QuantizationSimModel(model, dummy_input = dummy_input,
-			default_param_bw = args.param_bw,
-			default_output_bw = args.output_bw,
+			default_param_bw = args.default_param_bw,
+			default_output_bw = args.default_output_bw,
 			quant_scheme = args.quant_scheme,
 			config_file = args.config_file)
 
