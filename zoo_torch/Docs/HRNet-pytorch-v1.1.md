@@ -1,16 +1,23 @@
 # HRNet-pytorch-v1.1
 
 ## Setup AI Model Efficiency Toolkit
-Please [install and setup AIMET](../../README.md#install-aimet) before proceeding further. This model was tested using AIMET version 1.21.0.
+Please [install and setup AIMET](https://github.com/quic/aimet/blob/release-aimet-1.21/packaging/install.md) before proceeding further. This model was tested using AIMET version 1.21.0.
 
 ## Experiment setup
-Follow [HRNet pytorch-v1.1 branch](https://github.com/HRNet/HRNet-Semantic-Segmentation/blob/pytorch-v1.1/README.md#quick-start) installation instructions.
+- Get [HRNet pytorch-v1.1](https://github.com/HRNet/HRNet-Semantic-Segmentation/blob/pytorch-v1.1) branch:
+  ```bash
+  git clone https://github.com/HRNet/HRNet-Semantic-Segmentation.git -b pytorch-v1.1
+  ```
+- Makes sure additional dependencies [pyyaml](https://pyyaml.org/), [yacs](https://github.com/rbgirshick/yacs) are installed: 
+  ```bash
+  pip install pyyaml
+  pip install 'yacs>=0.1.5'
+  ```
 
 ## Obtain model checkpoints, dataset and configuration
-- The original HRNet checkpoint can be downloaded from here:
-  - https://github.com/HRNet/HRNet-Semantic-Segmentation/tree/pytorch-v1.1
+- The original HRNet checkpoint pretrained on Cityscapes dataset can be downloaded from links in [Big models, Section 1](https://github.com/HRNet/HRNet-Semantic-Segmentation/blob/pytorch-v1.1/README.md#big-models).
 - Optimized HRNet checkpoint can be downloaded from the [Releases](/../../releases) page.
-- Cityscapes can be downloaded from here:
+- Cityscapes dataset can be downloaded from here:
   - https://www.cityscapes-dataset.com/
 - The Quantization Simulation (*Quantsim*) Configuration file can be downloaded from here: [default_config_per_channel.json](https://github.qualcomm.com/qualcomm-ai/aimet/blob/17bcc525d6188f177837bbb789ccf55a81f6a1b5/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json) (Please see [this page](https://quic.github.io/aimet-pages/releases/1.21.0/user_guide/quantization_configuration.html) for more information on this file).
 
@@ -19,7 +26,7 @@ To run evaluation with QuantSim in AIMET, copy eval_hrnet.py into HRNet tools di
 ```bash
 python tools/eval_hrnet.py \
 	--quant-scheme <Quant scheme to use for quantization> \
-	--output-bw <Default output bitwidth for quantization> \
+	--default-output-bw <Default output bitwidth for quantization> \
 	--default-param-bw <Default parameter bitwidth for quantization> \
 	--config-file <Quantsim configuration file> \
 	--checkpoint-prefix <optimized checkpoint and encodings prefix> \

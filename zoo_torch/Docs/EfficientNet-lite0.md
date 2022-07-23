@@ -1,7 +1,7 @@
 # PyTorch-EfficientNet-lite0
 
 ## Setup AI Model Efficiency Toolkit
-Please [install and setup AIMET](../../README.md#install-aimet) before proceeding further. This model was tested using AIMET version 1.21.0.
+Please [install and setup AIMET](https://github.com/quic/aimet/blob/release-aimet-1.21/packaging/install.md) before proceeding further. This model was tested using AIMET version 1.21.0.
 
 ## Additional Dependencies
 1. Install geffnet using pip install
