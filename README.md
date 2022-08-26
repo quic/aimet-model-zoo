@@ -230,6 +230,30 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="zoo_torch/Docs/MobilenetV2.md">MobileNetV2.md</a></td>
   </tr>
   <tr>
+    <td>Resnet18</td>
+    <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
+    <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
+    <td><a href="/../../releases/tag/torchvision_classification_INT4%2F8">Quantized Model</a></td>
+    <td>(ImageNet) Top-1 Accuracy <br>FP32: 69.75%<br> INT8: 69.54%<br></td>
+    <td><a href="zoo_torch/Docs/Classification.md">Classification.md</a></td>
+  </tr>
+  <tr>
+    <td>Resnet50</td>
+    <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
+    <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
+    <td><a href="/../../releases/tag/torchvision_classification_INT4%2F8">Quantized Model</a></td>
+    <td>(ImageNet) Top-1 Accuracy <br>FP32: 76.14%<br> INT8: 75.81%<br></td>
+    <td><a href="zoo_torch/Docs/Classification.md">Classification.md</a></td>
+  </tr>
+  <tr>
+    <td>Regnet_x_3_2gf</td>
+    <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
+    <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
+    <td><a href="/../../releases/tag/torchvision_classification_INT4%2F8">Quantized Model</a></td>
+    <td>(ImageNet) Top-1 Accuracy <br>FP32: 78.36%<br> INT8: 78.10%<br></td>
+    <td><a href="zoo_torch/Docs/Classification.md">Classification.md</a></td>
+  </tr>
+  <tr>
     <td>EfficientNet-lite0</td>
     <td><a href="https://github.com/rwightman/gen-efficientnet-pytorch">GitHub Repo</a></td>
     <td><a href="https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-weights/efficientnet_lite0_ra-37913777.pth">Pretrained Model</a></td>
@@ -261,7 +285,14 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>(COCO) mAP<br>FP32: 0.364<br>INT8: 0.359<br> mAR <br> FP32: 0.436<br> INT8: 0.432</td>
     <td><a href="zoo_torch/Docs/PoseEstimation.md">PoseEstimation.md</a></td>
   </tr>
-  <tr> 
+  <tr>
+    <td>HRNET-Posenet</td>
+    <td><a href="https://github.com/leoxiaobin/deep-high-resolution-net.pytorch">Based on Ref.</a></td>
+    <td><a href="/../../releases/tag/hrnet-posenet">FP32 Model</a></td>
+    <td><a href="/../../releases/tag/hrnet-posenet">Quantized Model</a></td>
+    <td>(COCO) mAP<br>FP32: 0.765 <br>INT8: 0.763 <br> mAR <br> FP32: 0.793<br> INT8: 0.792</td>
+    <td><a href="zoo_torch/Docs/Hrnet-posenet.md">Hrnet-posenet.md</a></td>
+  </tr>
     <td>SRGAN</td>
     <td><a href="https://github.com/andreas128/mmsr">GitHub Repo</a></td>
     <td><a href="/../../releases/download/srgan_mmsr_model/srgan_mmsr_MSRGANx4.gz">Pretrained Model</a> (older version from <a href="https://github.com/open-mmlab/mmediting/tree/master/configs/restorers/srresnet_srgan">here</a>)</td>    
