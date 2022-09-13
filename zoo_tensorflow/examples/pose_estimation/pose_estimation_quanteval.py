@@ -12,11 +12,15 @@ import os
 import math
 import argparse
 from functools import partial
-
+import urllib
+import tarfile 
 import cv2
 from scipy.ndimage.filters import gaussian_filter
 import numpy as np
-import tensorflow as tf
+#import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 
@@ -416,59 +420,98 @@ def evaluate_session(session,
 
 def parse_args():
     parser = argparse.ArgumentParser(prog='pose_estimation_quanteval',
-                                     description='Evaluate the post quantized SRGAN model')
+                                     description='Evaluate the post quantized pose estimation model')
 
-    parser.add_argument('model_dir',
-                        help='The location where the the meta checkpoint is saved,'
-                             'should have .meta as file suffix',
-                        type=str)
-    parser.add_argument('coco_path',
+    parser.add_argument('--dataset-path',
                         help='The location coco images and annotations are saved. '
                              'It assumes a folder structure containing two subdirectorys '
                              '`images/val2014` and `annotations`. Right now only val2014 '
                              'dataset with person_keypoints are supported',
                         type=str)
-    parser.add_argument('--representative-datapath',
-                        '-reprdata',
-                        help='The location where representative data are stored. '
-                             'The data will be used for computation of encodings',
-                        type=str)
-    parser.add_argument('--quant-scheme',
-                        '-qs',
-                        help='Support two schemes for quantization: [`tf` or `tf_enhanced`],'
-                             '`tf_enhanced` is used by default',
-                        default='tf_enhanced',
-                        choices=['tf', 'tf_enhanced'],
-                        type=str)
-
+    parser.add_argument('--model-to-eval', help='which model to evaluate', default='int8',
+                        choices={"fp32", "int8"})
+    parser.add_argument('--num-imgs', help='Number of images to evaluate from MSCOCO2014 validation dataset.' 
+                                            'Default to be entire validation dataset ', type=int, default=None)
     return parser.parse_args()
 
+def download_weights():
+
+    '''
+    automatic download of model weight and config file for quantization
+    '''
+    url_config= 'https://raw.githubusercontent.com/quic/aimet/release-aimet-1.19/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config.json'
+    urllib.request.urlretrieve(url_config,"default_config.json")
+
+    if not os.path.exists("./pose_estimation_tensorflow"):
+        url_checkpoint = "https://github.com/quic/aimet-model-zoo/releases/download/pose_estimation/pose_estimation_tensorflow.tar.gz"
+        urllib.request.urlretrieve(url_checkpoint,"pose_estimation_tensorflow.tar.gz")
+        with tarfile.open("pose_estimation_tensorflow.tar.gz") as pth_weights:
+            pth_weights.extractall('./pose_estimation_tensorflow/')
+
+
+class ModelConfig():
+  def __init__(self, args):
+    '''
+     hardcode values added on parsearg arguments 
+    '''
+    self.model_dir='./pose_estimation_tensorflow/pose_estimation.meta'
+    self.quant_scheme='tf_enhanced'
+    for arg in vars(args):
+      setattr(self, arg, getattr(args, arg))
 
 def pose_estimation_quanteval(args):
+    # automatic download of weights and config for quantizaton 
+    download_weights()
+    # add on hardcoded values to args 
+    config=ModelConfig(args)
     # load the model checkpoint from meta
-    sess = graph_saver.load_model_from_meta(args.model_dir)
+    sess = graph_saver.load_model_from_meta(config.model_dir)
 
-    # create quantsim object which inserts quant ops between layers
-    sim = quantsim.QuantizationSimModel(sess,
-                                        starting_op_names=['input'],
-                                        output_op_names=['node184', 'node196'],
-                                        quant_scheme=args.quant_scheme)
 
-    partial_eval = partial(evaluate_session,
-                           input_name='input:0',
-                           output_names=['node184_quantized:0', 'node196_quantized:0'],
-                           num_imgs=500
-                           )
-    sim.compute_encodings(partial_eval, args.coco_path)
 
-    eval_num = evaluate_session(sim.session,
-                                args.coco_path,
-                                input_name='input:0',
-                                output_names=['node184_quantized:0', 'node196_quantized:0']
-                                )
-    print(f'The [mAP, mAR] results are: {eval_num}')
+    if args.model_to_eval=='fp32':
+        orig_eval_num = evaluate_session(sess,
+                                         config.dataset_path,
+                                         input_name='input:0',
+                                         output_names=['node184:0', 'node196:0'], num_imgs=10)
+        print(f'The original [mAP, mAR] results are: {orig_eval_num}')
+    else:
+        # create quantsim object which inserts quant ops between layers
+        sim = quantsim.QuantizationSimModel(sess,
+                                            starting_op_names=['input'],
+                                            output_op_names=['node184', 'node196'],
+                                            quant_scheme=config.quant_scheme,
+                                            config_file='./default_config.json')
+
+        if not tf.test.gpu_device_name():
+            raise Exception(' GPU not available')
+
+
+
+        partial_eval = partial(evaluate_session,
+                               input_name='input:0',
+                               output_names=['node184_quantized:0', 'node196_quantized:0'],
+                               num_imgs=2000
+                               )
+        sim.compute_encodings(partial_eval, config.dataset_path)
+
+        if config.num_imgs:
+            eval_num = evaluate_session(sim.session,
+                                        config.dataset_path,
+                                        input_name='input:0',
+                                        output_names=['node184_quantized:0', 'node196_quantized:0'],
+                                        num_imgs=config.num_imgs
+                                        )
+        else:
+            eval_num = evaluate_session(sim.session,
+                                        config.dataset_path,
+                                        input_name='input:0',
+                                        output_names=['node184_quantized:0', 'node196_quantized:0']
+                                        )
+        print(f'The [mAP, mAR] results are: {eval_num}')
 
 
 if __name__ == '__main__':
     args = parse_args()
     pose_estimation_quanteval(args)
+
