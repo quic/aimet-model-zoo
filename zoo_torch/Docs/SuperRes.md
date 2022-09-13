@@ -4,28 +4,18 @@ This document describes how to run AIMET quantization on the following model(s) 
 - Extremely Lightweight Quantization Robust Real-Time Single-Image Super Resolution (XLSR)
 - Super-Efficient Super Resolution (SESR)
 
-**Table of Contents**
-- [Workspace setup](#workspace-setup)
-- [AIMET installation and setup](#aimet-installation-and-setup)
-- [Install additional dependencies](#install-additional-dependencies)
-- [Download dataset](#download-dataset)
-- [Download model](#download-model)
-- [Start Jupyter Notebook](#start-jupyter-notebook)
-- [Run Jupyter Notebook](#run-jupyter-notebook)
-- [Quantization configuration](#quantization-configuration)
 
-## Workspace setup
+## Environment setup
 Clone the AIMET Model Zoo repo into your workspace:  
 `git clone https://github.com/quic/aimet-model-zoo.git`
 
 ## AIMET installation and setup
-Install the *Torch GPU* variant of AIMET package *and* setup the environment using the instructions here:
-https://github.com/quic/aimet/blob/develop/packaging/install.md
+Please [install and setup AIMET](https://github.com/quic/aimet/blob/release-aimet-1.22/packaging/install.md) (*Torch GPU* variant) before proceeding further.
 
 ---
 **NOTE**
 - All AIMET releases are available here: https://github.com/quic/aimet/releases
-- This model has been tested using AIMET version *1.20.0*  (i.e. set `release_tag="1.20.0"` in the above instructions).
+- This model has been tested using AIMET version *1.22.2*  (i.e. set `release_tag="1.22.2"` in the above instructions).
 - This model is compatible with the PyTorch GPU variant of AIMET (i.e. set `AIMET_VARIANT="torch_gpu"` in the above instructions).
 ---
 
@@ -46,15 +36,6 @@ Extract the *set5.zip* file, then the *SR_testing_datasets.zip* found within.
 The images of interest are located in the following path:  
 `<root-path>/set5/SR_testing_datasets/Set14`
 
-## Download model
-Download the checkpoints corresponding to *your model* from the [Releases](/../../releases) page to any location in your workspace. Extract the tarball files corresponding to your model variant(s) of interest.
-
-Please note the following regarding the downloaded checkpoints:
-- All model architectures were reimplemented from scratch and trained on the *DIV2k* dataset (available [here](https://data.vision.ee.ethz.ch/cvl/DIV2K/)).
-- The *float32* model is the full-precision model with the highest validation accuracy on the DIV2k dataset.
-- The *int8* model is the quantized model with the highest validation accuracy obtained using AIMET's [Quantization-aware Training](https://developer.qualcomm.com/blog/exploring-aimet-s-quantization-aware-training-functionality).
-- The above quantized model along with the Encodings were exported using AIMET's export tool.
-
 ## Start Jupyter Notebook
 Change to the directory containing the example code as follows:
 `cd zoo_torch/examples`
@@ -71,9 +52,20 @@ Browse to the notebook at `superres` >> `notebooks` >> `superres_quanteval.ipynb
 Please *replace the placeholders* within the Jupyter Notebook (such as the model checkpoint and the dataset paths) to point to the appropriate paths in your workspace into where you downloaded and extracted them.
 
 ---
-## Quantization configuration
+
+## Models
+Model checkpoints are available in the [Releases](/../../releases) page.
+
+Please note the following regarding the available checkpoints:
+- All model architectures were reimplemented from scratch and trained on the *DIV2k* dataset (available [here](https://data.vision.ee.ethz.ch/cvl/DIV2K/)).
+- The *float32* model is the full-precision model with the highest validation accuracy on the DIV2k dataset.
+- The *int8* model is the quantized model with the highest validation accuracy obtained using AIMET's [Quantization-aware Training](https://developer.qualcomm.com/blog/exploring-aimet-s-quantization-aware-training-functionality).
+- The above quantized model along with the Encodings were exported using AIMET's export tool.
+
+
+## Quantization Configuration
 In the evaluation notebook included, we have used the default config file, which configures the quantizer ops with the following assumptions:
-- Weight quantization: *8 bits, asymmetric quantization*
+- Weight quantization: *8 bits, per tensor asymmetric quantization*
 - Bias parameters are not quantized
 - Activation quantization: *8 bits, asymmetric quantization*
 - Model inputs are quantized

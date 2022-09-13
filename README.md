@@ -31,6 +31,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <th>Quantized Model <sup>[3]</sup></th>
     <th>Results <sup>[4]</sup></th>
     <th>Documentation</th>
+    <th>TensorFlow Version</th>
   </tr>
   <tr>
     <td>ResNet-50 (v1)</td>
@@ -39,6 +40,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="zoo_tensorflow/Docs/ResNet50.md">See Documentation</a></td>
     <td>(ImageNet) Top-1 Accuracy <br>FP32: 75.21% <br> INT8: 74.96%</td>
     <td><a href="zoo_tensorflow/Docs/ResNet50.md">ResNet50.md</a></td>
+    <td>1.15</td>
   </tr>
   <tr>
     <td>MobileNet-v2-1.4</td>
@@ -47,6 +49,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="/../../releases/download/mobilenet-v2-1.4/mobilenetv2-1.4.tar.gz">Quantized Model</a></td>
     <td>(ImageNet) Top-1 Accuracy <br> FP32: 75%<br> INT8: 74.21%</td>
     <td><a href="zoo_tensorflow/Docs/MobileNetV2.md">MobileNetV2.md</a></td>
+    <td>1.15</td>
   </tr>
   <tr>
     <td>EfficientNet Lite</td>
@@ -55,14 +58,16 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="/../../releases/download/efficientnet-lite0/efficientnet-lite0.tar.gz">Quantized Model</a></td>
     <td>(ImageNet) Top-1 Accuracy <br> FP32: 74.93% <br> INT8: 74.99%</td>
     <td><a href="zoo_tensorflow/Docs/EfficientNetLite.md">EfficientNetLite.md</a></td>
+    <td>1.15</td>
   </tr>
   <tr>
     <td>SSD MobileNet-v2</td>
     <td><a href="https://github.com/tensorflow/models/tree/master/research/object_detection">GitHub Repo</a></td>
     <td><a href="http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v2_quantized_300x300_coco_2019_01_03.tar.gz">Pretrained Model</a></td>
-    <td><a href="zoo_tensorflow/examples/ssd_mobilenet_v2_quanteval.py">See Example</a></td>
+    <td><a href="zoo_tensorflow/examples/ssd_mobilenet_v2/ssd_mobilenet_v2_quanteval.py">See Example</a></td>
     <td>(COCO) Mean Avg. Precision (mAP) <br> FP32: 0.2469<br> INT8: 0.2456</td>
     <td><a href="zoo_tensorflow/Docs/SSDMobileNetV2.md">SSDMobileNetV2.md</a></td>
+    <td>1.15</td>
   </tr>
   <tr>
     <td>RetinaNet</td>
@@ -71,6 +76,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="zoo_tensorflow/examples/retinanet_quanteval.py">See Example</a></td>
     <td> (COCO) mAP <br> FP32: 0.35 <br> INT8: 0.349 <br><a href="#retinanet"> Detailed Results</a></td>
     <td><a href="zoo_tensorflow/Docs/RetinaNet.md">RetinaNet.md</a></td>
+    <td>1.15</td>
   </tr>
 <tr>
     <td>Pose Estimation</td>
@@ -79,14 +85,16 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="/../../releases/download/pose_estimation/pose_estimation_tensorflow.tar.gz">Quantized Model</a></td>
     <td>(COCO) mAP <br>FP32: 0.383 <br> INT8: 0.379, <br> Mean Avg.Recall (mAR) <br> FP32: 0.452<br> INT8: 0.446</td>
     <td><a href="zoo_tensorflow/Docs/PoseEstimation.md">PoseEstimation.md</a></td>
+    <td>1.15</td>
   </tr>
   <tr>
     <td>SRGAN</td>
     <td><a href="https://github.com/krasserm/super-resolution">GitHub Repo</a></td>
     <td><a href="https://drive.google.com/file/d/1u9ituA3ScttN9Vi-UkALmpO0dWQLm8Rv/view">Pretrained Model</a></td>
-    <td><a href="zoo_tensorflow/examples/srgan_quanteval.py">See Example</a></td>
+    <td><a href="zoo_tensorflow/examples/srgan/srgan_quanteval.py">See Example</a></td>
     <td>(BSD100) PSNR/SSIM <br> FP32: 25.45/0.668 <br> INT8: 24.78/0.628<br> INT8W/INT16Act.: 25.41/0.666 <br> <a href="#srgan"> Detailed Results</a></td>
     <td><a href="zoo_tensorflow/Docs/SRGAN.md">SRGAN.md</a></td>
+    <td>2.4</td>
   </tr>
 
 </table>
@@ -265,8 +273,8 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>DeepLabV3+</td>
     <td><a href="https://github.com/jfzhang95/pytorch-deeplab-xception">GitHub Repo</a></td>
     <td><a href="https://drive.google.com/file/d/1G9mWafUAj09P4KvGSRVzIsV_U5OqFLdt/view">Pretrained Model</a></td>
-    <td><a href="/../../releases/download/DeepLabV3-Torch/dlv3+_qat_renamed.tar.gz">Quantized Model</a></td>
-    <td>(PascalVOC) mIOU <br>FP32: 72.91%<br> INT8: 72.44%</a></td>
+    <td><a href="/../../releases/download/torch_dlv3_w8a8_pc/deeplabv3+w8a8_tfe_perchannel.pth">Quantized Model</a></td>
+    <td>(PascalVOC) mIOU <br>FP32: 72.91%<br> INT8: 72.44%</td>
     <td><a href="zoo_torch/Docs/DeepLabV3.md">DeepLabV3.md</a></td>
   </tr>
   <tr>
@@ -296,7 +304,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>SRGAN</td>
     <td><a href="https://github.com/andreas128/mmsr">GitHub Repo</a></td>
     <td><a href="/../../releases/download/srgan_mmsr_model/srgan_mmsr_MSRGANx4.gz">Pretrained Model</a> (older version from <a href="https://github.com/open-mmlab/mmediting/tree/master/configs/restorers/srresnet_srgan">here</a>)</td>    
-    <td><a href="zoo_torch/examples/srgan_quanteval.py">See Example</a></td>
+    <td><a href="zoo_torch/examples/srgan/srgan_quanteval.py">See Example</a></td>
     <td>(BSD100) PSNR/SSIM <br> FP32: 25.51/0.653<br> INT8: 25.5/0.648<br><a href="#srgan-pytorch"> Detailed Results</a></td>
     <td><a href="zoo_torch/Docs/SRGAN.md">SRGAN.md</a></td>
   </tr>
@@ -335,10 +343,10 @@ An original FP32 source model is quantized either using post-training quantizati
   <tr>
     <td>HRNet-W48</td>
     <td><a href="https://github.com/HRNet/HRNet-Semantic-Segmentation/tree/pytorch-v1.1">GitHub Repo</a></td>
-    <td><a href="https://1drv.ms/u/s!Aus8VCZ_C_33gSlK7Fju_sXCxFUt?e=WZ96Ck">Pretrained Model</a></td>
+    <td> Original model weight not available </a></td>
     <td><a href="zoo_torch/examples/eval_hrnet.py.py">See Example</a></td>
     <td>(Cityscapes) mIOU <br> FP32<br> 81.04%<br> INT8: 80.78%</td>
-    <td><a href="zoo_torch/Docs/HRNet-pytorch-v1.1.md">HRNet.md</a></td>
+    <td><a href="zoo_torch/Docs/HRNet-w48.md">HRNet-w48.md</a></td>
   </tr>
 </table>
 

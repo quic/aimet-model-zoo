@@ -3,7 +3,7 @@
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
 #
-#  Copyright (c) 2020 of Qualcomm Innovation Center, Inc. All rights reserved.
+#  Copyright (c) 2022 of Qualcomm Innovation Center, Inc. All rights reserved.
 #
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
@@ -20,18 +20,26 @@ zoo_torch/Docs/PoseEstimation.md
 import os
 import math
 import argparse
+import tarfile
+import urllib
+import time
 from functools import partial
 from tqdm import tqdm
 
 import cv2
-from scipy.ndimage.filters import gaussian_filter
 import torch
 import torch.nn as nn
 import numpy as np
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
+from scipy.ndimage.filters import gaussian_filter
 
+# aimet import
 from aimet_torch import quantsim
+from aimet_common.defs import QuantScheme
+
+# aimet model zoo import
+from zoo_torch.examples.common import utils
 
 
 def get_pre_stage_net():
@@ -644,61 +652,76 @@ def evaluate_model(model,
 def parse_args():
     parser = argparse.ArgumentParser(prog='pose_estimation_quanteval',
                                      description='Evaluate the post quantized SRGAN model')
-
-    parser.add_argument('model_dir',
-                        help='The location where the the .pth file is saved,'
-                             'the .pth contains model weights',
-                        type=str)
-    parser.add_argument('coco_path',
+    parser.add_argument('--dataset-path',
                         help='The location coco images and annotations are saved. '
                              'It assumes a folder structure containing two subdirectorys '
                              '`images/val2014` and `annotations`. Right now only val2014 '
                              'dataset with person_keypoints are supported',
                         type=str)
-    parser.add_argument('--representative-datapath',
-                        '-reprdata',
-                        help='The location where representative data are stored. '
-                             'The data will be used for computation of encodings',
-                        type=str)
-    parser.add_argument('--quant-scheme',
-                        '-qs',
-                        help='Support two schemes for quantization: [`tf` or `tf_enhanced`],'
-                             '`tf_enhanced` is used by default',
-                        default='tf_enhanced',
-                        choices=['tf', 'tf_enhanced'],
-                        type=str)
-
+    parser.add_argument('--default-output-bw', help='Default output bitwidth for quantization.', type=int, default=8)
+    parser.add_argument('--default-param-bw', help='Default parameter bitwidth for quantization.', type=int, default=8)
+    parser.add_argument('--use-cuda', help='Run evaluation on GPU', type=bool, default=True)
     return parser.parse_args()
+
+def download_weights():
+    if not os.path.exists("./pe_weights.pth"):
+        url_checkpoint = 'https://github.com/quic/aimet-model-zoo/releases/download/pose_estimation_pytorch/pose_estimation_pytorch_weights.tgz'
+        urllib.request.urlretrieve(url_checkpoint, "pose_estimation_pytorch_weights.tgz")
+        with tarfile.open("pose_estimation_pytorch_weights.tgz") as pth_weights:
+            pth_weights.extractall('.')
+
+    # default to download 
+
+    url_config = 'https://raw.githubusercontent.com/quic/aimet/release-aimet-1.19/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config.json'
+    urllib.request.urlretrieve(url_config, "default_config.json")
 
 
 def pose_estimation_quanteval(args):
+
+    download_weights()
     # load the model checkpoint from meta
     model_builder = ModelBuilder()
     model_builder.create_model()
     model = model_builder.model
 
-    state_dict = torch.load(args.model_dir)
+
+    state_dict = torch.load('pe_weights.pth')
     state = model.state_dict()
     state.update(state_dict)
-
     model.load_state_dict(state)
 
+
+    device=utils.get_device(args)
+
+    model.to(device)
+
+    dummy_input = torch.rand((1,3,128,128), device=device)
+
+
+    kargs= {'quant_scheme': 'tf_enhanced',
+            'dummy_input': dummy_input,
+            'default_param_bw': args.default_param_bw,
+            'default_output_bw': args.default_output_bw,
+            'config_file': './default_config.json'
+            }
+
     # create quantsim object which inserts quant ops between layers
-    sim = quantsim.QuantizationSimModel(model,
-                                        input_shapes=(1, 3, 128, 128),
-                                        quant_scheme=args.quant_scheme)
+    sim = quantsim.QuantizationSimModel(model, **kargs)
 
     evaluate = partial(evaluate_model,
-                       num_imgs=500
+                       num_imgs=2000
                        )
-    sim.compute_encodings(evaluate, args.coco_path)
+    sim.compute_encodings(evaluate, args.dataset_path)
 
     eval_num = evaluate_model(sim.model,
-                              args.coco_path
+                              args.dataset_path
                               )
-    print(f'The [mAP, mAR] results are: {eval_num}')
+
+    print(f'=========Quantized W8A8 model | [mAP,mAR] results on 8-bit device: {eval_num}')
+
 
 
 if __name__ == '__main__':
     args = parse_args()
     pose_estimation_quanteval(args)
+

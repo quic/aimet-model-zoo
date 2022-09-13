@@ -1,9 +1,9 @@
-#!/usr/bin/env python3.6
+#!/usr/bin/env python3
 # -*- mode: python -*-
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
 #
-#  Copyright (c) 2020 of Qualcomm Innovation Center, Inc. All rights reserved.
+#  Copyright (c) 2022 of Qualcomm Innovation Center, Inc. All rights reserved.
 #
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
@@ -25,10 +25,10 @@
 # ==============================================================================
 
 import os
-import json
-import argparse
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 import logging
-import tensorflow as tf
+
+import tensorflow as tf 
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 from tensorflow.contrib.slim import tfexample_decoder as slim_example_decoder
@@ -37,12 +37,9 @@ from tensorflow.contrib.quantize.python import fold_batch_norms
 
 from object_detection.core import standard_fields as fields
 from object_detection.data_decoders.tf_example_decoder import TfExampleDecoder
-from aimet_tensorflow import quantizer as q
-from aimet_tensorflow import quantsim
-from aimet_tensorflow.batch_norm_fold import fold_all_batch_norms
+
 
 logger = logging.getLogger(__file__)
-
 
 def load_graph(graph, meta_graph, checkpoint=None):
     """
@@ -78,6 +75,8 @@ def initialize_uninitialized_vars(sess):
     uninitialized_vars = list(compress(global_vars, is_not_initialized))
     if uninitialized_vars:
         sess.run(tf.variables_initializer(uninitialized_vars))
+
+        
 
 class CocoParser:
     def __init__(self, data_inputs=None, validation_inputs=None, batch_size=1):
@@ -391,57 +390,3 @@ class MobileNetV2SSDRunner:
         return [fields.DetectionResultFields.detection_scores, fields.DetectionResultFields.detection_boxes,
                 fields.DetectionResultFields.detection_classes]
 
-
-def parse_args():
-    """ Parse the arguments.
-    """
-    parser = argparse.ArgumentParser(description='Evaluation script for SSD MobileNet v2.')
-
-    parser.add_argument('--model-checkpoint', help='Path to model checkpoint', required=True)
-    parser.add_argument('--dataset-dir', help='Dir path to dataset (TFRecord format)', required=True)
-    parser.add_argument('--TFRecord-file-pattern', help='Dataset file pattern, e.g. coco_val.record-*-of-00010',
-                        required=True)
-    parser.add_argument('--annotation-json-file', help='Path to ground truth annotation json file', required=True)
-    parser.add_argument('--eval-batch-size', help='Batch size to evaluate', default=1, type=int)
-    parser.add_argument('--eval-num-examples', help='Number of examples to evaluate, total 5000', default=5000,
-                        type=int)
-    parser.add_argument('--quantsim-output-dir', help='Use this flag if want to save the quantized graph')
-
-    return parser.parse_args()
-
-
-def ssd_mobilenet_v2_quanteval(args):
-    parser = CocoParser(batch_size=args.eval_batch_size)
-    generator = TfRecordGenerator(dataset_dir=args.dataset_dir, file_pattern=args.TFRecord_file_pattern,
-                                  parser=parser, is_trainning=False)
-
-    # Allocate the runner related to model session run
-    runner = MobileNetV2SSDRunner(generator=generator, checkpoint=args.model_checkpoint,
-                                  annotation_file=args.annotation_json_file, graph=args.model_checkpoint + '.meta',
-                                  fold_bn=False, quantize=False, is_train=False)
-    float_sess = runner.eval_session
-
-    iterations = int(args.eval_num_examples / args.eval_batch_size)
-    runner.evaluate(float_sess, iterations, 'original model evaluating')
-
-    # Fold BN
-    after_fold_sess, _ = fold_all_batch_norms(float_sess, generator.get_data_inputs(), ['concat', 'concat_1'])
-    #
-    # Allocate the quantizer and quantize the network using the default 8 bit params/activations
-    sim = quantsim.QuantizationSimModel(after_fold_sess, ['FeatureExtractor/MobilenetV2/MobilenetV2/input'],
-                                        output_op_names=['concat', 'concat_1'],
-                                        quant_scheme='tf',
-                                        default_output_bw=8, default_param_bw=8,
-                                        use_cuda=False)
-    # Compute encodings
-    sim.compute_encodings(runner.forward_func, forward_pass_callback_args=50)
-    # Export model for target inference
-    if args.quantsim_output_dir:
-        sim.export(os.path.join(args.quantsim_output_dir, 'export'), 'model.ckpt')
-    # Evaluate simulated quantization performance
-    runner.evaluate(sim.session, iterations, 'quantized model evaluating')
-
-
-if __name__ == '__main__':
-    args = parse_args()
-    ssd_mobilenet_v2_quanteval(args)
