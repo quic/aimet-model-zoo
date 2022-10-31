@@ -222,7 +222,7 @@ def compute_average_precision_per_class(num_true_cases, gt_boxes, difficult_case
         return measurements.compute_average_precision(precision, recall)
 
 
-def evaluate_predictor(predictor):
+def evaluate_predictor(predictor, dataset):
     '''
     :param predictor:
     :return: Average precision per classes for the given predictor
@@ -329,22 +329,22 @@ if __name__ == '__main__':
 
     # Original FP32 model on FP32 device
     print('Computing Original Model on FP32 device')
-    aps = evaluate_predictor(predictor_orig_fp32)
+    aps = evaluate_predictor(predictor_orig_fp32, dataset=dataset)
     mAP_fp32model_fp32env = sum(aps)/len(aps)
 
     # Original FP32 model on INT8 device
     print('Computing Original Model on INT8 device')
-    aps = evaluate_predictor(predictor_sim_fp32)
+    aps = evaluate_predictor(predictor_sim_fp32, dataset=dataset)
     mAP_fp32model_int8env = sum(aps)/len(aps)
 
     # Quantized INT8 model on FP32 device
     print('Computing Optimized Model on FP32 device')
-    aps = evaluate_predictor(predictor_orig_int8)
+    aps = evaluate_predictor(predictor_orig_int8, dataset=dataset)
     mAP_int8model_fp32env = sum(aps)/len(aps)
 
     # Quantized INT8 model on INT8 device
     print('Computing Optimized Model on INT8 device')
-    aps = evaluate_predictor(predictor_sim_int8)
+    aps = evaluate_predictor(predictor_sim_int8, dataset=dataset)
     mAP_int8model_int8env = sum(aps)/len(aps)
 
     print('\n\n')

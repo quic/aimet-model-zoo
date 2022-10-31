@@ -58,7 +58,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="/../../releases/download/efficientnet-lite0/efficientnet-lite0.tar.gz">Quantized Model</a></td>
     <td>(ImageNet) Top-1 Accuracy <br> FP32: 74.93% <br> INT8: 74.99%</td>
     <td><a href="zoo_tensorflow/Docs/EfficientNetLite.md">EfficientNetLite.md</a></td>
-    <td>1.15</td>
+    <td>2.4</td>
   </tr>
   <tr>
     <td>SSD MobileNet-v2</td>
@@ -85,7 +85,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="/../../releases/download/pose_estimation/pose_estimation_tensorflow.tar.gz">Quantized Model</a></td>
     <td>(COCO) mAP <br>FP32: 0.383 <br> INT8: 0.379, <br> Mean Avg.Recall (mAR) <br> FP32: 0.452<br> INT8: 0.446</td>
     <td><a href="zoo_tensorflow/Docs/PoseEstimation.md">PoseEstimation.md</a></td>
-    <td>1.15</td>
+    <td>2.4</td>
   </tr>
   <tr>
     <td>SRGAN</td>
@@ -96,7 +96,15 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="zoo_tensorflow/Docs/SRGAN.md">SRGAN.md</a></td>
     <td>2.4</td>
   </tr>
-
+    <tr>
+    <td>MobileDet-EdgeTPU</td>
+    <td><a href="https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf1_detection_zoo.md">GitHub Repo</a></td>
+    <td><a href="http://download.tensorflow.org/models/object_detection/ssdlite_mobiledet_edgetpu_320x320_coco_2020_05_19.tar.gz">Pretrained Model</a></td>
+    <td><a href="zoo_tensorflow/examples/MobileDetEdgeTPU/mobiledet_edgetpu_quanteval.py">See Example</a></td>
+    <td>(COCO) Mean Avg. Precision (mAP) <br> FP32: 0.281<br> INT8: 0.279</td>
+    <td><a href="zoo_tensorflow/Docs/MobileDetEdgeTPU.md">MobileDetEdgeTPU.md</a></td>
+    <td>2.4</td>
+  </tr>
 </table>
 
 *<sup>[1]</sup>* Original FP32 model source  
@@ -344,9 +352,25 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>HRNet-W48</td>
     <td><a href="https://github.com/HRNet/HRNet-Semantic-Segmentation/tree/pytorch-v1.1">GitHub Repo</a></td>
     <td> Original model weight not available </a></td>
-    <td><a href="zoo_torch/examples/eval_hrnet.py.py">See Example</a></td>
+    <td><a href="zoo_torch/examples/hrnet-w48/hrnet-w48_quanteval.py">See Example</a></td>
     <td>(Cityscapes) mIOU <br> FP32<br> 81.04%<br> INT8: 80.78%</td>
     <td><a href="zoo_torch/Docs/HRNet-w48.md">HRNet-w48.md</a></td>
+  </tr>
+  <tr>
+    <td>InverseForm (HRNet-16-Slim-IF)</td>
+    <td><a href="https://github.com/Qualcomm-AI-research/InverseForm">GitHub Repo</a></td>
+    <td><a href="https://github.com/Qualcomm-AI-research/InverseForm/releases/download/v1.0/hr16s_4k_slim.pth">Pretrained Model</a></td>
+    <td><a href="zoo_torch/examples/inverseform/inverseform_quanteval.py">See Example</a></td>
+    <td>(Cityscapes) mIOU <br> FP32<br> 77.81%<br> INT8: 77.17%</td>
+    <td><a href="zoo_torch/Docs/InverseForm.md">InverseForm.md</a></td>
+  </tr>
+  <tr>
+    <td>InverseForm (OCRNet-48)</td>
+    <td><a href="https://github.com/Qualcomm-AI-research/InverseForm">GitHub Repo</a></td>
+    <td><a href="https://github.com/Qualcomm-AI-research/InverseForm/releases/download/v1.0/hrnet48_OCR_IF_checkpoint.pth">Pretrained Model</a></td>
+    <td><a href="zoo_torch/examples/inverseform/inverseform_quanteval.py">See Example</a></td>
+    <td>(Cityscapes) mIOU <br> FP32<br> 86.31%<br> INT8: 86.21%</td>
+    <td><a href="zoo_torch/Docs/InverseForm.md">InverseForm.md</a></td>
   </tr>
 </table>
 
