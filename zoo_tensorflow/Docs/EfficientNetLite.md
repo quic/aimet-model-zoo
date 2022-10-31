@@ -27,6 +27,7 @@ export PYTHONPATH=$PYTHONPATH:<path to TPU repo>/tpu/models/official/efficientne
 - ImageNet can be downloaded from here:
   - https://image-net.org/download
 - 2012 ImageNet validation dataset is used for this evaluation script. The data should be organized in the following way
+- Imagenet validation label file ILSVRC2012_validation_ground_truth.txt is required for evaluation. This file should only contain labels of images. 
 ```bash 
 <imagenet validation dataset path>/
 ├── ILSVRC2012_val_00000001.JPEG
