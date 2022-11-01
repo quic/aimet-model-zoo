@@ -54,7 +54,7 @@ protoc object_detection/protos/*.proto --python_out=.
 *****
 
 ## Download model checkpoint for AIMET optimization
-MobileDet-EdgeTPU FP32 pretrained checkpoint used for AIMET quantization can be downloaded from here [Releases](/../../releases) page.
+MobileDet-EdgeTPU FP32 pretrained checkpoint used for AIMET quantization can be downloaded from the [Releases](/../../releases) page.
 
 *****
 

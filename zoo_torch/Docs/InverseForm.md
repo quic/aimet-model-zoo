@@ -22,7 +22,7 @@ This model was tested with the `torch_gpu` variant of AIMET 1.22.2.
   `export PYTHONPATH=<path to inverseform repo>:$PYTHONPATH`
 
 ## Model checkpoints and configuration
-- The InverseForm model checkpoints can be downloaded from [releases](/../../releases/tag/inverseform).
+- The InverseForm model checkpoints can be downloaded from the [Releases](/../../releases) page.
 
 ## Dataset
 - Benchmark dataset can be downloaded from here:
