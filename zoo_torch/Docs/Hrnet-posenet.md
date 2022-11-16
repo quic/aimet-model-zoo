@@ -5,15 +5,9 @@ This document describes evaluation of optimized checkpoint for Hrnet-posenet
 Clone the AIMET Model Zoo repo into your workspace:  
 `git clone https://github.com/quic/aimet-model-zoo.git`
 
-## AIMET installation and setup
-Install the *Torch GPU* variant of AIMET package *and* setup the environment using the instructions here:
-https://github.com/quic/aimet/blob/develop/packaging/install.md
-
----
-**NOTE**
-- All AIMET releases are available here: https://github.com/quic/aimet/releases
-- This model has been tested using AIMET version *1.21.0*  (i.e. set `release_tag="1.21.0"` in the above instructions).
-- This model is compatible with the PyTorch GPU variant of AIMET (i.e. set `AIMET_VARIANT="torch_gpu"` in the above instructions).
+## Setup AI Model Efficiency Toolkit (AIMET)
+Please [install and setup AIMET](https://github.com/quic/aimet/blob/release-aimet-1.22/packaging/install.md) before proceeding further.
+This model was tested with the `torch_gpu` variant of AIMET 1.22.2.
 
 ## Additional Setup Dependencies
 ```bash
@@ -50,18 +44,29 @@ if on_cuda:
 	input=input.cuda()
 ```
 
-## Obtaining model checkpoint and dataset
+## Model checkpoints and configuration
+- Downloading checkpoints and Quantization configuration file are handled through evaluation script.
 - FP32 and Optimized checkpoint of HRNET-posenet can be downloaded from the [Releases](/../../releases) page.
+- The Quantization Simulation (*Quantsim*) Configuration file can be downloaded from here: [default_config_per_channel.json](https://github.com/quic/aimet/blob/17bcc525d6188f177837bbb789ccf55a81f6a1b5/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json) (Please see [this page](https://quic.github.io/aimet-pages/releases/1.21.0/user_guide/quantization_configuration.html) for more information on this file).
+
+## Experiment setup
+```python
+export PYTHONPATH=$PYTHONPATH:<path to parent>/aimet-model-zoo
+```
+
+## Dataset
+- This evaluation script is built to evaluate on COCO2014 validation images with person keypoints. 
 - COCO dataset can be downloaded from here:
   - [COCO 2014 Val images](http://images.cocodataset.org/zips/val2014.zip)
   - [COCO 2014 Train/Val annotations](http://images.cocodataset.org/annotations/annotations_trainval2014.zip)
+- The COCO dataset path should include coco images and annotations. It assumes a folder structure containing two subdirectories: `images/val2014` and `annotations`. Corresponding images and annotations should be put into the two subdirectories.
 
 ## Usage
 - To run evaluation with QuantSim in AIMET, use the following
 ```bash
 cd <path_to_aimet_modelzoo>/zoo_torch/examples/hrnet-posenet
 python hrnet_posenet_quanteval.py
-	--default-param-bw <weight bitwidth for quantization - 8 for INT8> \
+	--default-param-bw <weight bitwidth for quantization - 8 for INT8, 4 for INT4> \
 	--default-output-bw <output bitwidth for quantization - 8 for INT8> \
 	--use-cuda <boolean for using cuda> \
 	--evaluation-dataset <path to MS-COCO validation dataset>
@@ -71,11 +76,22 @@ python hrnet_posenet_quanteval.py --default-param-bw=8 --default-output-bw=8 --u
 ```
 
 ## Quantization Configuration
-The following configuration has been used for the above model for INT8 quantization
+INT8 optimization
 
+The following configuration has been used for the above model for INT8 quantization
 - Weight quantization: 8 bits, symmetric quantization
 - Bias parameters are not quantized
 - Activation quantization: 8 bits, asymmetric quantization
 - Model inputs are quantized
 - 320 images (10 batches) from the validation dataloader was used for compute encodings
 - Batchnorm folding and "TF" quantscheme in per channel mode has been applied to get the INT8 optimized checkpoint
+
+INT4 optimization
+
+The following configuration has been used for the above model for INT4 quantization
+- Weight quantization: 4 bits, symmetric quantization
+- Bias parameters are not quantized
+- Activation quantization: 8 bits, asymmetric quantization
+- Model inputs are quantized
+- 320 images (10 batches) from the validation dataloader was used for compute encodings
+- Batchnorm folding and "TF" quantscheme in per channel mode has been applied to get the INT4 optimized checkpoint

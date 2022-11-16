@@ -26,7 +26,7 @@ pip install tensorflow-gpu==2.4.0
 
 ## Model Weights
 - The original SRGAN model is available at:
-  - [krasserm](https://github.com/krasserm/super-resolution")
+  - [krasserm](https://github.com/krasserm/super-resolution)
 
 ## Usage
 ```bash

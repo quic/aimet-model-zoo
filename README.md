@@ -73,7 +73,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>RetinaNet</td>
     <td><a href="https://github.com/fizyr/keras-retinanet">GitHub Repo</a></td>
     <td><a href="https://github.com/fizyr/keras-retinanet/releases/download/0.5.1/resnet50_coco_best_v2.1.0.h5">Pretrained Model</a></td>
-    <td><a href="zoo_tensorflow/examples/retinanet_quanteval.py">See Example</a></td>
+    <td><a href="zoo_tensorflow/examples/retinanet/retinanet_quanteval.py">See Example</a></td>
     <td> (COCO) mAP <br> FP32: 0.35 <br> INT8: 0.349 <br><a href="#retinanet"> Detailed Results</a></td>
     <td><a href="zoo_tensorflow/Docs/RetinaNet.md">RetinaNet.md</a></td>
     <td>1.15</td>
@@ -250,7 +250,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
     <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
     <td><a href="/../../releases/tag/torchvision_classification_INT4%2F8">Quantized Model</a></td>
-    <td>(ImageNet) Top-1 Accuracy <br>FP32: 69.75%<br> INT8: 69.54%<br></td>
+    <td>(ImageNet) Top-1 Accuracy <br>FP32: 69.75%<br> INT8: 69.54%<br> INT4: 69.1% <br></td>
     <td><a href="zoo_torch/Docs/Classification.md">Classification.md</a></td>
   </tr>
   <tr>
@@ -258,7 +258,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
     <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
     <td><a href="/../../releases/tag/torchvision_classification_INT4%2F8">Quantized Model</a></td>
-    <td>(ImageNet) Top-1 Accuracy <br>FP32: 76.14%<br> INT8: 75.81%<br></td>
+    <td>(ImageNet) Top-1 Accuracy <br>FP32: 76.14%<br> INT8: 75.81%<br> INT4: 75.63% <br></td>
     <td><a href="zoo_torch/Docs/Classification.md">Classification.md</a></td>
   </tr>
   <tr>
@@ -266,30 +266,30 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
     <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
     <td><a href="/../../releases/tag/torchvision_classification_INT4%2F8">Quantized Model</a></td>
-    <td>(ImageNet) Top-1 Accuracy <br>FP32: 78.36%<br> INT8: 78.10%<br></td>
+    <td>(ImageNet) Top-1 Accuracy <br>FP32: 78.36%<br> INT8: 78.10%<br> INT4: 77.70% <br></td>
     <td><a href="zoo_torch/Docs/Classification.md">Classification.md</a></td>
   </tr>
   <tr>
     <td>EfficientNet-lite0</td>
     <td><a href="https://github.com/rwightman/gen-efficientnet-pytorch">GitHub Repo</a></td>
     <td><a href="https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-weights/efficientnet_lite0_ra-37913777.pth">Pretrained Model</a></td>
-    <td><a href="/../../releases/download/pt-effnet-checkpoint/adaround_efficient_lite.pth">Quantized Model</a></td>
-    <td>(ImageNet) Top-1 Accuracy <br> FP32: 75.40%<br> INT8: 75.36%</td>
+    <td><a href="/../../releases/tag/pt-effnet-checkpoint">Quantized Model</a></td>
+    <td>(ImageNet) Top-1 Accuracy <br> FP32: 75.40%<br> INT8: 75.36%<br> INT4: 74.46%</td>
     <td><a href="zoo_torch/Docs/EfficientNet-lite0.md">EfficientNet-lite0.md</a></td>
   </tr>
   <tr>
     <td>DeepLabV3+</td>
     <td><a href="https://github.com/jfzhang95/pytorch-deeplab-xception">GitHub Repo</a></td>
     <td><a href="https://drive.google.com/file/d/1G9mWafUAj09P4KvGSRVzIsV_U5OqFLdt/view">Pretrained Model</a></td>
-    <td><a href="/../../releases/download/torch_dlv3_w8a8_pc/deeplabv3+w8a8_tfe_perchannel.pth">Quantized Model</a></td>
-    <td>(PascalVOC) mIOU <br>FP32: 72.91%<br> INT8: 72.44%</td>
+    <td><a href="/../../releases/tag/torch_dlv3_w8a8_pc">Quantized Model</a></td>
+    <td>(PascalVOC) mIOU <br>FP32: 72.91%<br> INT8: 72.44%<br> INT4: 72.18%</td>
     <td><a href="zoo_torch/Docs/DeepLabV3.md">DeepLabV3.md</a></td>
   </tr>
   <tr>
     <td>MobileNetV2-SSD-Lite</td>
     <td><a href="https://github.com/qfgaohao/pytorch-ssd">GitHub Repo</a></td>
     <td><a href="https://storage.googleapis.com/models-hao/mb2-ssd-lite-mp-0_686.pth">Pretrained Model</a></td>
-    <td><a href="/../../releases/download/MV2SSD-Lite-Torch/adaround_mv2ssd_model_new.tar.gz">Quantized Model</a></td>
+    <td><a href="/../../releases/tag/MV2SSD-Lite-Torch">Quantized Model</a></td>
     <td>(PascalVOC) mAP<br> FP32: 68.7%<br> INT8: 68.6%</td>
     <td><a href="zoo_torch/Docs/MobileNetV2-SSD-lite.md">MobileNetV2-SSD-lite.md</a></td>
   </tr>
@@ -306,7 +306,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="https://github.com/leoxiaobin/deep-high-resolution-net.pytorch">Based on Ref.</a></td>
     <td><a href="/../../releases/tag/hrnet-posenet">FP32 Model</a></td>
     <td><a href="/../../releases/tag/hrnet-posenet">Quantized Model</a></td>
-    <td>(COCO) mAP<br>FP32: 0.765 <br>INT8: 0.763 <br> mAR <br> FP32: 0.793<br> INT8: 0.792</td>
+    <td>(COCO) mAP<br>FP32: 0.765 <br>INT8: 0.763 <br> INT4: 0.762  <br> mAR <br> FP32: 0.793<br> INT8: 0.792 <br> INT4: 0.791 </td>
     <td><a href="zoo_torch/Docs/Hrnet-posenet.md">Hrnet-posenet.md</a></td>
   </tr>
     <td>SRGAN</td>
@@ -320,8 +320,8 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>DeepSpeech2</td>
     <td><a href="https://github.com/SeanNaren/deepspeech.pytorch">GitHub Repo</a></td>
     <td><a href="https://github.com/SeanNaren/deepspeech.pytorch/releases/download/v2.0/librispeech_pretrained_v2.pth">Pretrained Model</a></td>
-    <td><a href="zoo_torch/examples/deepspeech2_quanteval.py">See Example</a></td>
-    <td>(Librispeech Test Clean) WER <br> FP32<br> 9.92%<br> INT8: 10.22%</td>
+    <td><a href="zoo_torch/examples/deepspeech2/deepspeech2_quanteval.py">See Example</a></td>
+    <td>(Librispeech Test Clean) WER <br> FP32: 9.92%<br> INT8: 10.22%</td>
     <td><a href="zoo_torch/Docs/DeepSpeech2.md">DeepSpeech2.md</a></td>
   </tr>
   <tr>
@@ -353,7 +353,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="https://github.com/HRNet/HRNet-Semantic-Segmentation/tree/pytorch-v1.1">GitHub Repo</a></td>
     <td> Original model weight not available </a></td>
     <td><a href="zoo_torch/examples/hrnet-w48/hrnet-w48_quanteval.py">See Example</a></td>
-    <td>(Cityscapes) mIOU <br> FP32<br> 81.04%<br> INT8: 80.78%</td>
+    <td>(Cityscapes) mIOU <br> FP32: 81.04%<br> INT8: 80.65%<br> INT4: 80.07%</td>
     <td><a href="zoo_torch/Docs/HRNet-w48.md">HRNet-w48.md</a></td>
   </tr>
   <tr>
@@ -361,7 +361,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="https://github.com/Qualcomm-AI-research/InverseForm">GitHub Repo</a></td>
     <td><a href="https://github.com/Qualcomm-AI-research/InverseForm/releases/download/v1.0/hr16s_4k_slim.pth">Pretrained Model</a></td>
     <td><a href="zoo_torch/examples/inverseform/inverseform_quanteval.py">See Example</a></td>
-    <td>(Cityscapes) mIOU <br> FP32<br> 77.81%<br> INT8: 77.17%</td>
+    <td>(Cityscapes) mIOU <br> FP32: 77.81%<br> INT8: 77.17%</td>
     <td><a href="zoo_torch/Docs/InverseForm.md">InverseForm.md</a></td>
   </tr>
   <tr>
@@ -369,8 +369,16 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="https://github.com/Qualcomm-AI-research/InverseForm">GitHub Repo</a></td>
     <td><a href="https://github.com/Qualcomm-AI-research/InverseForm/releases/download/v1.0/hrnet48_OCR_IF_checkpoint.pth">Pretrained Model</a></td>
     <td><a href="zoo_torch/examples/inverseform/inverseform_quanteval.py">See Example</a></td>
-    <td>(Cityscapes) mIOU <br> FP32<br> 86.31%<br> INT8: 86.21%</td>
+    <td>(Cityscapes) mIOU <br> FP32: 86.31%<br> INT8: 86.21%</td>
     <td><a href="zoo_torch/Docs/InverseForm.md">InverseForm.md</a></td>
+  </tr>
+  <tr>
+    <td>FFNets</td>
+    <td><a href="https://github.com/Qualcomm-AI-research/FFNet"> Github Repo</a></td>
+    <td><a href="/../../releases/tag/torch_segmentation_ffnet">Prepared Models (5 in total)</a></td>
+    <td><a href="zoo_torch/examples/ffnet/ffnet_quanteval.py">See Example</a></td>
+    <td>(Cityscapes) mIOU <br> segmentation_ffnet78S_dBBB_mobile<br> FP32: 81.3%  INT8: 80.7%<br> segmentation_ffnet54S_dBBB_mobile<br> FP32: 80.8%  INT8: 80.1%<br> segmentation_ffnet40S_dBBB_mobile<br> FP32: 79.2%  INT8: 78.9%<br> segmentation_ffnet78S_BCC_mobile_pre_down<br> FP32: 80.6%  INT8: 80.4%<br> segmentation_ffnet122NS_CCC_mobile_pre_down<br> FP32: 79.3%  INT8: 79.0%</td>
+    <td><a href="zoo_torch/Docs/FFNet.md">FFNet.md</a></td>
   </tr>
 </table>
 
@@ -479,7 +487,7 @@ All results below used a *Scaling factor (LR-to-HR upscaling) of 2x* and the *Se
 ### Install AIMET
 Before you can run the example script for a specific model, you need to install the AI Model Efficiency ToolKit (AIMET) software. Please see this [Getting Started](https://github.com/quic/aimet#getting-started) page for an overview. Then install AIMET and its dependencies using these [Installation instructions](https://github.com/quic/aimet/blob/develop/packaging/install.md).
 
-> **NOTE:** To obtain the exact version of AIMET software that was used to test this model zoo, please install release [1.13.0](https://github.com/quic/aimet/releases/tag/1.13.0) when following the above instructions *except where specified otherwise within the individual model documentation markdown file*.
+> **NOTE:** To obtain the exact version of AIMET software that was used to test this model zoo, please install release [1.22.2](https://github.com/quic/aimet/releases/tag/1.22.2) when following the above instructions *except where specified otherwise within the individual model documentation markdown file*.
 
 ### Running the scripts
 Download the necessary datasets and code required to run the example for the model of interest. The examples run quantized evaluation and if necessary apply AIMET techniques to improve quantized model performance. They generate the final accuracy results noted in the table above. Refer to the Docs for [TensorFlow](zoo_tensorflow/Docs) or [PyTorch](zoo_torch/Docs) folder to access the documentation and procedures for a specific model.

@@ -47,7 +47,9 @@ python deeplabv3_quanteval.py \
 		--batch-size <Number of images per batch, default 4>
 ```
 
-## Quantization Configuration (INT8)
+## Quantization Configuration
+INT8 optimization
+The following configuration has been used for the above model for INT8 quantization
 - Weight quantization: 8 bits, per tensor symmetric quantization
 - Bias parameters are not quantized
 - Activation quantization: 8 bits, asymmetric quantization
@@ -55,3 +57,14 @@ python deeplabv3_quanteval.py \
 - TF-Enhanced was used as quantization scheme
 - Cross layer equalization and Adaround has been applied on optimized checkpoint
 - Data Free Quantization has been performed on the optimized checkpoint
+
+INT4 optimization
+The following configuration has been used for the above model for W4A8 quantization
+- Weight quantization: 4 bits, per channel symmetric quantization
+- Bias parameters are not quantized
+- Activation quantization: 8 bits, asymmetric quantization
+- Model inputs are quantized
+- TF-Enhanced was used as quantization scheme
+- Cross layer equalization and Adaround has been applied on optimized checkpoint
+- Data Free Quantization has been performed on the optimized checkpoint
+- Quantization Aware Traning has been performed on the optimized checkpoint

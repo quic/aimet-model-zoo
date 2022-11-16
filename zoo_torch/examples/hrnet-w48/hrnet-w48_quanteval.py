@@ -27,28 +27,28 @@ from torch.nn import functional as F
 # AIMET imports
 from aimet_torch.quantsim import QuantizationSimModel
 
-# AIMET model zoo imports 
+# AIMET model zoo imports
 from zoo_torch.examples.common import utils
 
 
 # Get evaluation func to evaluate the model
-def model_eval(args,  num_samples=None):
+def model_eval(args, num_samples=None):
     """
     Load HRnet libraries and loaded dataset through HRnet libraries
 
     :param args
     :param  num_samples number of images for computing encoding
     :return: wrapper function for data forward pass
-
     """
+
     # =========HRNet imports=================
     # adding HRNet lib into path system path
-
     if os.path.exists(args.hrnet_path):
         lib_path = os.path.join(args.hrnet_path, "lib")
         sys.path.insert(0, lib_path)
     else:
         raise ValueError('HRNet github must be cloned first')
+
     # import from HRNet lib path
     import datasets
     from config import config
@@ -94,7 +94,6 @@ def model_eval(args,  num_samples=None):
 
     return eval_func
 
-
 # Parse command line arguments
 def arguments():
     parser = argparse.ArgumentParser(description='Evaluation script for HRNet')
@@ -114,45 +113,45 @@ def seed(seednum, use_cuda):
         torch.cuda.manual_seed(seednum)
         torch.cuda.manual_seed_all(seednum)
 
-def download_weights():
-    if not os.path.exists("./default_config_per_channel.json"):
-        url_checkpoint = 'https://raw.githubusercontent.com/quic/aimet/17bcc525d6188f177837bbb789ccf55a81f6a1b5/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json'
-        urllib.request.urlretrieve(url_checkpoint, "default_config_per_channel.json")
-    if not os.path.exists("./hrnet_w8a8_pc.encodings"):
-        url_encoding = "https://github.com/quic/aimet-model-zoo/releases/download/torch_hrnet_w8a8_pc/hrnet_w8a8_pc.encodings"
-        urllib.request.urlretrieve(url_encoding, "hrnet_w8a8_pc.encodings")
-    if not os.path.exists("./hrnet_w8a8_pc.pth"):
-        url_config = "https://github.com/quic/aimet-model-zoo/releases/download/torch_hrnet_w8a8_pc/hrnet_w8a8_pc.pth"
-        urllib.request.urlretrieve(url_config, "hrnet_w8a8_pc.pth")
+def download_weights(config):
+    # Download config file
+    if not os.path.exists(config.config_file):
+        url = "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.22.1/TrainingExtensions/common/src/python/aimet_common/quantsim_config/" + config.config_file
+        urllib.request.urlretrieve(url, config.config_file)
+    # Download optimized model
+    if not os.path.exists(config.prefix + ".pth"):
+        url = "https://github.com/quic/aimet-model-zoo/releases/download/torch_" + config.prefix + "/" + config.prefix + ".pth"
+        urllib.request.urlretrieve(url, config.prefix + ".pth")
+    if not os.path.exists(config.prefix + ".encodings"):
+        url = "https://github.com/quic/aimet-model-zoo/releases/download/torch_" + config.prefix + "/" + config.prefix + ".encodings"
+        urllib.request.urlretrieve(url, config.prefix + ".encodings")
 
 # adding hardcoded values into args from parseargs() and return config object
 class ModelConfig():
     def __init__(self, args):
-        self.cfg=args.hrnet_path+'/experiments/cityscapes/seg_hrnet_w48_train_512x1024_sgd_lr1e-2_wd5e-4_bs_12_epoch484.yaml'
+        self.cfg = args.hrnet_path+'/experiments/cityscapes/seg_hrnet_w48_train_512x1024_sgd_lr1e-2_wd5e-4_bs_12_epoch484.yaml'
         self.opts = ['TEST.FLIP_TEST', False, 'DATASET.ROOT', args.hrnet_path + '/data/']
         self.seed = 0
-        self.checkpoint = "hrnet_w8a8_pc.pth"
-        self.encoding = "hrnet_w8a8_pc.encodings"
+        self.prefix = "hrnet_w" + str(args.default_param_bw) + "a" + str(args.default_output_bw) + "_pc"
         self.quant_scheme = "tf_enhanced"
         self.config_file = "default_config_per_channel.json"
         for arg in vars(args):
             setattr(self, arg, getattr(args, arg))
 
 def main():
-
     args = arguments()
 
-   # Adding hardcoded values to config on top of args
-    config=ModelConfig(args)
-    
-    download_weights()
+    # Adding hardcoded values to config on top of args
+    config = ModelConfig(args)
+
+    download_weights(config)
 
     device = utils.get_device(args)
-    
+
     seed(config.seed, config.use_cuda)
 
     # Get quantized model by loading checkpoint
-    model = torch.load(config.checkpoint)
+    model = torch.load(config.prefix + ".pth")
     model.eval()
     model.to(device)
 
@@ -160,11 +159,9 @@ def main():
     eval_func = model_eval(config)
 
     # Quantization related variables
-    dummy_input = torch.randn((1, 3, 512, 1024),device=device)
-
+    dummy_input = torch.randn((1, 3, 512, 1024), device=device)
 
     # Compute encodings and eval
-
     sim = QuantizationSimModel(model, dummy_input=dummy_input,
                                default_param_bw=config.default_param_bw,
                                default_output_bw=config.default_output_bw,
@@ -172,20 +169,14 @@ def main():
                                config_file=config.config_file)
 
     # Set and freeze encodings to use same quantization grid and then invoke compute encodings
-    sim.set_and_freeze_param_encodings(encoding_path=config.encoding)
+    sim.set_and_freeze_param_encodings(encoding_path=config.prefix + ".encodings")
     sim.compute_encodings(forward_pass_callback=eval_func_calibration,
                           forward_pass_callback_args=config)
 
     # Evaluate quantized model on 8 bit device
-
     mIoU = eval_func(sim.model, config.use_cuda)
-
     print(f"=======Quantized Model | mIoU on {config.default_param_bw}-bit device: {mIoU:.4f}")
-
-
-
 
 
 if __name__ == '__main__':
     main()
-

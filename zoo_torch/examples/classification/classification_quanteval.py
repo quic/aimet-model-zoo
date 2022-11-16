@@ -11,8 +11,9 @@
 
 #General Imports
 import argparse
+import random
+import sys, os, tarfile
 import urllib.request
-import wget
 
 #Torch related imports
 import torch
@@ -21,13 +22,29 @@ from torchvision import transforms as T
 from torch.utils.data import DataLoader
 from torchvision import models
 
+
 #AIMET torch related imports
 from aimet_torch.quantsim import QuantizationSimModel
-from classification_utils.image_net_data_loader import ImageNetDataLoader
+from zoo_torch.examples.common.image_net_data_loader import ImageNetDataLoader
+from aimet_model_zoo.zoo_torch.common.utils import get_device
 
 
+QUANTSIM_CONFIG_URL = "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.22.1/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json"
+OPTIMIZED_CHECKPOINT_URL = "https://github.com/quic/aimet-model-zoo/releases/download/torchvision_classification_INT4%2F8/"
 
-def get_imagenet_dataloader(image_dir, BATCH_SIZE=64):
+def download_weights(prefix):
+    # Download config file
+    if not os.path.exists("./default_config_per_channel.json"):
+        urllib.request.urlretrieve(QUANTSIM_CONFIG_URL, "default_config_per_channel.json")
+
+    # Download optimized model
+    if not os.path.exists(f"./{prefix}.pth"):
+        urllib.request.urlretrieve(f"{OPTIMIZED_CHECKPOINT_URL}/{prefix}.pth", f"{prefix}.pth")
+    if not os.path.exists(f"./{prefix}.encodings"):
+        urllib.request.urlretrieve(f"{OPTIMIZED_CHECKPOINT_URL}/{prefix}.encodings",f"{prefix}.encodings")
+
+
+def get_imagenet_dataloader(image_dir, BATCH_SIZE=128):
     '''
     Helper function to get imagenet dataloader from dataset directory
     '''
@@ -96,9 +113,15 @@ def forward_pass(model, dataloader):
                 data, label = data.cuda(), label.cuda()
             output = model(data)
 
-
     del dataloader
 
+def seed(seed_num, args):
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    torch.manual_seed(seed_num)
+    if args.use_cuda:
+        torch.cuda.manual_seed(seed_num)
+        torch.cuda.manual_seed_all(seed_num)
 
 # add arguments
 def arguments():
@@ -108,6 +131,8 @@ def arguments():
     parser.add_argument('--default-output-bw', help='output bitwidth for quantization', default=8, type=int)
     parser.add_argument('--use-cuda', help='Use cuda', default=True, type=bool)
     parser.add_argument('--evaluation-dataset', help='path to evaluation dataset',type=str, required=True)
+    parser.add_argument('--batch-size', help='Data batch size for a model', type = int, default=128)
+    parser.add_argument('--config-file', help='Data batch size for a model', type = str, default='./default_config_per_channel.json')
     args = parser.parse_args()
     return args
 
@@ -115,39 +140,31 @@ def arguments():
 def main():
     #Load parameters from arguments
     args = arguments()
-    
+
+    # Set seed value
+    seed(0, args)
+
     # Get fp32 model and convert to eval mode
     model = getattr(torchvision.models,args.fp32_model)(pretrained=True)
     model.eval()
 
     
-    #updata use-cuda args based on availability of cuda devices
-    use_cuda = args.use_cuda and torch.cuda.is_available()
-    
+    #get device
+    device = get_device(args)
+
     #Define prefix
     prefix = f'{args.fp32_model}_W{args.default_param_bw}A{args.default_output_bw}'
 
     # Download weights for optimized model and load optimized model and encodings
-    print('Downloading optimized model weights')
-    URL = f"https://github.com/quic/aimet-model-zoo/releases/download/torchvision_classification_INT4%2F8/"
-    wget.download(URL+f'{prefix}.pth', f'./{prefix}.pth')
-    wget.download(URL+f'{prefix}.encodings', f'./{prefix}.encodings')
+    download_weights(prefix)
 
-    #Download aimet config file
-    URL = 'https://raw.githubusercontent.com/quic/aimet/develop/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json'
-    wget.download(URL,'./default.json')
-    
-    args.aimet_config_file = './default.json'
-    
     optimized_model = torch.load(f"./{prefix}.pth")
     optimized_encodings_path = f"./{prefix}.encodings"
-    
-    if use_cuda:
-        model.cuda()
+
+    model.to(device)
 
     #Print FP32 accuracy
-    fp32_acc = eval_func(model, args.evaluation_dataset)
-    print(f'FP32 accuracy: {fp32_acc:0.3f}%')
+    fp32_acc = eval_func(model, args.evaluation_dataset, args.batch_size)
 
     #create quantsim from checkpoint
     #Define dummy input for quantsim
@@ -156,12 +173,12 @@ def main():
     #Move Optimized model to eval mode
     optimized_model.eval()
     
-    if use_cuda:
-        optimized_model.cuda()
-        dummy_input = dummy_input.cuda()
+
+    optimized_model.to(device)
+    dummy_input = dummy_input.to(device)
 
     #Create quantsim using appropriate weight bitwidth for quantization
-    sim = QuantizationSimModel(optimized_model, quant_scheme='tf_enhanced',default_param_bw=args.default_param_bw,default_output_bw=args.default_output_bw, dummy_input=dummy_input, config_file=args.aimet_config_file)
+    sim = QuantizationSimModel(optimized_model, quant_scheme='tf_enhanced',default_param_bw=args.default_param_bw,default_output_bw=args.default_output_bw, dummy_input=dummy_input, config_file=args.config_file)
 
     #Set and freeze optimized weight encodings
     sim.set_and_freeze_param_encodings(encoding_path=optimized_encodings_path)
@@ -174,7 +191,12 @@ def main():
     sim.compute_encodings(forward_pass, forward_pass_callback_args=encoding_dataloader.data_loader)
 
     quant_acc = eval_func(sim.model.cuda(), args.evaluation_dataset)
-    print(f'Quantized quantized accuracy: {quant_acc:0.3f}%')
+
+    #Print accuracy stats
+    print("Evaluation Summary:")
+    print(f"Original Model | Accuracy on 32-bit device: {fp32_acc:.4f}")
+    print(f"Optimized Model | Accuracy on {args.default_param_bw}-bit device: {quant_acc:.4f}")
+
 
 if __name__ == '__main__':
     main()

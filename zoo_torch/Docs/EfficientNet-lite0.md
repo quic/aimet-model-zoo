@@ -43,6 +43,7 @@ Each of the {train, valid, test} directories is then expected to have 1000 subdi
 To run evaluation with QuantSim in AIMET, use the following
 ```bash
  python3  efficientnetlite0_quanteval.py \
+                --default-param-bw <weight bitwidth for quantization - 8 for INT8, 4 for INT4> \
                 --dataset-path < path to validation dataset> \
                 --batch-size  <batch size as an integer value> \
                 --use-cuda <use GPU or CPU> 
@@ -50,7 +51,7 @@ To run evaluation with QuantSim in AIMET, use the following
 ```
 
 ## Quantization Configuration
-- Weight quantization: 8 bits per channel symmetric quantization
+- Weight quantization: 8 or 4 bits per channel symmetric quantization
 - Bias parameters are not quantized
 - Activation quantization: 8 bits, asymmetric quantization
 - Model inputs are quantized
@@ -58,5 +59,5 @@ To run evaluation with QuantSim in AIMET, use the following
 - TF was used for activation quantization scheme
 - Batch norm folding and Adaround have been applied on optimized efficientnet-lite checkpoint
 - [Conv - Relu6] layers has been fused as one operation via manual configurations
-- 2K Images from ImageNet validation dataset (2 images per class) are used as calibration dataset
+- 4K Images from ImageNet training dataset (4 images per class) are used as calibration dataset
 - Standard ImageNet validation dataset are usef as evaluation dataset
