@@ -32,8 +32,8 @@ from aimet_common.defs import QuantScheme
 from aimet_torch.quantsim import QuantizationSimModel
 
 QUANTSIM_CONFIG_URL = "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.22.1/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json"
-OPTIMIZED_WEIGHTS_URL = "https://github.com/quic/aimet-model-zoo/releases/download/torch_dlv3_w8a8_pc/deeplabv3+w8a8_tfe_perchannel.pth"
-OPTIMIZED_ENCODINGS_URL = "https://github.com/quic/aimet-model-zoo/releases/download/torch_dlv3_w8a8_pc/deeplabv3+w8a8_tfe_perchannel_param.encodings"
+OPTIMIZED_WEIGHTS_URL = "https://github.com/quic/aimet-model-zoo/releases/download/torch_dlv3_w8a8_pc/deeplabv3+w8a8_tfe_perchannel.pth" #NeedToReplace
+OPTIMIZED_ENCODINGS_URL = "https://github.com/quic/aimet-model-zoo/releases/download/torch_dlv3_w8a8_pc/deeplabv3+w8a8_tfe_perchannel_param.encodings" #NeedToReplace
 ORIGINAL_MODEL_URL = 'https://drive.google.com/uc?id=1G9mWafUAj09P4KvGSRVzIsV_U5OqFLdt'
 
 def download_weights():
@@ -42,9 +42,9 @@ def download_weights():
         urllib.request.urlretrieve(QUANTSIM_CONFIG_URL, "default_config_per_channel.json")
 
     # Download optimized model
-    if not os.path.exists("./deeplabv3+w8a8_tfe_perchannel.pth"):
+    if not os.path.exists("./deeplabv3+w8a8_tfe_perchannel.pth"): #NeedToReplace
         urllib.request.urlretrieve(OPTIMIZED_WEIGHTS_URL, "deeplabv3+w8a8_tfe_perchannel.pth")
-    if not os.path.exists("./deeplabv3+w8a8_tfe_perchannel_param.encodings"):
+    if not os.path.exists("./deeplabv3+w8a8_tfe_perchannel_param.encodings"): #NeedToReplace
         urllib.request.urlretrieve(OPTIMIZED_ENCODINGS_URL,"deeplabv3+w8a8_tfe_perchannel_param.encodings")
 
     # Download original model
@@ -105,8 +105,8 @@ class ModelConfig():
         self.input_shape = (1, 3, 513, 513)
         self.crop_size = 513
         self.base_size = 513
-        self.checkpoint_path = './deeplabv3+w8a8_tfe_perchannel.pth'
-        self.encodings_path = './deeplabv3+w8a8_tfe_perchannel_param.encodings'
+        self.checkpoint_path = './deeplabv3+w8a8_tfe_perchannel.pth' #NeedToReplace w4a8
+        self.encodings_path = './deeplabv3+w8a8_tfe_perchannel_param.encodings' #NeedToReplace
         self.config_file = './default_config_per_channel.json'
         for arg in vars(args):
             setattr(self, arg, getattr(args, arg))
@@ -127,7 +127,7 @@ def main():
     model_orig.eval()
 
     # Load optimized model
-    model_optim = torch.load(config.checkpoint_path)
+    model_optim = DeepLab(backbone='mobilenet')
     model_optim = model_optim.to(device)
     model_optim.eval()
 
@@ -157,19 +157,15 @@ def main():
 
     print('Evaluating Optimized Model')
     sim_optim = QuantizationSimModel(model_optim, **kwargs)
-    sim_optim.set_and_freeze_param_encodings(encoding_path=config.encodings_path) # use AdaRound encodings for the optimized model
-    sim_optim.compute_encodings(eval_func, [val_loader, config, device])
-    mIoU_optim_fp32 = eval_func(model_optim, [val_loader, config, device])
-    del model_optim
-    torch.cuda.empty_cache()
-    mIoU_optim_int8 = eval_func(sim_optim.model, [val_loader, config, device])
+    sim_optim.model = load_checkpoint(config.checkpoint_path) # load QAT model directly here
+    mIoU_optim_int4 = eval_func(sim_optim.model, [val_loader, config, device])
     del sim_optim
     torch.cuda.empty_cache()
 
     print(f'Original Model | 32-bit Environment | mIoU: {mIoU_orig_fp32:.4f}')
     print(f'Original Model | {config.default_param_bw}-bit Environment | mIoU: {mIoU_orig_int8:.4f}')
-    print(f'Optimized Model | 32-bit Environment | mIoU: {mIoU_optim_fp32:.4f}')
-    print(f'Optimized Model | {config.default_param_bw}-bit Environment | mIoU: {mIoU_optim_int8:.4f}')
+
+    print(f'Optimized Model | {config.default_param_bw}-bit Environment | mIoU: {mIoU_optim_int4:.4f}')
 
 if __name__ == '__main__':
     download_weights()

@@ -141,24 +141,24 @@ def seed(seednum, use_cuda):
         torch.cuda.manual_seed(seednum)
         torch.cuda.manual_seed_all(seednum)
 
-def download_weights():
-    if not os.path.exists("./default_config_per_channel.json"):
-        url_checkpoint = 'https://raw.githubusercontent.com/quic/aimet/17bcc525d6188f177837bbb789ccf55a81f6a1b5/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json'
-        urllib.request.urlretrieve(url_checkpoint, "default_config_per_channel.json")
-    if not os.path.exists("./efficientnetlite0_w8a8_pc.encodings"):
-        url_encoding = "https://github.com/quic/aimet-model-zoo/releases/download/torch_effnet_lite0_w8a8_pc/efficientnetlite0_w8a8_pc.encodings"
-        urllib.request.urlretrieve(url_encoding, "efficientnetlite0_w8a8_pc.encodings")
-    if not os.path.exists("model_efficientnetlite0_w8a8_pc_checkpoint.pth"):
-        url_config = "https://github.com/quic/aimet-model-zoo/releases/download/torch_effnet_lite0_w8a8_pc/model_efficientnetlite0_w8a8_pc_checkpoint.pth"
-        urllib.request.urlretrieve(url_config, "model_efficientnetlite0_w8a8_pc_checkpoint.pth")
+def download_weights(config):
+    if not os.path.exists(config.config_file):
+        url_checkpoint = "https://raw.githubusercontent.com/quic/aimet/17bcc525d6188f177837bbb789ccf55a81f6a1b5/TrainingExtensions/common/src/python/aimet_common/quantsim_config/" + config.config_file
+        urllib.request.urlretrieve(url_checkpoint, config.config_file)
+    if not os.path.exists(config.encoding):
+        url_encoding = "https://github.com/quic/aimet-model-zoo/releases/download/torch_effnet_lite0_w8a8_pc/" + config.encoding
+        urllib.request.urlretrieve(url_encoding, config.encoding)
+    if not os.path.exists(config.checkpoint):
+        url_config = "https://github.com/quic/aimet-model-zoo/releases/download/torch_effnet_lite0_w8a8_pc/" + config.checkpoint
+        urllib.request.urlretrieve(url_config, config.checkpoint)
 
 # adding hardcoded values into args from parseargs() and return config object
 class ModelConfig():
     def __init__(self, args):
         self.seed=23
         self.input_shape=(1,3,224,224)
-        self.checkpoint='model_efficientnetlite0_w8a8_pc_checkpoint.pth'
-        self.encoding='efficientnetlite0_w8a8_pc.encodings'
+        self.checkpoint="model_efficientnetlite0_w" + str(args.default_param_bw) + "a" + str(args.default_output_bw) + "_pc_checkpoint.pth"
+        self.encoding="efficientnetlite0_w" + str(args.default_param_bw) + "a" + str(args.default_output_bw) + "_pc.encodings"
         self.quant_scheme='tf_enhanced'
         self.config_file='default_config_per_channel.json'
         for arg in vars(args):
@@ -171,7 +171,7 @@ def main():
     # Adding hardcoded values to config on top of args
     config=ModelConfig(args)
 
-    download_weights()
+    download_weights(config)
         
     device=utils.get_device(args)
 
