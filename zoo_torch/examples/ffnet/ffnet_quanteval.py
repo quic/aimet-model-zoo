@@ -39,24 +39,24 @@ from aimet_torch.quantsim import QuantizationSimModel
 def download_weights(args):
     # Download original model
     FILE_NAME = f"prepared_{args.model_name}.pth"
-    ORIGINAL_MODEL_URL = f"https://github.com/quic/aimet-model-zoo/releases/download/ffnet/{FILE_NAME}"
+    ORIGINAL_MODEL_URL = f"https://github.com/quic/aimet-model-zoo/releases/download/torch_segmentation_ffnet/{FILE_NAME}"
     if not os.path.exists(FILE_NAME):
         urllib.request.urlretrieve(ORIGINAL_MODEL_URL, FILE_NAME)
 
     # Download config file
-    QUANTSIM_CONFIG_URL = "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.22.2/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json"
+    QUANTSIM_CONFIG_URL = "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.23/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json"
     if not os.path.exists("./default_config_per_channel.json"):
         urllib.request.urlretrieve(QUANTSIM_CONFIG_URL, "default_config_per_channel.json")
 
     # Download optimized weights
     FILE_NAME = f"{args.model_name}_W{args.default_param_bw}A{args.default_output_bw}_CLE_tfe_perchannel.pth"
-    OPTIMIZED_WEIGHTS_URL = f"https://github.com/quic/aimet-model-zoo/releases/download/ffnet/{FILE_NAME}"
+    OPTIMIZED_WEIGHTS_URL = f"https://github.com/quic/aimet-model-zoo/releases/download/torch_segmentation_ffnet/{FILE_NAME}"
     if not os.path.exists(FILE_NAME):
         urllib.request.urlretrieve(OPTIMIZED_WEIGHTS_URL, FILE_NAME)
 
     # Download optimized encodings
     FILE_NAME = f"{args.model_name}_W{args.default_param_bw}A{args.default_output_bw}_CLE_tfe_perchannel.encodings"
-    OPTIMIZED_ENCODINGS_URL = f"https://github.com/quic/aimet-model-zoo/releases/download/ffnet/{FILE_NAME}"
+    OPTIMIZED_ENCODINGS_URL = f"https://github.com/quic/aimet-model-zoo/releases/download/torch_segmentation_ffnet/{FILE_NAME}"
     if not os.path.exists(FILE_NAME):
         urllib.request.urlretrieve(OPTIMIZED_ENCODINGS_URL, FILE_NAME)
 

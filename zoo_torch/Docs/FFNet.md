@@ -11,7 +11,7 @@ pip install scikit-image
 ```
 
 ## Model modifications & Experiment Setup
-1. Clone the [FFNet repo](https://morpheus-gitlab.qualcomm.com/dushmeht/ffnet/-/tree/master)
+1. Clone the [FFNet repo](https://github.com/Qualcomm-AI-research/FFNet)
 ```
 git clone https://github.com/Qualcomm-AI-research/FFNet
 ```

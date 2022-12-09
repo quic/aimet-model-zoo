@@ -32,8 +32,9 @@ from aimet_common.defs import QuantScheme
 from aimet_torch.quantsim import QuantizationSimModel
 
 QUANTSIM_CONFIG_URL = "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.22.1/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json"
-OPTIMIZED_WEIGHTS_URL = "https://github.com/quic/aimet-model-zoo/releases/download/torch_dlv3_w8a8_pc/deeplabv3+w8a8_tfe_perchannel.pth" #NeedToReplace
-OPTIMIZED_ENCODINGS_URL = "https://github.com/quic/aimet-model-zoo/releases/download/torch_dlv3_w8a8_pc/deeplabv3+w8a8_tfe_perchannel_param.encodings" #NeedToReplace
+OPTIMIZED_WEIGHTS_URL_INT8 = "https://github.com/quic/aimet-model-zoo/releases/download/torch_dlv3_w8a8_pc/deeplabv3+w8a8_tfe_perchannel.pth" 
+OPTIMIZED_ENCODINGS_URL_INT8 = "https://github.com/quic/aimet-model-zoo/releases/download/torch_dlv3_w8a8_pc/deeplabv3+w8a8_tfe_perchannel_param.encodings" 
+OPTIMIZED_CHECKPOINT_URL_INT4 = "https://github.com/quic/aimet-model-zoo/releases/download/torch_dlv3_w8a8_pc/model_dlv3+mnv2_w4a8_pc_checkpoint.pt"  
 ORIGINAL_MODEL_URL = 'https://drive.google.com/uc?id=1G9mWafUAj09P4KvGSRVzIsV_U5OqFLdt'
 
 def download_weights():
@@ -42,10 +43,12 @@ def download_weights():
         urllib.request.urlretrieve(QUANTSIM_CONFIG_URL, "default_config_per_channel.json")
 
     # Download optimized model
-    if not os.path.exists("./deeplabv3+w8a8_tfe_perchannel.pth"): #NeedToReplace
-        urllib.request.urlretrieve(OPTIMIZED_WEIGHTS_URL, "deeplabv3+w8a8_tfe_perchannel.pth")
-    if not os.path.exists("./deeplabv3+w8a8_tfe_perchannel_param.encodings"): #NeedToReplace
-        urllib.request.urlretrieve(OPTIMIZED_ENCODINGS_URL,"deeplabv3+w8a8_tfe_perchannel_param.encodings")
+    if not os.path.exists("./deeplabv3+w8a8_tfe_perchannel.pth"): 
+        urllib.request.urlretrieve(OPTIMIZED_WEIGHTS_URL_INT8, "deeplabv3+w8a8_tfe_perchannel.pth")
+    if not os.path.exists("./deeplabv3+w8a8_tfe_perchannel_param.encodings"): 
+        urllib.request.urlretrieve(OPTIMIZED_ENCODINGS_URL_INT8,"deeplabv3+w8a8_tfe_perchannel_param.encodings")
+    if not os.path.exists("./model_dlv3+mnv2_w4a8_pc_checkpoint.pt"): 
+        urllib.request.urlretrieve(OPTIMIZED_CHECKPOINT_URL_INT4,"model_dlv3+mnv2_w4a8_pc_checkpoint.pt")
 
     # Download original model
     if not os.path.exists("./deeplab-mobilenet.pth.tar"):
@@ -82,8 +85,8 @@ def eval_func(model, arguments):
 def arguments():
     parser = argparse.ArgumentParser(description='Evaluation script for PyTorch ImageNet networks.')
     parser.add_argument('--batch-size',			help='Data batch size for a model', type = int, default=4)
-    parser.add_argument('--default-output-bw',  help='Default output bitwidth for quantization.', type = int, default=8)
-    parser.add_argument('--default-param-bw',   help='Default parameter bitwidth for quantization.', type = int, default=8)
+    parser.add_argument('--default-output-bw',  help='Default output bitwidth for quantization.', type = int, default=8, choices=[4, 8])
+    parser.add_argument('--default-param-bw',   help='Default parameter bitwidth for quantization.', type = int, default=8, choices=[4,8])
     parser.add_argument('--use-cuda',           help='Run evaluation on GPU.', type = bool, default=True)
     args = parser.parse_args()
     return args
@@ -105,8 +108,9 @@ class ModelConfig():
         self.input_shape = (1, 3, 513, 513)
         self.crop_size = 513
         self.base_size = 513
-        self.checkpoint_path = './deeplabv3+w8a8_tfe_perchannel.pth' #NeedToReplace w4a8
-        self.encodings_path = './deeplabv3+w8a8_tfe_perchannel_param.encodings' #NeedToReplace
+        self.int8_model_path = './deeplabv3+w8a8_tfe_perchannel.pth' 
+        self.int8_encodings_path = './deeplabv3+w8a8_tfe_perchannel_param.encodings' 
+        self.int4_checkpoint_path = './model_dlv3+mnv2_w4a8_pc_checkpoint.pt'
         self.config_file = './default_config_per_channel.json'
         for arg in vars(args):
             setattr(self, arg, getattr(args, arg))
@@ -118,18 +122,6 @@ def main():
     config = ModelConfig(args)
     device = get_device(args)
     print(f'device: {device}')
-
-    # Load original model
-    model_orig = DeepLab(backbone='mobilenet')
-    checkpoint = torch.load('deeplab-mobilenet.pth.tar')
-    model_orig.load_state_dict(checkpoint['state_dict'])
-    model_orig = model_orig.to(device)
-    model_orig.eval()
-
-    # Load optimized model
-    model_optim = DeepLab(backbone='mobilenet')
-    model_optim = model_optim.to(device)
-    model_optim.eval()
 
     # Get Dataloader
     data_loader_kwargs = { 'worker_init_fn':work_init, 'num_workers' : 0}
@@ -146,6 +138,11 @@ def main():
     }
 
     print('Evaluating Original Model')
+    model_orig = DeepLab(backbone='mobilenet')
+    checkpoint = torch.load('deeplab-mobilenet.pth.tar')
+    model_orig.load_state_dict(checkpoint['state_dict'])
+    model_orig = model_orig.to(device)
+    model_orig.eval()
     sim_orig = QuantizationSimModel(model_orig, **kwargs)
     sim_orig.compute_encodings(eval_func, [val_loader, config, device]) # dont use AdaRound encodings for the original model
     mIoU_orig_fp32 = eval_func(model_orig, [val_loader, config, device])
@@ -156,16 +153,33 @@ def main():
     torch.cuda.empty_cache()
 
     print('Evaluating Optimized Model')
-    sim_optim = QuantizationSimModel(model_optim, **kwargs)
-    sim_optim.model = load_checkpoint(config.checkpoint_path) # load QAT model directly here
-    mIoU_optim_int4 = eval_func(sim_optim.model, [val_loader, config, device])
-    del sim_optim
-    torch.cuda.empty_cache()
+    if config.default_param_bw == 4:
+        model_optim = DeepLab(backbone='mobilenet')
+        model_optim = model_optim.to(device)
+        model_optim.eval()
+        sim_optim = QuantizationSimModel(model_optim, **kwargs)
+        sim_optim.model = load_checkpoint(config.int4_checkpoint_path) # load QAT model directly here
+        mIoU_optim_int = eval_func(sim_optim.model, [val_loader, config, device])
+        del model_optim
+        del sim_optim
+        torch.cuda.empty_cache()
+
+    else:
+        model_optim = torch.load(config.int8_model_path)
+        model_optim = model_optim.to(device)
+        model_optim.eval()
+        sim_optim = QuantizationSimModel(model_optim, **kwargs)
+        sim_optim.set_and_freeze_param_encodings(encoding_path=config.int8_encodings_path) # use AdaRound encodings for the optimized model
+        sim_optim.compute_encodings(eval_func, [val_loader, config, device])
+        del model_optim
+        torch.cuda.empty_cache()
+        mIoU_optim_int = eval_func(sim_optim.model, [val_loader, config, device])
+        del sim_optim
+        torch.cuda.empty_cache()
 
     print(f'Original Model | 32-bit Environment | mIoU: {mIoU_orig_fp32:.4f}')
     print(f'Original Model | {config.default_param_bw}-bit Environment | mIoU: {mIoU_orig_int8:.4f}')
-
-    print(f'Optimized Model | {config.default_param_bw}-bit Environment | mIoU: {mIoU_optim_int4:.4f}')
+    print(f'Optimized Model | {config.default_param_bw}-bit Environment | mIoU: {mIoU_optim_int:.4f}')
 
 if __name__ == '__main__':
     download_weights()

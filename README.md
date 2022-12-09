@@ -1,496 +1,486 @@
 ![Qualcomm Innovation Center, Inc.](images/logo-quic-on@h68.png)
 
 # Model Zoo for AI Model Efficiency Toolkit
-We provide a collection of popular neural network models and compare their floating point and quantized performance. Results demonstrate that quantized models can provide good accuracy, comparable to floating point models. Together with results, we also provide recipes for users to quantize floating-point models using the [AI Model Efficiency ToolKit (AIMET)](https://github.com/quic/aimet).
+We provide a collection of popular neural network models and compare their floating point and quantized performance. Results demonstrate that quantized models can provide good accuracy, comparable to floating point models. Together with results, we also provide scripts and artifacts for users to quantize floating-point models using the [AI Model Efficiency ToolKit (AIMET)](https://github.com/quic/aimet).
 
 ## Table of Contents
 - [Introduction](#introduction)
-- [Tensorflow Models](#tensorflow-models)
-  - [Model Zoo](#model-zoo)
-  - [Detailed Results](#detailed-results)
 - [PyTorch Models](#pytorch-models)
-  - [Model Zoo](#pytorch-model-zoo)
-  - [Detailed Results](#pytorch-detailed-results)
+- [Tensorflow Models](#tensorflow-models)
 - [Examples](#examples)
 - [Team](#team)
 - [License](#license)
 
 ## Introduction
-Quantized inference is significantly faster than floating-point inference, and enables models to run in a power-efficient manner on mobile and edge devices. We use AIMET, a library that includes state-of-the-art techniques for quantization, to quantize various models available in [TensorFlow](https://tensorflow.org) and [PyTorch](https://pytorch.org) frameworks. The list of models is provided in the sections below.
+Quantized inference is significantly faster than floating-point inference, and enables models to run in a power-efficient manner on mobile and edge devices. We use AIMET, a library that includes state-of-the-art techniques for quantization, to quantize various models available in [PyTorch](https://pytorch.org) and [TensorFlow](https://tensorflow.org) frameworks.
 
 An original FP32 source model is quantized either using post-training quantization (PTQ) or Quantization-Aware-Training (QAT) technique available in AIMET. Example scripts for evaluation are provided for each model. When PTQ is needed, the evaluation script performs PTQ before evaluation. Wherever QAT is used, the fine-tuned model checkpoint is also provided.
 
-## Tensorflow Models
-
-### Model Zoo
-<table style="width:50%">
-  <tr>
-    <th>Network</th>
-    <th>Model Source <sup>[1]</sup></th>
-    <th>Floating Pt (FP32) Model <sup>[2]</sup></th>
-    <th>Quantized Model <sup>[3]</sup></th>
-    <th>Results <sup>[4]</sup></th>
-    <th>Documentation</th>
-    <th>TensorFlow Version</th>
-  </tr>
-  <tr>
-    <td>ResNet-50 (v1)</td>
-    <td><a href="https://github.com/tensorflow/models/tree/master/research/slim">GitHub Repo</a></td>
-    <td><a href="http://download.tensorflow.org/models/resnet_v1_50_2016_08_28.tar.gz">Pretrained Model</a></td>
-    <td><a href="zoo_tensorflow/Docs/ResNet50.md">See Documentation</a></td>
-    <td>(ImageNet) Top-1 Accuracy <br>FP32: 75.21% <br> INT8: 74.96%</td>
-    <td><a href="zoo_tensorflow/Docs/ResNet50.md">ResNet50.md</a></td>
-    <td>1.15</td>
-  </tr>
-  <tr>
-    <td>MobileNet-v2-1.4</td>
-    <td><a href="https://github.com/tensorflow/models/tree/master/research/slim">GitHub Repo</a></td>
-    <td><a href="https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.4_224.tgz">Pretrained Model</a></td>
-    <td><a href="/../../releases/download/mobilenet-v2-1.4/mobilenetv2-1.4.tar.gz">Quantized Model</a></td>
-    <td>(ImageNet) Top-1 Accuracy <br> FP32: 75%<br> INT8: 74.21%</td>
-    <td><a href="zoo_tensorflow/Docs/MobileNetV2.md">MobileNetV2.md</a></td>
-    <td>1.15</td>
-  </tr>
-  <tr>
-    <td>EfficientNet Lite</td>
-    <td><a href="https://github.com/tensorflow/tpu/tree/master/models/official/efficientnet/lite">GitHub Repo</a></td>
-    <td><a href="https://storage.googleapis.com/cloud-tpu-checkpoints/efficientnet/lite/efficientnet-lite0.tar.gz">Pretrained Model</a> </td>
-    <td><a href="/../../releases/download/efficientnet-lite0/efficientnet-lite0.tar.gz">Quantized Model</a></td>
-    <td>(ImageNet) Top-1 Accuracy <br> FP32: 74.93% <br> INT8: 74.99%</td>
-    <td><a href="zoo_tensorflow/Docs/EfficientNetLite.md">EfficientNetLite.md</a></td>
-    <td>2.4</td>
-  </tr>
-  <tr>
-    <td>SSD MobileNet-v2</td>
-    <td><a href="https://github.com/tensorflow/models/tree/master/research/object_detection">GitHub Repo</a></td>
-    <td><a href="http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v2_quantized_300x300_coco_2019_01_03.tar.gz">Pretrained Model</a></td>
-    <td><a href="zoo_tensorflow/examples/ssd_mobilenet_v2/ssd_mobilenet_v2_quanteval.py">See Example</a></td>
-    <td>(COCO) Mean Avg. Precision (mAP) <br> FP32: 0.2469<br> INT8: 0.2456</td>
-    <td><a href="zoo_tensorflow/Docs/SSDMobileNetV2.md">SSDMobileNetV2.md</a></td>
-    <td>1.15</td>
-  </tr>
-  <tr>
-    <td>RetinaNet</td>
-    <td><a href="https://github.com/fizyr/keras-retinanet">GitHub Repo</a></td>
-    <td><a href="https://github.com/fizyr/keras-retinanet/releases/download/0.5.1/resnet50_coco_best_v2.1.0.h5">Pretrained Model</a></td>
-    <td><a href="zoo_tensorflow/examples/retinanet/retinanet_quanteval.py">See Example</a></td>
-    <td> (COCO) mAP <br> FP32: 0.35 <br> INT8: 0.349 <br><a href="#retinanet"> Detailed Results</a></td>
-    <td><a href="zoo_tensorflow/Docs/RetinaNet.md">RetinaNet.md</a></td>
-    <td>1.15</td>
-  </tr>
-<tr>
-    <td>Pose Estimation</td>
-    <td><a href="https://arxiv.org/abs/1611.08050">Based on Ref.</a></td>
-    <td><a href="https://arxiv.org/abs/1611.08050">Based on Ref.</a></td>
-    <td><a href="/../../releases/download/pose_estimation/pose_estimation_tensorflow.tar.gz">Quantized Model</a></td>
-    <td>(COCO) mAP <br>FP32: 0.383 <br> INT8: 0.379, <br> Mean Avg.Recall (mAR) <br> FP32: 0.452<br> INT8: 0.446</td>
-    <td><a href="zoo_tensorflow/Docs/PoseEstimation.md">PoseEstimation.md</a></td>
-    <td>2.4</td>
-  </tr>
-  <tr>
-    <td>SRGAN</td>
-    <td><a href="https://github.com/krasserm/super-resolution">GitHub Repo</a></td>
-    <td><a href="https://drive.google.com/file/d/1u9ituA3ScttN9Vi-UkALmpO0dWQLm8Rv/view">Pretrained Model</a></td>
-    <td><a href="zoo_tensorflow/examples/srgan/srgan_quanteval.py">See Example</a></td>
-    <td>(BSD100) PSNR/SSIM <br> FP32: 25.45/0.668 <br> INT8: 24.78/0.628<br> INT8W/INT16Act.: 25.41/0.666 <br> <a href="#srgan"> Detailed Results</a></td>
-    <td><a href="zoo_tensorflow/Docs/SRGAN.md">SRGAN.md</a></td>
-    <td>2.4</td>
-  </tr>
-    <tr>
-    <td>MobileDet-EdgeTPU</td>
-    <td><a href="https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf1_detection_zoo.md">GitHub Repo</a></td>
-    <td><a href="http://download.tensorflow.org/models/object_detection/ssdlite_mobiledet_edgetpu_320x320_coco_2020_05_19.tar.gz">Pretrained Model</a></td>
-    <td><a href="zoo_tensorflow/examples/MobileDetEdgeTPU/mobiledet_edgetpu_quanteval.py">See Example</a></td>
-    <td>(COCO) Mean Avg. Precision (mAP) <br> FP32: 0.281<br> INT8: 0.279</td>
-    <td><a href="zoo_tensorflow/Docs/MobileDetEdgeTPU.md">MobileDetEdgeTPU.md</a></td>
-    <td>2.4</td>
-  </tr>
-</table>
-
-*<sup>[1]</sup>* Original FP32 model source  
-*<sup>[2]</sup>* FP32 model checkpoint  
-*<sup>[3]</sup>* Quantized Model: For models quantized with post-training technique, refers to FP32 model which can then be quantized using AIMET. For models optimized with QAT, refers to model checkpoint with fine-tuned weights. 8-bit weights and activations are typically used. For some models, 8-bit weights and 16-bit activations (INT8W/INT16Act.) are used to further improve performance of post-training quantization.  
-*<sup>[4]</sup>* Results comparing float and quantized performance  
-*<sup>[5]</sup>* Script for quantized evaluation using the model referenced in “Quantized Model” column
-
-### Detailed Results
-#### RetinaNet
-(COCO dataset)
-<table style= " width:50%">
-   <tr>
-    <th>Average Precision/Recall </th>
-    <th> @[ IoU | area | maxDets] </th>
-    <th>FP32 </th>
-     <th>INT8 </th>
-  </tr>
-  <tr>
-    <td>Average Precision</td>
-    <td> @[ 0.50:0.95 | all | 100 ] </td>
-    <td>0.350 </td>
-    <td>0.349</td>
-  </tr>
-  <tr>
-    <td>Average Precision</td>
-    <td> @[ 0.50 | all | 100 ] </td>
-    <td>0.537 </td>
-    <td>0.536</td>
-  </tr>
-  <tr>
-    <td>Average Precision</td>
-    <td> @[ 0.75 | all | 100 ] </td>
-    <td>0.374 </td>
-    <td> 0.372</td>
-  </tr>
-  <tr>
-    <td>Average Precision</td>
-    <td> @[ 0.50:0.95 | small | 100 ] </td>
-    <td>0.191 </td>
-    <td>0.187</td>
-  </tr>
-  <tr>
-    <td>Average Precision</td>
-    <td> @[ 0.50:0.95 | medium | 100 ] </td>
-    <td> 0.383 </td>
-    <td>0.381</td>
-  </tr>
-  <tr>
-    <td>Average Precision</td>
-    <td> @[ 0.50:0.95 | large | 100 ] </td>
-    <td>0.472 </td>
-    <td>0.472</td>
-  </tr>
-  <tr>
-    <td> Average Recall</td>
-    <td> @[ 0.50:0.95 | all | 1 ] </td>
-    <td>0.306 </td>
-    <td>0.305</td>
-  </tr>
-  <tr>
-    <td> Average Recall</td>
-    <td> @[0.50:0.95 | all | 10 ] </td>
-    <td>0.491 </td>
-    <td>0.490</td>
-  </tr>
-  <tr>
-    <td> Average Recall</td>
-    <td> @[ 0.50:0.95 | all |100 ] </td>
-    <td>0.533 </td>
-    <td>0.532</td>
-  </tr>
-  <tr>
-    <td> Average Recall</td>
-    <td> @[ 0.50:0.95 | small | 100 ] </td>
-    <td>0.345</td>
-    <td>0.341</td>
-  </tr>
-  <tr>
-    <td> Average Recall</td>
-    <td> @[ 0.50:0.95 | medium | 100 ] </td>
-    <td>0.577</td>
-    <td>0.577</td>
-  </tr>
-  <tr>
-    <td> Average Recall</td>
-    <td> @[ 0.50:0.95 | large | 100 ] </td>
-    <td>0.681</td>
-    <td>0.679</td>
-  </tr>
-</table>
-
-#### SRGAN
- <table style= " width:50%">
-   <tr>
-    <th>Model</th>
-    <th>Dataset</th>
-    <th>PSNR</th>
-    <th>SSIM</th>
-  </tr>
-  <tr>
-    <td>FP32</td>
-    <td>Set5/Set14/BSD100</td>
-    <td>29.17/26.17/25.45</td>
-    <td>0.853/0.719/0.668</td>
-  </tr>
-  <tr>
-    <td>INT8/ACT8</td>
-    <td>Set5/Set14/BSD100</td>
-    <td>28.31/25.55/24.78</td>
-    <td>0.821/0.684/0.628</td>
-  </tr>
-  <tr>
-    <td>INT8/ACT16</td>
-    <td>Set5/Set14/BSD100</td>
-    <td>29.12/26.15/25.41</td>
-    <td>0.851/0.719/0.666</td>
-  </tr>
-</table>
-
-
 ## PyTorch Models
-### Model Zoo  <a name="pytorch-model-zoo"></a>
-<table style="width:50%">
-<tr>
-    <th>Network</th>
-    <th>Model Source <sup>[1]</sup></th>
-    <th>Floating Pt (FP32) Model <sup>[2]</sup></th>
-    <th>Quantized Model <sup>[3]</sup></th>
-    <th>Results <sup>[4]</sup></th>
-    <th>Documentation</th>
+<table style="width:50%;text-align: center">
+  <tr>
+    <th>Network<sup>[1]</sup></th>
+    <th>Model Source<sup>[2]</sup></th>
+    <th>Floating Pt (FP32) Model <sup>[3]</sup></th>
+    <th>Quantized Model <sup>[4]</sup></th>
+    <th colspan="4">Results <sup>[5]</sup></th>
   </tr>
   <tr>
-    <td>MobileNetV2</td>
+    <th></th>
+    <th></th>
+    <th></th>
+    <th></th>
+    <th>Metric</th>
+    <th>FP32</th>
+    <th>W8A8<sup>[6]</sup></th>
+    <th>W4A8<sup>[7]</sup></th>
+  </tr>
+  <tr>
+    <td><a href="zoo_torch/Docs/MobilenetV2.md">MobileNetV2</a></td>
     <td><a href="https://github.com/tonylins/pytorch-mobilenet-v2">GitHub Repo</a></td>
     <td><a href="https://drive.google.com/file/d/1jlto6HRVD3ipNkAl1lNhDbkBp7HylaqR/view">Pretrained Model</a></td>
     <td><a href="/../../releases/download/mobilenetv2-pytorch/mv2qat_modeldef.tar.gz">Quantized Model</a></td>
-    <td>(ImageNet) Top-1 Accuracy <br>FP32: 71.67%<br> INT8: 71.14%</td>
-    <td><a href="zoo_torch/Docs/MobilenetV2.md">MobileNetV2.md</a></td>
+    <td>(ImageNet) Top-1 Accuracy</td>
+    <td>71.67%</td>
+    <td>71.14%</td>
+    <td>TBD</td>
   </tr>
   <tr>
-    <td>Resnet18</td>
+    <td><a href="zoo_torch/Docs/Classification.md">Resnet18</a></td>
     <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
     <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
     <td><a href="/../../releases/tag/torchvision_classification_INT4%2F8">Quantized Model</a></td>
-    <td>(ImageNet) Top-1 Accuracy <br>FP32: 69.75%<br> INT8: 69.54%<br> INT4: 69.1% <br></td>
-    <td><a href="zoo_torch/Docs/Classification.md">Classification.md</a></td>
+    <td>(ImageNet) Top-1 Accuracy</td>
+    <td>69.75%</td>
+    <td>69.54%</td>
+    <td>69.1%</td>
   </tr>
   <tr>
-    <td>Resnet50</td>
+    <td><a href="zoo_torch/Docs/Classification.md">Resnet50</a></td>
     <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
     <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
     <td><a href="/../../releases/tag/torchvision_classification_INT4%2F8">Quantized Model</a></td>
-    <td>(ImageNet) Top-1 Accuracy <br>FP32: 76.14%<br> INT8: 75.81%<br> INT4: 75.63% <br></td>
-    <td><a href="zoo_torch/Docs/Classification.md">Classification.md</a></td>
+    <td>(ImageNet) Top-1 Accuracy</td>
+    <td>76.14%</td>
+    <td>75.81%</td> 
+    <td>75.63%</td>
   </tr>
   <tr>
-    <td>Regnet_x_3_2gf</td>
+    <td><a href="zoo_torch/Docs/Classification.md">Regnet_x_3_2gf</a></td>
     <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
     <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
     <td><a href="/../../releases/tag/torchvision_classification_INT4%2F8">Quantized Model</a></td>
-    <td>(ImageNet) Top-1 Accuracy <br>FP32: 78.36%<br> INT8: 78.10%<br> INT4: 77.70% <br></td>
-    <td><a href="zoo_torch/Docs/Classification.md">Classification.md</a></td>
+    <td>(ImageNet) Top-1 Accuracy</td>
+    <td>78.36%</td>
+    <td>78.10%</td>
+    <td>77.70%</td>
   </tr>
   <tr>
-    <td>EfficientNet-lite0</td>
+    <td><a href="zoo_torch/Docs/EfficientNet-lite0.md">EfficientNet-lite0</a></td>
     <td><a href="https://github.com/rwightman/gen-efficientnet-pytorch">GitHub Repo</a></td>
     <td><a href="https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-weights/efficientnet_lite0_ra-37913777.pth">Pretrained Model</a></td>
     <td><a href="/../../releases/tag/pt-effnet-checkpoint">Quantized Model</a></td>
-    <td>(ImageNet) Top-1 Accuracy <br> FP32: 75.40%<br> INT8: 75.36%<br> INT4: 74.46%</td>
-    <td><a href="zoo_torch/Docs/EfficientNet-lite0.md">EfficientNet-lite0.md</a></td>
+    <td>(ImageNet) Top-1 Accuracy</td>
+    <td>75.40%</td>
+    <td>75.36%</td>
+    <td>74.46%</td>
   </tr>
   <tr>
-    <td>DeepLabV3+</td>
+    <td><a href="zoo_torch/Docs/DeepLabV3.md">DeepLabV3+</a></td>
     <td><a href="https://github.com/jfzhang95/pytorch-deeplab-xception">GitHub Repo</a></td>
     <td><a href="https://drive.google.com/file/d/1G9mWafUAj09P4KvGSRVzIsV_U5OqFLdt/view">Pretrained Model</a></td>
     <td><a href="/../../releases/tag/torch_dlv3_w8a8_pc">Quantized Model</a></td>
-    <td>(PascalVOC) mIOU <br>FP32: 72.91%<br> INT8: 72.44%<br> INT4: 72.18%</td>
-    <td><a href="zoo_torch/Docs/DeepLabV3.md">DeepLabV3.md</a></td>
+    <td>(PascalVOC) mIOU</td>
+    <td>72.91%</td>
+    <td>72.44%</td>
+    <td>72.18%</td>
   </tr>
   <tr>
-    <td>MobileNetV2-SSD-Lite</td>
+    <td><a href="zoo_torch/Docs/MobileNetV2-SSD-lite.md">MobileNetV2-SSD-Lite</a></td>
     <td><a href="https://github.com/qfgaohao/pytorch-ssd">GitHub Repo</a></td>
     <td><a href="https://storage.googleapis.com/models-hao/mb2-ssd-lite-mp-0_686.pth">Pretrained Model</a></td>
     <td><a href="/../../releases/tag/MV2SSD-Lite-Torch">Quantized Model</a></td>
-    <td>(PascalVOC) mAP<br> FP32: 68.7%<br> INT8: 68.6%</td>
-    <td><a href="zoo_torch/Docs/MobileNetV2-SSD-lite.md">MobileNetV2-SSD-lite.md</a></td>
+    <td>(PascalVOC) mAP</td>
+    <td>68.7%</td>
+    <td>68.6%</td>
+    <td>TBD</td>
   </tr>
   <tr>
-    <td>Pose Estimation</td>
-    <td><a href="https://github.com/CMU-Perceptual-Computing-Lab/openpose">Based on Ref.</a></td>
-    <td><a href="https://github.com/CMU-Perceptual-Computing-Lab/openpose">Based on Ref.</a></td>
-    <td><a href="/../../releases/download/pose_estimation_pytorch/pose_estimation_pytorch_weights.tgz">Quantized Model</a></td>
-    <td>(COCO) mAP<br>FP32: 0.364<br>INT8: 0.359<br> mAR <br> FP32: 0.436<br> INT8: 0.432</td>
-    <td><a href="zoo_torch/Docs/PoseEstimation.md">PoseEstimation.md</a></td>
+    <td rowspan="2"><a href="zoo_torch/Docs/PoseEstimation.md">Pose Estimation</a></td>
+    <td rowspan="2"><a href="https://github.com/CMU-Perceptual-Computing-Lab/openpose">Based on Ref.</a></td>
+    <td rowspan="2"><a href="https://github.com/CMU-Perceptual-Computing-Lab/openpose">Based on Ref.</a></td>
+    <td rowspan="2"><a href="/../../releases/download/pose_estimation_pytorch/pose_estimation_pytorch_weights.tgz">Quantized Model</a></td>
+    <td>(COCO) mAP</td>
+    <td>0.364</td>
+    <td>0.359</td>
+    <td>TBD</td>
   </tr>
   <tr>
-    <td>HRNET-Posenet</td>
-    <td><a href="https://github.com/leoxiaobin/deep-high-resolution-net.pytorch">Based on Ref.</a></td>
-    <td><a href="/../../releases/tag/hrnet-posenet">FP32 Model</a></td>
-    <td><a href="/../../releases/tag/hrnet-posenet">Quantized Model</a></td>
-    <td>(COCO) mAP<br>FP32: 0.765 <br>INT8: 0.763 <br> INT4: 0.762  <br> mAR <br> FP32: 0.793<br> INT8: 0.792 <br> INT4: 0.791 </td>
-    <td><a href="zoo_torch/Docs/Hrnet-posenet.md">Hrnet-posenet.md</a></td>
+    <td>(COCO) mAR</td>
+    <td>0.436</td>
+    <td>0.432</td>
+    <td>TBD</td>
   </tr>
-    <td>SRGAN</td>
+  <tr>
+    <td rowspan="2"><a href="zoo_torch/Docs/Hrnet-posenet.md">HRNET-Posenet</a></td>
+    <td rowspan="2"><a href="https://github.com/leoxiaobin/deep-high-resolution-net.pytorch">Based on Ref.</a></td>
+    <td rowspan="2"><a href="/../../releases/tag/hrnet-posenet">FP32 Model</a></td>
+    <td rowspan="2"><a href="/../../releases/tag/hrnet-posenet">Quantized Model</a></td>
+    <td>(COCO) mAP</td>
+    <td>0.765</td>
+    <td>0.763</td>
+    <td>0.762</td>
+  </tr>
+  <tr>
+    <td>(COCO) mAR</td>
+    <td>0.793</td>
+    <td>0.792</td>
+    <td>0.791</td>
+  </tr>
+  <tr>
+    <td><a href="zoo_torch/Docs/SRGAN.md">SRGAN</a></td>
     <td><a href="https://github.com/andreas128/mmsr">GitHub Repo</a></td>
     <td><a href="/../../releases/download/srgan_mmsr_model/srgan_mmsr_MSRGANx4.gz">Pretrained Model</a> (older version from <a href="https://github.com/open-mmlab/mmediting/tree/master/configs/restorers/srresnet_srgan">here</a>)</td>    
     <td><a href="zoo_torch/examples/srgan/srgan_quanteval.py">See Example</a></td>
-    <td>(BSD100) PSNR/SSIM <br> FP32: 25.51/0.653<br> INT8: 25.5/0.648<br><a href="#srgan-pytorch"> Detailed Results</a></td>
-    <td><a href="zoo_torch/Docs/SRGAN.md">SRGAN.md</a></td>
+    <td>(BSD100) PSNR / SSIM <a href="zoo_torch/Docs/SRGAN.md#results"> Detailed Results</a></td>
+    <td>25.51 / 0.653</td>
+    <td>25.5 / 0.648</td>
+    <td>TBD</td>
   </tr>
   <tr>
-    <td>DeepSpeech2</td>
+    <td><a href="zoo_torch/Docs/DeepSpeech2.md">DeepSpeech2</a></td>
     <td><a href="https://github.com/SeanNaren/deepspeech.pytorch">GitHub Repo</a></td>
     <td><a href="https://github.com/SeanNaren/deepspeech.pytorch/releases/download/v2.0/librispeech_pretrained_v2.pth">Pretrained Model</a></td>
     <td><a href="zoo_torch/examples/deepspeech2/deepspeech2_quanteval.py">See Example</a></td>
-    <td>(Librispeech Test Clean) WER <br> FP32: 9.92%<br> INT8: 10.22%</td>
-    <td><a href="zoo_torch/Docs/DeepSpeech2.md">DeepSpeech2.md</a></td>
+    <td>(Librispeech Test Clean) WER</td>
+    <td>9.92%</td>
+    <td>10.22%</td>
+    <td>TBD</td>
   </tr>
   <tr>
-    <td>Anchor-based Plain Net (ABPN)</td>
+    <td><a href="zoo_torch/Docs/SuperRes.md">Anchor-based Plain Net (ABPN)</a></td>
     <td><a href="https://arxiv.org/abs/2105.09750">Based on Ref.</a></td>
     <td><a href="/../../releases/tag/abpn-checkpoint-pytorch">See Tarballs</a></td>
     <td><a href="zoo_torch/examples/superres/notebooks/superres_quanteval.ipynb">See Example</a></td>
-    <td><a href="#superres-family-pytorch"> Average PSNR Results</a></td>
-    <td><a href="zoo_torch/Docs/SuperRes.md">SuperRes.md</a></td>
+    <td colspan="3"><a href="zoo_torch/Docs/SuperRes.md#results"> Average PSNR Results</a></td>
+    <td>TBD</td>
   </tr>
   <tr>
-    <td>Extremely Lightweight Quantization Robust Real-Time Single-Image Super Resolution (XLSR)</td>
+    <td><a href="zoo_torch/Docs/SuperRes.md">Extremely Lightweight Quantization Robust Real-Time Single-Image Super Resolution (XLSR)</a></td>
     <td><a href="https://arxiv.org/abs/2105.10288">Based on Ref.</a></td>
     <td><a href="/../../releases/tag/xlsr-checkpoint-pytorch">See Tarballs</a></td>
     <td><a href="zoo_torch/examples/superres/notebooks/superres_quanteval.ipynb">See Example</a></td>
-    <td><a href="#superres-family-pytorch"> Average PSNR Results</a></td>
-    <td><a href="zoo_torch/Docs/SuperRes.md">SuperRes.md</a></td>
+    <td colspan="3"><a href="zoo_torch/Docs/SuperRes.md#results"> Average PSNR Results</a></td>
+    <td>TBD</td>
   </tr>
   <tr>
-    <td>Super-Efficient Super Resolution (SESR)</td>
+    <td><a href="zoo_torch/Docs/SuperRes.md">Super-Efficient Super Resolution (SESR)</a></td>
     <td><a href="https://arxiv.org/abs/2103.09404">Based on Ref.</a></td>
     <td><a href="/../../releases/tag/sesr-checkpoint-pytorch">See Tarballs</a></td>
     <td><a href="zoo_torch/examples/superres/notebooks/superres_quanteval.ipynb">See Example</a></td>
-    <td><a href="#superres-family-pytorch"> Average PSNR Results</a></td>
-    <td><a href="zoo_torch/Docs/SuperRes.md">SuperRes.md</a></td>
+    <td colspan="3"><a href="zoo_torch/Docs/SuperRes.md#results"> Average PSNR Results</a></td>
+    <td>TBD</td>
   </tr>
   <tr>
-    <td>HRNet-W48</td>
+    <td><a href="zoo_torch/Docs/SuperRes.md">QuickSRNet</a></td>
+    <td><a> - </a></td>
+    <td><a href="/../../releases/tag/quicksrnet-checkpoint-pytorch">See Tarballs</a></td>
+    <td><a href="zoo_torch/examples/superres/notebooks/superres_quanteval.ipynb">See Example</a></td>
+    <td colspan="3"><a href="zoo_torch/Docs/SuperRes.md#results"> Average PSNR Results</a></td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td><a href="zoo_torch/Docs/HRNet-w48.md">HRNet-W48</a></td>
     <td><a href="https://github.com/HRNet/HRNet-Semantic-Segmentation/tree/pytorch-v1.1">GitHub Repo</a></td>
     <td> Original model weight not available </a></td>
     <td><a href="zoo_torch/examples/hrnet-w48/hrnet-w48_quanteval.py">See Example</a></td>
-    <td>(Cityscapes) mIOU <br> FP32: 81.04%<br> INT8: 80.65%<br> INT4: 80.07%</td>
-    <td><a href="zoo_torch/Docs/HRNet-w48.md">HRNet-w48.md</a></td>
+    <td>(Cityscapes) mIOU</td>
+    <td>81.04%</td>
+    <td>80.65%</td>
+    <td>80.07%</td>
   </tr>
   <tr>
-    <td>InverseForm (HRNet-16-Slim-IF)</td>
+    <td><a href="zoo_torch/Docs/InverseForm.md">InverseForm (HRNet-16-Slim-IF)</a></td>
     <td><a href="https://github.com/Qualcomm-AI-research/InverseForm">GitHub Repo</a></td>
     <td><a href="https://github.com/Qualcomm-AI-research/InverseForm/releases/download/v1.0/hr16s_4k_slim.pth">Pretrained Model</a></td>
     <td><a href="zoo_torch/examples/inverseform/inverseform_quanteval.py">See Example</a></td>
-    <td>(Cityscapes) mIOU <br> FP32: 77.81%<br> INT8: 77.17%</td>
-    <td><a href="zoo_torch/Docs/InverseForm.md">InverseForm.md</a></td>
+    <td>(Cityscapes) mIOU</td>
+    <td>77.81%</td>
+    <td>77.17%</td>
+    <td>TBD</td>
   </tr>
   <tr>
-    <td>InverseForm (OCRNet-48)</td>
+    <td><a href="zoo_torch/Docs/InverseForm.md">InverseForm (OCRNet-48)</a></td>
     <td><a href="https://github.com/Qualcomm-AI-research/InverseForm">GitHub Repo</a></td>
     <td><a href="https://github.com/Qualcomm-AI-research/InverseForm/releases/download/v1.0/hrnet48_OCR_IF_checkpoint.pth">Pretrained Model</a></td>
     <td><a href="zoo_torch/examples/inverseform/inverseform_quanteval.py">See Example</a></td>
-    <td>(Cityscapes) mIOU <br> FP32: 86.31%<br> INT8: 86.21%</td>
-    <td><a href="zoo_torch/Docs/InverseForm.md">InverseForm.md</a></td>
+    <td>(Cityscapes) mIOU</td>
+    <td>86.31%</td>
+    <td>86.21%</td>
+    <td>TBD</td>
   </tr>
   <tr>
-    <td>FFNets</td>
+    <td><a href="zoo_torch/Docs/FFNet.md">FFNets</a></td>
     <td><a href="https://github.com/Qualcomm-AI-research/FFNet"> Github Repo</a></td>
     <td><a href="/../../releases/tag/torch_segmentation_ffnet">Prepared Models (5 in total)</a></td>
     <td><a href="zoo_torch/examples/ffnet/ffnet_quanteval.py">See Example</a></td>
-    <td>(Cityscapes) mIOU <br> segmentation_ffnet78S_dBBB_mobile<br> FP32: 81.3%  INT8: 80.7%<br> segmentation_ffnet54S_dBBB_mobile<br> FP32: 80.8%  INT8: 80.1%<br> segmentation_ffnet40S_dBBB_mobile<br> FP32: 79.2%  INT8: 78.9%<br> segmentation_ffnet78S_BCC_mobile_pre_down<br> FP32: 80.6%  INT8: 80.4%<br> segmentation_ffnet122NS_CCC_mobile_pre_down<br> FP32: 79.3%  INT8: 79.0%</td>
-    <td><a href="zoo_torch/Docs/FFNet.md">FFNet.md</a></td>
+    <td colspan="3"><a href="zoo_torch/Docs/FFNet.md#results">mIoU Results</a></td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td rowspan="3"><a href="zoo_torch/Docs/Bert.md">Bert</a></td>
+    <td rowspan="3"><a href="https://huggingface.co/docs/transformers/model_doc/bert">Repo</a></td>
+    <td rowspan="3"><a href="/../../releases/tag/bert">Prepared Models </a></td>
+    <td rowspan="3"><a href="zoo_torch/examples/bert">See Example</a></td>
+    <td>(GLUE dataset) GLUE score</td>
+    <td>83.11</td>
+    <td>82.44</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td>(SQuAD dataset) F1 score</td>
+    <td>88.48</td>
+    <td>87.47</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td colspan="3"><a href="zoo_torch/Docs/Bert.md#results"> Detailed Results</a></td>
+  </tr>
+  <tr>
+    <td rowspan="3"><a href="zoo_torch/Docs/MobileBert.md">MobileBert</a></td>
+    <td rowspan="3"><a href="https://huggingface.co/docs/transformers/model_doc/mobilebert">Repo</a></td>
+    <td rowspan="3"><a href="/../../releases/tag/mobilebert">Prepared Models </a></td>
+    <td rowspan="3"><a href="zoo_torch/examples/mobilebert">See Example</a></td>
+    <td>(GLUE dataset) GLUE score</td>
+    <td>81.24</td>
+    <td>81.17</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td>(SQuAD dataset) F1 score</td>
+    <td>89.45</td>
+    <td>88.66</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td colspan="3"><a href="zoo_torch/Docs/MobileBert.md#results"> Detailed Results</a></td>
+  </tr>
+  <tr>
+    <td rowspan="3"><a href="zoo_torch/Docs/MiniLM.md">MiniLM</a></td>
+    <td rowspan="3"><a href="https://huggingface.co/microsoft/MiniLM-L12-H384-uncased?text=I+like+you.+I+love+you">Repo</a></td>
+    <td rowspan="3"><a href="/../../releases/tag/minilm">Prepared Models </a></td>
+    <td rowspan="3"><a href="zoo_torch/examples/minilm">See Example</a></td>
+    <td>(GLUE dataset) GLUE score</td>
+    <td>82.23</td>
+    <td>82.63</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td>(SQuAD dataset) F1 score</td>
+    <td>90.47</td>
+    <td>89.70</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td colspan="3"><a href="zoo_torch/Docs/MiniLM.md#results"> Detailed Results</a></td>
+  </tr>
+  <tr>
+    <td rowspan="2"><a href="zoo_torch/Docs/Roberta.md">Roberta</a></td>
+    <td rowspan="2"><a href="https://huggingface.co/docs/transformers/model_doc/roberta">Repo</a></td>
+    <td rowspan="2"><a href="/../../releases/tag/roberta">Prepared Models </a></td>
+    <td rowspan="2"><a href="zoo_torch/examples/roberta">See Example</a></td>
+    <td>(GLUE dataset) GLUE score</td>
+    <td>85.11</td>
+    <td>84.26</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td colspan="3"><a href="zoo_torch/Docs/Roberta.md#results"> Detailed Results</a></td>
+  </tr>
+  <tr>
+    <td rowspan="3"><a href="zoo_torch/Docs/DistilBert.md">DistilBert</a></td>
+    <td rowspan="3"><a href="https://huggingface.co/docs/transformers/model_doc/distilbert">Repo</a></td>
+    <td rowspan="3"><a href="/../../releases/tag/distilbert">Prepared Models </a></td>
+    <td rowspan="3"><a href="zoo_torch/examples/distilbert">See Example</a></td>
+    <td>(GLUE dataset) GLUE score</td>
+    <td>80.71</td>
+    <td>80.26</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td>(SQuAD dataset) F1 score</td>
+    <td>85.42</td>
+    <td>85.18</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td colspan="3"><a href="zoo_torch/Docs/DistilBert.md#results"> Detailed Results</a></td>
+  </tr>
+  <tr>
+    <td><a href="zoo_torch/Docs/ViT.md">ViT</a></td>
+    <td><a href="https://huggingface.co/docs/transformers/model_doc/vit">Repo</a></td>
+    <td><a href="/../../releases/tag/vit">Prepared Models </a></td>
+    <td><a href="zoo_torch/examples/vit">See Example</a></td> </td>
+    <td>(ImageNet dataset) Accuracy</td>
+    <td>81.32</td>
+    <td>81.57</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td><a href="zoo_torch/Docs/MobileViT.md">MobileViT</a></td>
+    <td><a href="https://huggingface.co/docs/transformers/model_doc/mobilevit">Repo</a></td>
+    <td><a href="/../../releases/tag/mobilevit">Prepared Models </a></td>
+    <td><a href="zoo_torch/examples/mobilevit">See Example</a></td> </td>
+    <td>(ImageNet dataset) Accuracy</td>
+    <td>78.46</td>
+    <td>77.59</td>
+    <td>TBD</td>
+  </tr>
+
+</table>
+
+*<sup>[1]</sup>* <sub>Model usage documentation</sub>  
+*<sup>[2]</sup>* <sub>Original FP32 model source</sub>  
+*<sup>[3]</sup>* <sub>FP32 model checkpoint</sub>  
+*<sup>[4]</sup>* <sub>Quantized Model: For models quantized with post-training technique, refers to FP32 model which can then be quantized using AIMET. For models optimized with QAT, refers to model checkpoint with fine-tuned weights. 8-bit weights and activations are typically used. For some models, 8-bit weights and 16-bit weights are used to further improve performance of post-training quantization.</sub>  
+*<sup>[5]</sup>* <sub>Results comparing float and quantized performance</sub>  
+*<sup>[6]</sup>* <sub>W8A8 indicates 8-bit weights, 8-bit activations</sub>  
+*<sup>[7]</sup>* <sub>W4A8 indicates 4-bit weights, 8-bit activations (Some models include a mix of W4A8 and W8A8 layers).</sub>  
+<sub>TBD indicates that support is NOT yet available</sub>
+
+## Tensorflow Models
+<table style="width:50%;text-align: center">
+  <tr>
+    <th>Network <sup>[1]</sup></th>
+    <th>Model Source <sup>[2]</sup></th>
+    <th>Floating Pt (FP32) Model <sup>[3]</sup></th>
+    <th>Quantized Model <sup>[4]</sup></th>
+    <th>TensorFlow Version</th>
+    <th colspan="4">Results <sup>[5]</sup></th>
+  </tr>
+  <tr>
+    <th></th>
+    <th></th>
+    <th></th>
+    <th></th>
+    <th></th>
+    <th>Metric</th>
+    <th>FP32</th>
+    <th>W8A8<sup>[6]</sup></th>
+    <th>W4A8<sup>[7]</sup></th>
+  </tr>
+  <tr>
+    <td><a href="zoo_tensorflow/Docs/ResNet50.md">ResNet-50 (v1)</a></td>
+    <td><a href="https://github.com/tensorflow/models/tree/master/research/slim">GitHub Repo</a></td>
+    <td><a href="http://download.tensorflow.org/models/resnet_v1_50_2016_08_28.tar.gz">Pretrained Model</a></td>
+    <td><a href="zoo_tensorflow/Docs/ResNet50.md">See Documentation</a></td>
+    <td>1.15</td>
+    <td>(ImageNet) Top-1 Accuracy</td>
+    <td>75.21%</td>
+    <td>74.96%</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td><a href="zoo_tensorflow/Docs/MobileNetV2.md">MobileNet-v2-1.4</a></td>
+    <td><a href="https://github.com/tensorflow/models/tree/master/research/slim">GitHub Repo</a></td>
+    <td><a href="https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.4_224.tgz">Pretrained Model</a></td>
+    <td><a href="/../../releases/download/mobilenet-v2-1.4/mobilenetv2-1.4.tar.gz">Quantized Model</a></td>
+    <td>1.15</td>
+    <td>(ImageNet) Top-1 Accuracy</td>
+    <td>75%</td>
+    <td>74.21%</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td><a href="zoo_tensorflow/Docs/EfficientNetLite.md">EfficientNet Lite</a></td>
+    <td><a href="https://github.com/tensorflow/tpu/tree/master/models/official/efficientnet/lite">GitHub Repo</a></td>
+    <td><a href="https://storage.googleapis.com/cloud-tpu-checkpoints/efficientnet/lite/efficientnet-lite0.tar.gz">Pretrained Model</a> </td>
+    <td><a href="/../../releases/download/efficientnet-lite0/efficientnet-lite0.tar.gz">Quantized Model</a></td>
+    <td>2.4</td>
+    <td>(ImageNet) Top-1 Accuracy</td>
+    <td>74.93%</td>
+    <td>74.99%</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td><a href="zoo_tensorflow/Docs/SSDMobileNetV2.md">SSD MobileNet-v2</a></td>
+    <td><a href="https://github.com/tensorflow/models/tree/master/research/object_detection">GitHub Repo</a></td>
+    <td><a href="http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v2_quantized_300x300_coco_2019_01_03.tar.gz">Pretrained Model</a></td>
+    <td><a href="zoo_tensorflow/examples/ssd_mobilenet_v2/ssd_mobilenet_v2_quanteval.py">See Example</a></td>
+    <td>1.15</td>
+    <td>(COCO) Mean Avg. Precision (mAP)</td>
+    <td>0.2469</td>
+    <td>0.2456</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td><a href="zoo_tensorflow/Docs/RetinaNet.md">RetinaNet</a></td>
+    <td><a href="https://github.com/fizyr/keras-retinanet">GitHub Repo</a></td>
+    <td><a href="https://github.com/fizyr/keras-retinanet/releases/download/0.5.1/resnet50_coco_best_v2.1.0.h5">Pretrained Model</a></td>
+    <td><a href="zoo_tensorflow/examples/retinanet/retinanet_quanteval.py">See Example</a></td>
+    <td>1.15</td>
+    <td>(COCO) mAP <a href="zoo_tensorflow/Docs/RetinaNet.md#results"> Detailed Results</a></td>
+    <td>0.35</td>
+    <td>0.349</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td rowspan="2"><a href="zoo_tensorflow/Docs/PoseEstimation.md">Pose Estimation</a></td>
+    <td rowspan="2"><a href="https://arxiv.org/abs/1611.08050">Based on Ref.</a></td>
+    <td rowspan="2"><a href="https://arxiv.org/abs/1611.08050">Based on Ref.</a></td>
+    <td rowspan="2"><a href="/../../releases/download/pose_estimation/pose_estimation_tensorflow.tar.gz">Quantized Model</a></td>
+    <td rowspan="2">2.4</td>
+    <td>(COCO) mAP</td>
+    <td>0.383</td>
+    <td>0.379</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td>(COCO) (mAR)</td>
+    <td>0.452</td>
+    <td>0.446</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td><a href="zoo_tensorflow/Docs/SRGAN.md">SRGAN</a></td>
+    <td><a href="https://github.com/krasserm/super-resolution">GitHub Repo</a></td>
+    <td><a href="https://drive.google.com/file/d/1u9ituA3ScttN9Vi-UkALmpO0dWQLm8Rv/view">Pretrained Model</a></td>
+    <td><a href="zoo_tensorflow/examples/srgan/srgan_quanteval.py">See Example</a></td>
+    <td>2.4</td>
+    <td>(BSD100) PSNR / SSIM <a href="zoo_tensorflow/Docs/SRGAN.md#results"> Detailed Results</a>
+    <td>25.45 / 0.668
+    <td>24.78 / 0.628
+    <td>25.41 / 0.666 (INT8W / INT16Act.)</td>
+  </tr>
+  <tr>
+    <td><a href="zoo_tensorflow/Docs/MobileDetEdgeTPU.md">MobileDet-EdgeTPU</a></td>
+    <td><a href="https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf1_detection_zoo.md">GitHub Repo</a></td>
+    <td><a href="http://download.tensorflow.org/models/object_detection/ssdlite_mobiledet_edgetpu_320x320_coco_2020_05_19.tar.gz">Pretrained Model</a></td>
+    <td><a href="zoo_tensorflow/examples/MobileDetEdgeTPU/mobiledet_edgetpu_quanteval.py">See Example</a></td>
+    <td>2.4</td>
+    <td>(COCO) Mean Avg. Precision (mAP)</td>
+    <td>0.281</td>
+    <td>0.279</td>
+    <td>TBD</td>
   </tr>
 </table>
 
-*<sup>[1]</sup>* Original FP32 model source  
-*<sup>[2]</sup>* FP32 model checkpoint  
-*<sup>[3]</sup>* Quantized Model: For models quantized with post-training technique, refers to FP32 model which can then be quantized using AIMET. For models optimized with QAT, refers to model checkpoint with fine-tuned weights. 8-bit weights and activations are typically used. For some models, 8-bit weights and 16-bit weights are used to further improve performance of post-training quantization.  
-*<sup>[4]</sup>* Results comparing float and quantized performance  
-*<sup>[5]</sup>* Script for quantized evaluation using the model referenced in “Quantized Model” column
+*<sup>[1]</sup>* <sub>Model usage documentation</sub>  
+*<sup>[2]</sup>* <sub>Original FP32 model source</sub>  
+*<sup>[3]</sup>* <sub>FP32 model checkpoint</sub>  
+*<sup>[4]</sup>* <sub>Quantized Model: For models quantized with post-training technique, refers to FP32 model which can then be quantized using AIMET. For models optimized with QAT, refers to model checkpoint with fine-tuned weights. 8-bit weights and activations are typically used. For some models, 8-bit weights and 16-bit activations (INT8W/INT16Act.) are used to further improve performance of post-training quantization.</sub>  
+*<sup>[5]</sup>* <sub>Results comparing float and quantized performance</sub>  
+*<sup>[6]</sup>* <sub>W8A8 indicates 8-bit weights, 8-bit activations</sub>  
+*<sup>[7]</sup>* <sub>W4A8 indicates 4-bit weights, 8-bit activations (Some models include a mix of W4A8 and W8A8 layers).</sub>  
+<sub>TBD indicates that support is NOT yet available</sub>
 
-### Detailed Results <a name="pytorch-detailed-results"></a>
-
-#### SRGAN Pytorch <a name="srgan-pytorch"></a>
-<table style= " width:50%">
-   <tr>
-    <th>Model</th>
-    <th>Dataset</th>
-    <th>PSNR</th>
-    <th>SSIM</th>
-  </tr>
-  <tr>
-    <td>FP32</td>
-    <td>Set5/Set14/BSD100</td>
-    <td>29.93/26.58/25.51</td>
-    <td>0.851/0.709/0.653</td>
-  </tr>
-  <tr>
-    <td>INT8</td>
-    <td>Set5/Set14/BSD100</td>
-    <td>29.86/26.59/25.55</td>
-    <td>0.845/0.705/0.648</td>
-  </tr>
-</table>
-
-#### Super Resolution Model Family (PyTorch) <a name="superres-family-pytorch"></a>
-
-**NOTE:** 
-All results below used a *Scaling factor (LR-to-HR upscaling) of 2x* and the *Set14 dataset*.
-<table style= " width:50%">
-   <tr>
-    <th rowspan="2">Model</th>
-    <th rowspan="2">Config<sup>[1]</sup></th>
-    <th rowspan="2">Channels</th>
-    <th colspan="2" style="text-align:center;">PSNR</th>
-  </tr>
-  <tr>
-    <th>FP32</td>
-    <th>INT8</td>
-  </tr>
-  <tr>
-    <td rowspan="2">ABPN</td>
-    <td>N/A</td>
-    <td>28</td>
-    <td>32.71</td>
-    <td>32.64</td>
-  </tr>
-  <tr>
-    <td>N/A</td>
-    <td>32</td>
-    <td>32.75</td>
-    <td>32.69</td>
-  </tr>
-  <tr>
-    <td>XLSR</td>
-    <td>N/A</td>
-    <td>32</td>
-    <td>32.57</td>
-    <td>32.30</td>
-  </tr>
-  <tr>
-    <td rowspan="5">SESR</td>
-    <td>M3</td>
-    <td>16</td>
-    <td>32.41</td>
-    <td>32.25</td>
-  </tr>
-  <tr>
-    <td>M5</td>
-    <td>16</td>
-    <td>32.57</td>
-    <td>32.50</td>
-  </tr>
-  <tr>
-    <td>M7</td>
-    <td>16</td>
-    <td>32.66</td>
-    <td>32.58</td>
-  </tr>
-  <tr>
-    <td>M11</td>
-    <td>16</td>
-    <td>32.73</td>
-    <td>32.59</td>
-  </tr>
-  <tr>
-    <td>XL</td>
-    <td>32</td>
-    <td>33.03</td>
-    <td>32.92</td>
-  </tr>
-</table>
-
-*<sup>[1]</sup>* Config: This parameter denotes a model configuration corresponding to a certain number of residual blocks used. The M*x* models have 16 feature channels, whereas the XL model has 32 feature channels.
-
-## Examples
+## Usage
 
 ### Install AIMET
-Before you can run the example script for a specific model, you need to install the AI Model Efficiency ToolKit (AIMET) software. Please see this [Getting Started](https://github.com/quic/aimet#getting-started) page for an overview. Then install AIMET and its dependencies using these [Installation instructions](https://github.com/quic/aimet/blob/develop/packaging/install.md).
+Before you can run the evaluation script for a specific model, you need to install the AI Model Efficiency ToolKit (AIMET) software. Please see this [Getting Started](https://github.com/quic/aimet#getting-started) page for an overview. Then install AIMET and its dependencies using these [Installation instructions](https://quic.github.io/aimet-pages/releases/latest/install).
 
-> **NOTE:** To obtain the exact version of AIMET software that was used to test this model zoo, please install release [1.22.2](https://github.com/quic/aimet/releases/tag/1.22.2) when following the above instructions *except where specified otherwise within the individual model documentation markdown file*.
-
-### Running the scripts
-Download the necessary datasets and code required to run the example for the model of interest. The examples run quantized evaluation and if necessary apply AIMET techniques to improve quantized model performance. They generate the final accuracy results noted in the table above. Refer to the Docs for [TensorFlow](zoo_tensorflow/Docs) or [PyTorch](zoo_torch/Docs) folder to access the documentation and procedures for a specific model.
+### Run model evaluation
+The evaluation scripts run floating-point and quantized evaluations that demonstrate improved quantized model performance through the use of AIMET techniques. They generate and display the final accuracy results (as documented in the table above). To access the documentation and procedures for a specific model, refer to the relevant [TensorFlow](zoo_tensorflow/Docs) or [PyTorch](zoo_torch/Docs) model folder.
 
 ## Team
 AIMET Model Zoo is a project maintained by Qualcomm Innovation Center, Inc.
