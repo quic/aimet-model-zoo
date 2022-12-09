@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
 
-
 # ------------------------------------------------------------------------------
 # pose.pytorch
 # Copyright (c) 2018-present Microsoft
 # Licensed under The Apache-2.0 License [see LICENSE for details]
 # Written by Bin Xiao (Bin.Xiao@microsoft.com)
 # ------------------------------------------------------------------------------
-
-
 
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
@@ -18,6 +15,7 @@
 #
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
+
 ''' AIMET Quantsim evaluation code for quantized Hrnet-Posenet'''
 
 #General Imports

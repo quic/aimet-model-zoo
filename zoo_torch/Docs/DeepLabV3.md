@@ -43,7 +43,8 @@ pip install gdown
 To run evaluation with QuantSim in AIMET, use the following
 ```bash
 python deeplabv3_quanteval.py \
-		--use_cuda <Use cuda or cpu, default True> \
+    --use-cuda <Use cuda or cpu, default True> \
+    --default-param-bw <Weight quantization bitwidth, 4 for W4A8 or 8 for W8A8>
 		--batch-size <Number of images per batch, default 4>
 ```
 

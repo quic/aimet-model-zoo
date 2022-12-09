@@ -79,4 +79,36 @@ def get_tar_path(model_index, model_spec_index):
         else:
             tar_path += 'release_sesr_xl_4x.tar.gz'
 
+    # QuickSRNet
+    elif model_index == 7:
+        tar_path = 'https://github.com/quic/aimet-model-zoo/releases/download/quicksrnet-checkpoint-pytorch/'
+        if model_spec_index == 0:
+            tar_path += 'release_quicksrnet_small_1.5x.tar.gz'
+        elif model_spec_index == 1:
+            tar_path += 'release_quicksrnet_small_2x.tar.gz'
+        elif model_spec_index == 2:
+            tar_path += 'release_quicksrnet_small_3x.tar.gz'
+        else:
+            tar_path += 'release_quicksrnet_small_4x.tar.gz'
+    elif model_index == 8:
+        tar_path = 'https://github.com/quic/aimet-model-zoo/releases/download/quicksrnet-checkpoint-pytorch/'
+        if model_spec_index == 0:
+            tar_path += 'release_quicksrnet_medium_1.5x.tar.gz'
+        elif model_spec_index == 1:
+            tar_path += 'release_quicksrnet_medium_2x.tar.gz'
+        elif model_spec_index == 2:
+            tar_path += 'release_quicksrnet_medium_3x.tar.gz'
+        else:
+            tar_path += 'release_quicksrnet_medium_4x.tar.gz'
+    elif model_index == 9:
+        tar_path = 'https://github.com/quic/aimet-model-zoo/releases/download/quicksrnet-checkpoint-pytorch/'
+        if model_spec_index == 0:
+            tar_path += 'release_quicksrnet_large_1.5x.tar.gz'
+        elif model_spec_index == 1:
+            tar_path += 'release_quicksrnet_large_2x.tar.gz'
+        elif model_spec_index == 2:
+            tar_path += 'release_quicksrnet_large_3x.tar.gz'
+        else:
+            tar_path += 'release_quicksrnet_large_4x.tar.gz'
+
     return tar_path

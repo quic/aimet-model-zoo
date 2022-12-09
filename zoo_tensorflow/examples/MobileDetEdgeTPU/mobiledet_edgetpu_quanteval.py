@@ -7,6 +7,7 @@
 #
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
+
 ''' AIMET Quantsim code for MobileDetEdgeTPU '''
 
 import os

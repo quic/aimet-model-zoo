@@ -1,5 +1,6 @@
 # Super Resolution Family of Models
 This document describes how to run AIMET quantization on the following model(s) and verify the performance of the quantized models. Example code is provided in the form of a [Jupyter Notebook](../examples/superres/notebooks/superres_quanteval.ipynb).
+- QuickSRNet
 - Anchor-based Plain Net (ABPN)
 - Extremely Lightweight Quantization Robust Real-Time Single-Image Super Resolution (XLSR)
 - Super-Efficient Super Resolution (SESR)
@@ -10,12 +11,12 @@ Clone the AIMET Model Zoo repo into your workspace:
 `git clone https://github.com/quic/aimet-model-zoo.git`
 
 ## AIMET installation and setup
-Please [install and setup AIMET](https://github.com/quic/aimet/blob/release-aimet-1.22/packaging/install.md) (*Torch GPU* variant) before proceeding further.
+Please [install and setup AIMET](https://github.com/quic/aimet/blob/release-aimet-1.23/packaging/install.md) (*Torch GPU* variant) before proceeding further.
 
 ---
 **NOTE**
 - All AIMET releases are available here: https://github.com/quic/aimet/releases
-- This model has been tested using AIMET version *1.22.2*  (i.e. set `release_tag="1.22.2"` in the above instructions).
+- This model has been tested using AIMET version *1.23.0*  (i.e. set `release_tag="1.23.0"` in the above instructions).
 - This model is compatible with the PyTorch GPU variant of AIMET (i.e. set `AIMET_VARIANT="torch_gpu"` in the above instructions).
 ---
 
