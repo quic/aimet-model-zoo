@@ -68,3 +68,25 @@ python srgan_quanteval.py \
 - Bias parameters are quantized
 - Activation quantization: 8 bits asymmetric quantization
 - Model inputs are not quantized
+
+## Results
+<table style= " width:50%">
+   <tr>
+    <th>Model</th>
+    <th>Dataset</th>
+    <th>PSNR</th>
+    <th>SSIM</th>
+  </tr>
+  <tr>
+    <td>FP32</td>
+    <td>Set5 / Set14 / BSD100</td>
+    <td>29.93 / 26.58 / 25.51</td>
+    <td>0.851 / 0.709 / 0.653</td>
+  </tr>
+  <tr>
+    <td>INT8</td>
+    <td>Set5 / Set14 / BSD100</td>
+    <td>29.86 / 26.59 / 25.55</td>
+    <td>0.845 / 0.705 / 0.648</td>
+  </tr>
+</table>

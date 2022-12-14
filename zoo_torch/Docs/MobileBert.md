@@ -71,3 +71,45 @@ The following configuration has been used for the above models for INT8 quantiza
 - TF range learning  was used as quantization scheme
 - Mask values of -6 was applied in attention layers
 - Quantization aware training (QAT) was used to obtain optimized quantized weights, detailed hyperparameters listed in [Yelysei Bondarenko, Markus Nagel, Tijmen Blankevoort, "Understanding and Overcoming the Challenges of Efficient Transformer Quantization", EMNLP 2021](https://arxiv.org/abs/2109.12948).
+
+## Results
+Below are the results of the Pytorch transformer model MobileBert for GLUE dataset:
+
+<table style= " width:50%">
+  <tr>
+    <td> Configuration </td>
+    <td> CoLA (corr) </td>
+    <td> SST-2 (acc) </td>
+    <td> MRPC (f1) </td>
+    <td> STS-B (corr) </td>
+    <td> QQP (acc) </td>
+    <td> MNLI (acc) </td>
+    <td> QNLI (acc) </td>
+    <td> RTE (acc) </td>
+    <td> GLUE </td>
+  </tr>
+  <tr>
+    <td> FP32 </td>
+    <td> 50.41 </td>
+    <td> 90.83 </td>
+    <td> 85.47 </td>
+    <td> 88.75 </td>
+    <td> 90.26 </td>
+    <td> 83.36 </td>
+    <td> 90.81 </td>
+    <td> 70.04 </td>
+    <td> 81.24 </td>
+  </tr>
+  <tr>
+    <td> W8A8 </td>
+    <td> 49.34 </td>
+    <td> 89.79 </td>
+    <td> 88.50 </td>
+    <td> 88.46 </td>
+    <td> 88.60 </td>
+    <td> 83.82 </td>
+    <td> 90.48 </td>
+    <td> 70.40 </td>
+    <td> 81.17 </td>
+  </tr>
+</table>
