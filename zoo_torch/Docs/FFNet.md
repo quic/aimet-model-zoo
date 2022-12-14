@@ -54,3 +54,39 @@ python ffnet_quanteval.py \
 - TF-Enhanced was used as quantization scheme
 - Cross layer equalization (CLE) has been applied on optimized checkpoint
 - for low resolution models with pre_down suffix, the GaussianConv2D layer is disabled for quantization.
+
+## Results
+Below are the *mIoU* results of the PyTorch FFNet model for the Cityscapes dataset:
+
+<table style= " width:50%">
+  <tr>
+    <th>Model Configuration</th>
+    <th>FP32 (%)</th>
+    <th>INT8 (%)</th>
+  </tr>
+  <tr>
+    <td>segmentation_ffnet78S_dBBB_mobile</td>
+    <td>81.3</td>
+    <td>80.7</td>
+  </tr>
+  <tr>
+    <td>segmentation_ffnet54S_dBBB_mobile</td>
+    <td>80.8</td>
+    <td>80.1</td>
+  </tr>
+  <tr>
+    <td>segmentation_ffnet40S_dBBB_mobile</td>
+    <td>79.2</td>
+    <td>78.9</td>
+  </tr>
+  <tr>
+    <td>segmentation_ffnet78S_BCC_mobile_pre_down</td>
+    <td>80.6</td>
+    <td>80.4</td>
+  </tr>
+  <tr>
+    <td>segmentation_ffnet122NS_CCC_mobile_pre_down</td>
+    <td>79.3</td>
+    <td>79.0</td>
+  </tr>
+</table>

@@ -45,3 +45,31 @@ pip install tensorflow-gpu==2.4.0
 - Activation quantization: 16 bits, asymmetric quantization
 - Model inputs are quantized
 - Bias Correction and Cross Layer Equalization have been applied
+
+## Results
+ <table style= " width:50%">
+   <tr>
+    <th>Model</th>
+    <th>Dataset</th>
+    <th>PSNR</th>
+    <th>SSIM</th>
+  </tr>
+  <tr>
+    <td>FP32</td>
+    <td>Set5 / Set14 / BSD100</td>
+    <td>29.17 / 26.17 / 25.45</td>
+    <td>0.853 / 0.719 / 0.668</td>
+  </tr>
+  <tr>
+    <td>INT8 / ACT8</td>
+    <td>Set5 / Set14 / BSD100</td>
+    <td>28.31 / 25.55 / 24.78</td>
+    <td>0.821 / 0.684 / 0.628</td>
+  </tr>
+  <tr>
+    <td>INT8 / ACT16</td>
+    <td>Set5 / Set14 / BSD100</td>
+    <td>29.12 / 26.15 / 25.41</td>
+    <td>0.851 / 0.719 / 0.666</td>
+  </tr>
+</table>

@@ -66,8 +66,96 @@ Please note the following regarding the available checkpoints:
 
 ## Quantization Configuration
 In the evaluation notebook included, we have used the default config file, which configures the quantizer ops with the following assumptions:
-- Weight quantization: *8 bits, per tensor asymmetric quantization*
+- Weight quantization: *8 bits, per tensor symmetric quantization*
 - Bias parameters are not quantized
 - Activation quantization: *8 bits, asymmetric quantization*
 - Model inputs are quantized
 - *TF_enhanced* was used as the quantization scheme
+
+## Results
+**NOTE:**
+All results below used a *Scaling factor (LR-to-HR upscaling) of 2x* and the *Set14 dataset*.
+<table style= " width:50%">
+  <tr>
+    <th rowspan="2">Model</th>
+    <th rowspan="2">Config<sup>[1]</sup></th>
+    <th rowspan="2">Channels</th>
+    <th colspan="2" style="text-align:center;">PSNR</th>
+  </tr>
+  <tr>
+    <th>FP32</td>
+    <th>INT8</td>
+  </tr>
+  <tr>
+    <td rowspan="2">ABPN</td>
+    <td>N/A</td>
+    <td>28</td>
+    <td>32.71</td>
+    <td>32.64</td>
+  </tr>
+  <tr>
+    <td>N/A</td>
+    <td>32</td>
+    <td>32.75</td>
+    <td>32.69</td>
+  </tr>
+  <tr>
+    <td>XLSR</td>
+    <td>N/A</td>
+    <td>32</td>
+    <td>32.57</td>
+    <td>32.30</td>
+  </tr>
+  <tr>
+    <td rowspan="5">SESR</td>
+    <td>M3</td>
+    <td>16</td>
+    <td>32.41</td>
+    <td>32.25</td>
+  </tr>
+  <tr>
+    <td>M5</td>
+    <td>16</td>
+    <td>32.57</td>
+    <td>32.50</td>
+  </tr>
+  <tr>
+    <td>M7</td>
+    <td>16</td>
+    <td>32.66</td>
+    <td>32.58</td>
+  </tr>
+  <tr>
+    <td>M11</td>
+    <td>16</td>
+    <td>32.73</td>
+    <td>32.59</td>
+  </tr>
+  <tr>
+    <td>XL</td>
+    <td>32</td>
+    <td>33.03</td>
+    <td>32.92</td>
+  </tr>
+  <tr>
+    <td rowspan="3">QuickSRNet</td>
+    <td>Small</td>
+    <td>32</td>
+    <td>32.52</td>
+    <td>32.49</td>
+  </tr>
+  <tr>
+    <td>Medium</td>
+    <td>32</td>
+    <td>32.78</td>
+    <td>32.73</td>
+  </tr>
+  <tr>
+    <td>Large</td>
+    <td>64</td>
+    <td>33.24</td>
+    <td>33.17</td>
+  </tr>
+</table>
+
+*<sup>[1]</sup>* Config: This parameter denotes a model configuration corresponding to a certain number of residual blocks used. The M*x* models have 16 feature channels, whereas the XL model has 32 feature channels.

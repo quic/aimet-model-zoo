@@ -55,3 +55,86 @@ python3 retinanet_quanteval.py \
 - Weight quantization: 8 bits, per tensor asymmetric quantization
 - Bias parameters are quantized
 - Activation quantization: 8 bits, asymmetric quantization
+
+## Results
+(COCO dataset)
+<table style= " width:50%">
+   <tr>
+    <th>Average Precision/Recall </th>
+    <th> @[ IoU | area | maxDets] </th>
+    <th>FP32 </th>
+     <th>INT8 </th>
+  </tr>
+  <tr>
+    <td>Average Precision</td>
+    <td> @[ 0.50:0.95 | all | 100 ] </td>
+    <td>0.350 </td>
+    <td>0.349</td>
+  </tr>
+  <tr>
+    <td>Average Precision</td>
+    <td> @[ 0.50 | all | 100 ] </td>
+    <td>0.537 </td>
+    <td>0.536</td>
+  </tr>
+  <tr>
+    <td>Average Precision</td>
+    <td> @[ 0.75 | all | 100 ] </td>
+    <td>0.374 </td>
+    <td> 0.372</td>
+  </tr>
+  <tr>
+    <td>Average Precision</td>
+    <td> @[ 0.50:0.95 | small | 100 ] </td>
+    <td>0.191 </td>
+    <td>0.187</td>
+  </tr>
+  <tr>
+    <td>Average Precision</td>
+    <td> @[ 0.50:0.95 | medium | 100 ] </td>
+    <td> 0.383 </td>
+    <td>0.381</td>
+  </tr>
+  <tr>
+    <td>Average Precision</td>
+    <td> @[ 0.50:0.95 | large | 100 ] </td>
+    <td>0.472 </td>
+    <td>0.472</td>
+  </tr>
+  <tr>
+    <td> Average Recall</td>
+    <td> @[ 0.50:0.95 | all | 1 ] </td>
+    <td>0.306 </td>
+    <td>0.305</td>
+  </tr>
+  <tr>
+    <td> Average Recall</td>
+    <td> @[0.50:0.95 | all | 10 ] </td>
+    <td>0.491 </td>
+    <td>0.490</td>
+  </tr>
+  <tr>
+    <td> Average Recall</td>
+    <td> @[ 0.50:0.95 | all |100 ] </td>
+    <td>0.533 </td>
+    <td>0.532</td>
+  </tr>
+  <tr>
+    <td> Average Recall</td>
+    <td> @[ 0.50:0.95 | small | 100 ] </td>
+    <td>0.345</td>
+    <td>0.341</td>
+  </tr>
+  <tr>
+    <td> Average Recall</td>
+    <td> @[ 0.50:0.95 | medium | 100 ] </td>
+    <td>0.577</td>
+    <td>0.577</td>
+  </tr>
+  <tr>
+    <td> Average Recall</td>
+    <td> @[ 0.50:0.95 | large | 100 ] </td>
+    <td>0.681</td>
+    <td>0.679</td>
+  </tr>
+</table>
