@@ -1,5 +1,5 @@
 # PyTorch Transformer model MiniLM-L12-H384-uncased for Natural Language Classifier and Question Answering  
-This document describes evaluation of optimized checkpoints for transformer models MiniLM-L12-H384-uncased for NL Classification tasks and Question Anwering tasks. 
+This document describes evaluation of optimized checkpoints for transformer models MiniLM-L12-H384-uncased for NL Classification tasks and Question Answering tasks.
 
 ## AIMET installation and setup
 Please [install and setup AIMET](https://github.com/quic/aimet/blob/release-aimet-1.23/packaging/install.md) (*Torch GPU* variant) before proceeding further.
