@@ -42,10 +42,11 @@ else
   fi
 
   echo "Running Pylint - using $prj_root/.pylintrc" 
-  export PYTHONPATH=$prj_root/zoo_tensorflow/examples:$prj_root/zoo_torch/examples
+  export PYTHONPATH=$prj_root/zoo_tensorflow:$prj_root/zoo_torch
   # Verify that each of the source path directories exist
   for path in ${PYTHONPATH//:/ }; do
     if [[ ! -d $path ]]; then
+      echo "ERROR: Path $path does NOT exist"
       exit 1
     fi
   done
