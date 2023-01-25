@@ -1,0 +1,25 @@
+{
+    "name": "EfficientNet Lite0",
+    "framework": "pytorch",
+    "task": "classification",
+    "model_args": {},
+    "input_shape": [null, 3, 224, 224],
+    "trainig_dataset": "ImageNet",
+    "optimization_config": {
+        "quantization_configuration":
+            {
+                "param_bw": 4,
+                "output_bw": 8,
+                "input_quantization": true,
+                "quant_scheme": "tf_enhanced",
+                "techniques": ["bnfold", "adaround"]
+            }
+        },
+    "artifacts": {
+        "url_pre_opt_weights": null,
+        "url_post_opt_weights": "https://github.com/quic/aimet-model-zoo/releases/download/torch_effnet_lite0_w8a8_pc/model_efficientnetlite0_w4a8_pc_checkpoint.pth",
+        "url_adaround_encodings": "https://github.com/quic/aimet-model-zoo/releases/download/torch_effnet_lite0_w8a8_pc/efficientnetlite0_w4a8_pc.encodings",
+        "url_aimet_encodings": null,
+        "url_aimet_config": "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.23/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json"
+    }
+}

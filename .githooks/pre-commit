@@ -42,7 +42,7 @@ else
   fi
 
   echo "Running Pylint - using $prj_root/.pylintrc" 
-  export PYTHONPATH=$prj_root/zoo_tensorflow:$prj_root/zoo_torch
+  export PYTHONPATH=$prj_root/aimet_zoo_tensorflow:$prj_root/aimet_zoo_torch
   # Verify that each of the source path directories exist
   for path in ${PYTHONPATH//:/ }; do
     if [[ ! -d $path ]]; then

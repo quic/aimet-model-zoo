@@ -1,0 +1,1 @@
+Cityscapes evaluation code adapted from https://github.com/Qualcomm-AI-research/InverseForm, which in turn adapts the code from https://github.com/HRNet/HRNet-Semantic-Segmentation

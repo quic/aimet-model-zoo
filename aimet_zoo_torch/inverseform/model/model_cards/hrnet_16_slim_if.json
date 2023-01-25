@@ -1,0 +1,25 @@
+{
+    "name": "HRNet W16 Slim InverseForm",
+    "framework": "pytorch",
+    "task": "semantic segmentation",
+    "model_args": {},
+    "input_shape": [null, 3, 1024, 2048],
+    "trainig_dataset": "Cityscapes",
+    "optimization_config": {
+        "quantization_configuration":
+            {
+                "param_bw": 8,
+                "output_bw": 8,
+                "input_quantization": true,
+                "quant_scheme": "tf_enhanced",
+                "techniques": ["cle", "adaround"]
+            }
+        },
+    "artifacts": {
+        "url_pre_opt_weights": null,
+        "url_post_opt_weights": "https://github.com/quic/aimet-model-zoo/releases/download/phase_2_january_artifacts/hrnet_16_slim_if_state_dict.pth",
+        "url_adaround_encodings": "https://github.com/quic/aimet-model-zoo/releases/download/torch_inverseform/inverseform-w16_w8a8.encodings",
+        "url_aimet_encodings": null,
+        "url_aimet_config": "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.23/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json"
+    }
+}
