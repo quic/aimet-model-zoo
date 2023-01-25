@@ -11,3 +11,9 @@
 
 # Jupyter notebooks
 .ipynb_checkpoints/
+
+# Generated artifacts
+*.bak*
+*.whl
+*.egg-info/
+build/

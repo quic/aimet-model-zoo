@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aimet_zoo_torch"
+version = "1.0.0"
+description = "Collection of popular PyTorch neural network models and evaluators to quantize floating-point models using the AI Model Efficiency ToolKit (AIMET)."
+readme = "README.md"
+requires-python = ">= 3.6"
+license = {text = "Proprietary"}
+authors = [
+  { name="Qualcomm Innovation Center, Inc.", email="aimet.os@quicinc.com" },
+]
+
+[project.urls]
+"Homepage" = "https://github.com/quic/aimet-model-zoo"
+"Bug Tracker" = "https://github.com/quic/aimet-model-zoo/issues"
+
+[tool.setuptools]
+include-package-data = true
+packages = ["aimet_zoo_torch"]
