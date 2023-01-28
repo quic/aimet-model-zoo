@@ -264,7 +264,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="aimet_zoo_torch/rangenet/rangeNet.md">RangeNet++</a></td>
     <td><a href="https://github.com/PRBonn/lidar-bonnetal">GitHub Repo</a></td>
     <td><a href="http://www.ipb.uni-bonn.de/html/projects/bonnetal/lidar/semantic/models/darknet21.tar.gz">Pretrained Model</a></td>
-    <td><a href="https://github.qualcomm.com/qualcomm-ai/aimet-model-zoo/releases/tag/torch_rangenet_plus_w8a8">Quantized Model</a></td>
+    <td><a href="/../../releases/tag/torch_rangenet_plus_w8a8">Quantized Model</a></td>
     <td>(Semantic kitti) mIOU</td>
     <td>47.2%</td>
     <td>47.0%</td>
@@ -376,10 +376,10 @@ An original FP32 source model is quantized either using post-training quantizati
     <td colspan="3"><a href="aimet_zoo_torch/distilbert/DistilBert.md#results"> Detailed Results</a></td>
   </tr>
   <tr>
-    <td>NLP/NLU</td>
+    <td>NLP / NLU</td>
     <td><a href="aimet_zoo_torch/gpt2/GPT2.md">GPT2</a></td>
     <td><a href="https://huggingface.co/gpt2">Repo</a></td>
-    <td><a href="/../../releases/tag/gpt2">Prepared Models</a></td>
+    <td><a href="/../../releases/tag/torch_gpt2">Prepared Models</a></td>
     <td><a href="aimet_zoo_torch/gpt2/evaluators/transformer_tg_quanteval.py">See Example</a></td>
     <td>Perplexity</td>
     <td>27.67</td>
