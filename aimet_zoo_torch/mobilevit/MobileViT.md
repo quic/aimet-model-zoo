@@ -9,6 +9,11 @@ Please [install and setup AIMET](https://github.com/quic/aimet/blob/release-aime
 - This model has been tested using AIMET version *1.24.0*  (i.e. set `release_tag="1.24.0"` in the above instructions).
 - This model is compatible with the PyTorch GPU variant of AIMET (i.e. set `AIMET_VARIANT="torch_gpu"` in the above instructions).
 
+### Install AIMET-Model-Zoo
+Clone the AIMET Model Zoo repo into your workspace:  
+`git clone https://github.com/quic/aimet-model-zoo.git`  
+`export PYTHONPATH=$PYTHONPATH:<path to parent of aimet_model_zoo>`  
+
 ## Additional Setup Dependencies
 ```
 pip install accelerate==0.9.0
@@ -47,19 +52,16 @@ Each of the {train, valid, test} directories is then expected to have 1000 subdi
 ```bash
 
 python transformer_imageclassification.py \
-    --model_type <model_type> \
-    --model_eval_type <model_eval_type> \
+    --model_config <model_configuration> \
+    --per_device_eval_batch_size <batch_size> \
     --train_dir <imagenet_train_path> \
-    --validation_dir <imagenet_val_path> \
-    --per_device_eval_batch_size <batch_size>
-
+    --validation_dir <imagenet_val_path> 
 
 # Example
-python transformer_imageclassification.py --model_type mobilevit  --model_eval_type fp32  --per_device_eval_batch_size 4 --train_dir <imagenet_train_path> --validation_dir <imagenet_val_path> --per_device_eval_batch_size 8 
+python mobilevit_quanteval.py --model_config mobilevit_w8a8 --per_device_eval_batch_size 4 --train_dir <imagenet_train_path> --validation_dir <imagenet_val_path>
 ```
 
-- supported keywords of model_type are vit and mobilevit  
-- supported keywords of model_eval_type are int8 and fp32 
+- supported keywords of model_config is "mobilevit_w8a8"
 
 ## Quantization Configuration
 The following configuration has been used for the above models for INT8 quantization:

@@ -60,11 +60,11 @@ def main():
     avg_psnr = evaluate_average_psnr(IMAGES_SR_original_fp32, IMAGES_HR)
     print(f'Original Model | FP32 Environment | Avg. PSNR: {avg_psnr:.3f}')
     avg_psnr = evaluate_average_psnr(IMAGES_SR_original_int8, IMAGES_HR)
-    print(f'Original Model | INT8 Environment | Avg. PSNR: {avg_psnr:.3f}')
+    print(f'Original Model | Quantized Environment | Avg. PSNR: {avg_psnr:.3f}')
     avg_psnr = evaluate_average_psnr(IMAGES_SR_optimized_fp32, IMAGES_HR)
     print(f'Optimized Model | FP32 Environment | Avg. PSNR: {avg_psnr:.3f}')
     avg_psnr = evaluate_average_psnr(IMAGES_SR_optimized_int8, IMAGES_HR)
-    print(f'Optimized Model | INT8 Environment | Avg. PSNR: {avg_psnr:.3f}')
+    print(f'Optimized Model | Quantized Environment | Avg. PSNR: {avg_psnr:.3f}')
 
 if __name__ == '__main__':
     main()

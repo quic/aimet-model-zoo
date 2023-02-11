@@ -28,18 +28,16 @@ pip install datasets==2.4.0
 ## Usage
 ### To run evaluation with QuantSim for Natural Language Text Generation tasks in AIMET, use the following
 ```bash
-python transformer_tg_quanteval.py \ 
-    --model_eval_type <model evaluation type> \
+python gpt2_quanteval.py \ 
+    --model-config <model configuration > \
     --per_device_eval_batch_size <batch size> 
 
 ```
+* Available configurations is : "gpt2_w8a8"
 * example 
     ```
-    python transformers_tg_quanteval.py --model_eval_type fp32 --per_device_eval_batch_size 8  
+    python gpt2_quanteval.py --model_config gpt2_w8a8 --per_device_eval_batch_size 8  
     ```
-
-* supported keyword of model_eval_type supported are "fp32","int8"
-
 
 ## Quantization Configuration
 The following configuration has been used for the above models for INT8 quantization:

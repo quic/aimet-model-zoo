@@ -13,6 +13,9 @@ Please [install and setup AIMET](https://github.com/quic/aimet/blob/release-aime
 ```
 pip install datasets==2.4.0
 pip install transformers==4.11.3 
+git clone https://github.com/NVIDIA/apex
+cd apex
+python setup.py install 
 ```
 ## Model checkpoint
 - Original full precision checkpoints without downstream training were downloaded through hugging face 
