@@ -1,0 +1,33 @@
+{
+    "name": "VIT",
+    "framework": "pytorch",
+    "task": "",
+    "model_args": {
+	"quantized":{"model_name_or_path": "../model/weights/downloaded_weights"},
+	"original":{"model_name_or_path": "google/vit-base-patch16-224"},
+        "dataset_name": "../model/utils/imagenet.py",
+        "higher_resolution": "False",
+	    "ignore_mismatched_sizes": "False",
+        "config_file": "../model/weights/aimet_config",
+        "clamp_quantizer": "False",
+        "clamping_value": "30.0"
+    },
+    "optimization_config": {
+        "quantization_configuration":
+            {
+                "param_bw": 8,
+                "output_bw": 8,
+                "input_quantization": true,
+                "quant_scheme": "tf_range_learning",
+                "techniques": ["qat"]
+            }
+        },
+    "artifacts": {
+        "url_pre_opt_weights": null, 
+        "url_post_opt_weights": null,
+        "tar_url_pre_opt_weights":null,
+        "tar_url_post_opt_weights":"https://github.com/quic/aimet-model-zoo/releases/download/torch_vit/imgnet_vit_5e4_clamp_rl.tar.gz",
+        "url_aimet_encodings": null,
+        "url_aimet_config": "https://github.com/quic/aimet-model-zoo/releases/download/torch_vit/default_config.json"        
+    }
+}

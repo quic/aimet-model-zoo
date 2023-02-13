@@ -81,6 +81,14 @@ add_custom_target(packagemodelzoo
     COMMAND ${CMAKE_COMMAND} -DAIMET_PACKAGE_PATH=${AIMET_PACKAGE_PATH} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DENABLE_TENSORFLOW=${ENABLE_TENSORFLOW} -DENABLE_TORCH=${ENABLE_TORCH} -DSW_VERSION=${SW_VERSION} -DPROJECT_NAME=${CMAKE_PROJECT_NAME} -P ${CMAKE_CURRENT_SOURCE_DIR}/packaging/package_model_zoo.cmake
 )
 
+# -------------------------------
+# Code Violations
+# -------------------------------
+
+add_custom_target(pylintmodelzoo
+    # Run the Pylint
+    COMMAND ${CMAKE_COMMAND} -DAIMET_PACKAGE_PATH=${AIMET_PACKAGE_PATH} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DENABLE_TENSORFLOW=${ENABLE_TENSORFLOW} -DENABLE_TORCH=${ENABLE_TORCH} -DSW_VERSION=${SW_VERSION} -DPROJECT_NAME=${CMAKE_PROJECT_NAME} -P ${CMAKE_CURRENT_SOURCE_DIR}/packaging/pylint_model_zoo.cmake
+)
 
 # -------------------------------
 # Deployment

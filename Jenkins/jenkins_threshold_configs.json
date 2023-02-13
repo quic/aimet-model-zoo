@@ -1,0 +1,8 @@
+{ 
+  "pylint_fail_thresholds" : {
+    "high_priority" : "10",
+    "normal_priority" : "10",
+    "low_priority" : "10"
+  }
+}
+

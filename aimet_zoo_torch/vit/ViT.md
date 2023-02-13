@@ -45,21 +45,18 @@ Each of the {train, valid, test} directories is then expected to have 1000 subdi
 ## Usage
 - To run evaluation with QuantSim in AIMET, use the following
 ```bash
-
-python transformer_imageclassification.py \
-    --model_type <model_type> \
-    --model_eval_type <model_eval_type> \
-    --train_dir <imagenet_train_path> \
-    --validation_dir <imagenet_val_path> \
-    --per_device_eval_batch_size <batch_size>
-
-
-# Example
-python transformer_imageclassification.py --model_type vit  --model_eval_type fp32  --per_device_eval_batch_size 4 --train_dir <imagenet_train_path> --validation_dir <imagenet_val_path> --per_device_eval_batch_size 8 
+python vit_quanteval.py \
+	--model_config <model_config> \
+	--per_device_eval_batch_size <evaluation batch size> \
+	--train_dir <imagenet training data path> \
+	--validation_dir <imagenet validation data path>
 ```
 
-- supported keywords of model_type are vit and mobilevit  
-- supported keywords of model_eval_type are int8 and fp32 
+# Example
+```bash 
+python vit_quanteval.py --model_config vit_w8a8 --per_device_eval_batch_size 4 --train_dir <imagenet_train_path> --validation_dir <imagenet_val_path>
+```
+- supported keywords of model_config is vit_w8a8
 
 ## Quantization Configuration
 The following configuration has been used for the above models for INT8 quantization:

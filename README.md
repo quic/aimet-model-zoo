@@ -38,7 +38,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <th>W4A8<sup>[7]</sup></th>
   </tr>
   <tr>
-    <td>Image Classification</td>
+    <td rowspan="7">Image Classification</td>
     <td><a href="aimet_zoo_torch/mobilenetv2/MobilenetV2.md">MobileNetV2</a></td>
     <td><a href="https://github.com/tonylins/pytorch-mobilenet-v2">GitHub Repo</a></td>
     <td><a href="https://drive.google.com/file/d/1jlto6HRVD3ipNkAl1lNhDbkBp7HylaqR/view">Pretrained Model</a></td>
@@ -49,8 +49,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>TBD</td>
   </tr>
   <tr>
-    <td>Image Classification</td>
-    <td><a href="aimet_zoo_torch/classification/Classification.md">Resnet18</a></td>
+    <td><a href="aimet_zoo_torch/resnet/ResNet.md">Resnet18</a></td>
     <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
     <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
     <td><a href="/../../releases/tag/torchvision_classification_INT4%2F8">Quantized Model</a></td>
@@ -60,8 +59,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>69.1%</td>
   </tr>
   <tr>
-    <td>Image Classification</td>
-    <td><a href="aimet_zoo_torch/classification/Classification.md">Resnet50</a></td>
+    <td><a href="aimet_zoo_torch/resnet/ResNet.md">Resnet50</a></td>
     <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
     <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
     <td><a href="/../../releases/tag/torchvision_classification_INT4%2F8">Quantized Model</a></td>
@@ -71,8 +69,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>75.63%</td>
   </tr>
   <tr>
-    <td>Image Classification</td>
-    <td><a href="aimet_zoo_torch/classification/Classification.md">Regnet_x_3_2gf</a></td>
+    <td><a href="aimet_zoo_torch/regnet/RegNet.md">Regnet_x_3_2gf</a></td>
     <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
     <td><a href="https://pytorch.org/vision/0.11/models.html#classification">Pytorch Torchvision </a></td>
     <td><a href="/../../releases/tag/torchvision_classification_INT4%2F8">Quantized Model</a></td>
@@ -82,7 +79,6 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>77.70%</td>
   </tr>
   <tr>
-    <td>Image Classification</td>
     <td><a href="aimet_zoo_torch/efficientnetlite0/EfficientNet-lite0.md">EfficientNet-lite0</a></td>
     <td><a href="https://github.com/rwightman/gen-efficientnet-pytorch">GitHub Repo</a></td>
     <td><a href="https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-weights/efficientnet_lite0_ra-37913777.pth">Pretrained Model</a></td>
@@ -93,10 +89,9 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>74.46%</td>
   </tr>
   <tr>
-    <td>Image Classification</td>
     <td><a href="aimet_zoo_torch/vit/ViT.md">ViT</a></td>
     <td><a href="https://huggingface.co/docs/transformers/model_doc/vit">Repo</a></td>
-    <td><a href="/../../releases/tag/vit">Prepared Models </a></td>
+    <td><a href="/../../releases/tag/torch_vit">Prepared Models </a></td>
     <td><a href="aimet_zoo_torch/vit/evaluators">See Example</a></td> </td>
     <td>(ImageNet dataset) Accuracy</td>
     <td>81.32</td>
@@ -104,10 +99,9 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>TBD</td>
   </tr>
   <tr>
-    <td>Image Classification</td>
     <td><a href="aimet_zoo_torch/mobilevit/MobileViT.md">MobileViT</a></td>
     <td><a href="https://huggingface.co/docs/transformers/model_doc/mobilevit">Repo</a></td>
-    <td><a href="/../../releases/tag/mobilevit">Prepared Models </a></td>
+    <td><a href="/../../releases/tag/torch_mobilevit">Prepared Models </a></td>
     <td><a href="aimet_zoo_torch/mobilevit/evaluators">See Example</a></td> </td>
     <td>(ImageNet dataset) Accuracy</td>
     <td>78.46</td>
@@ -126,7 +120,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>TBD</td>
   </tr>
   <tr>
-    <td rowspan="2">Pose Estimation</td>
+    <td rowspan="4">Pose Estimation</td>
     <td rowspan="2"><a href="aimet_zoo_torch/poseestimation/PoseEstimation.md">Pose Estimation</a></td>
     <td rowspan="2"><a href="https://github.com/CMU-Perceptual-Computing-Lab/openpose">Based on Ref.</a></td>
     <td rowspan="2"><a href="https://github.com/CMU-Perceptual-Computing-Lab/openpose">Based on Ref.</a></td>
@@ -143,7 +137,6 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>TBD</td>
   </tr>
   <tr>
-    <td rowspan="2">Pose Estimation</td>
     <td rowspan="2"><a href="aimet_zoo_torch/hrnet-posenet/Hrnet-posenet.md">HRNET-Posenet</a></td>
     <td rowspan="2"><a href="https://github.com/leoxiaobin/deep-high-resolution-net.pytorch">Based on Ref.</a></td>
     <td rowspan="2"><a href="/../../releases/tag/hrnet-posenet">FP32 Model</a></td>
@@ -160,7 +153,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>0.791</td>
   </tr>
   <tr>
-    <td>Super Resolution</td>
+    <td rowspan="5">Super Resolution</td>
     <td><a href="aimet_zoo_torch/srgan/SRGAN.md">SRGAN</a></td>
     <td><a href="https://github.com/andreas128/mmsr">GitHub Repo</a></td>
     <td><a href="/../../releases/download/srgan_mmsr_model/srgan_mmsr_MSRGANx4.gz">Pretrained Model</a> (older version from <a href="https://github.com/open-mmlab/mmediting/tree/master/configs/restorers/srresnet_srgan">here</a>)</td>    
@@ -171,43 +164,39 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>TBD</td>
   </tr>
   <tr>
-    <td>Super Resolution</td>
-    <td><a href="aimet_zoo_torch/superres/SuperRes.md">Anchor-based Plain Net (ABPN)</a></td>
+    <td><a href="aimet_zoo_torch/abpn/ABPN.md">Anchor-based Plain Net (ABPN)</a></td>
     <td><a href="https://arxiv.org/abs/2105.09750">Based on Ref.</a></td>
     <td><a href="/../../releases/tag/abpn-checkpoint-pytorch">See Tarballs</a></td>
-    <td><a href="aimet_zoo_torch/superres/evaluators/notebooks/superres_quanteval.ipynb">See Example</a></td>
-    <td colspan="3"><a href="aimet_zoo_torch/superres/SuperRes.md#results"> Average PSNR Results</a></td>
+    <td><a href="aimet_zoo_torch/abpn/evaluators/abpn_quanteval.py">See Example</a></td>
+    <td colspan="3"><a href="aimet_zoo_torch/abpn/ABPN.md#results"> Average PSNR Results</a></td>
     <td>TBD</td>
   </tr>
   <tr>
-    <td>Super Resolution</td>
-    <td><a href="aimet_zoo_torch/superres/SuperRes.md">Extremely Lightweight Quantization Robust Real-Time Single-Image Super Resolution (XLSR)</a></td>
+    <td><a href="aimet_zoo_torch/xlsr/XLSR.md">Extremely Lightweight Quantization Robust Real-Time Single-Image Super Resolution (XLSR)</a></td>
     <td><a href="https://arxiv.org/abs/2105.10288">Based on Ref.</a></td>
     <td><a href="/../../releases/tag/xlsr-checkpoint-pytorch">See Tarballs</a></td>
-    <td><a href="aimet_zoo_torch/superres/evaluators/notebooks/superres_quanteval.ipynb">See Example</a></td>
-    <td colspan="3"><a href="aimet_zoo_torch/superres/SuperRes.md#results"> Average PSNR Results</a></td>
+    <td><a href="aimet_zoo_torch/xlsr/evaluators/xlsr_quanteval.py">See Example</a></td>
+    <td colspan="3"><a href="aimet_zoo_torch/xlsr/XLSR.md#results"> Average PSNR Results</a></td>
     <td>TBD</td>
   </tr>
   <tr>
-    <td>Super Resolution</td>
-    <td><a href="aimet_zoo_torch/superres/SuperRes.md">Super-Efficient Super Resolution (SESR)</a></td>
+    <td><a href="aimet_zoo_torch/sesr/SESR.md">Super-Efficient Super Resolution (SESR)</a></td>
     <td><a href="https://arxiv.org/abs/2103.09404">Based on Ref.</a></td>
     <td><a href="/../../releases/tag/sesr-checkpoint-pytorch">See Tarballs</a></td>
-    <td><a href="aimet_zoo_torch/superres/evaluators/notebooks/superres_quanteval.ipynb">See Example</a></td>
-    <td colspan="3"><a href="aimet_zoo_torch/superres/SuperRes.md#results"> Average PSNR Results</a></td>
+    <td><a href="aimet_zoo_torch/sesr/evaluators/sesr_quanteval.py">See Example</a></td>
+    <td colspan="3"><a href="aimet_zoo_torch/sesr/SESR.md#results"> Average PSNR Results</a></td>
     <td>TBD</td>
   </tr>
   <tr>
-    <td>Super Resolution</td>
     <td><a href="aimet_zoo_torch/quicksrnet/QuickSRNet.md">QuickSRNet</a></td>
     <td><a> - </a></td>
     <td><a href="/../../releases/tag/quicksrnet-checkpoint-pytorch">See Tarballs</a></td>
-    <td><a href="aimet_zoo_torch/superres/evaluators/notebooks/superres_quanteval.ipynb">See Example</a></td>
-    <td colspan="3"><a href="aimet_zoo_torch/superres/SuperRes.md#results"> Average PSNR Results</a></td>
+    <td><a href="aimet_zoo_torch/quicksrnet/quicksrnet_quanteval.py">See Example</a></td>
+    <td colspan="3"><a href="aimet_zoo_torch/quicksrnet/QuickSRNet.md#results"> Average PSNR Results</a></td>
     <td>TBD</td>
   </tr>
   <tr>
-    <td>Semantic Segmentation</td>
+    <td rowspan="7">Semantic Segmentation</td>
     <td><a href="aimet_zoo_torch/deeplabv3/DeepLabV3.md">DeepLabV3+</a></td>
     <td><a href="https://github.com/jfzhang95/pytorch-deeplab-xception">GitHub Repo</a></td>
     <td><a href="https://drive.google.com/file/d/1G9mWafUAj09P4KvGSRVzIsV_U5OqFLdt/view">Pretrained Model</a></td>
@@ -218,18 +207,16 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>72.18%</td>
   </tr>
   <tr>
-    <td>Semantic Segmentation</td>
-    <td><a href="aimet_zoo_torch/hrnet-w48/HRNet-w48.md">HRNet-W48</a></td>
+    <td><a href="aimet_zoo_torch/hrnet_semantic_segmentation/HRNet-w48.md">HRNet-W48</a></td>
     <td><a href="https://github.com/HRNet/HRNet-Semantic-Segmentation/tree/pytorch-v1.1">GitHub Repo</a></td>
     <td> Original model weight not available </a></td>
-    <td><a href="aimet_zoo_torch/hrnet-w48/evaluators/hrnet-w48_quanteval.py">See Example</a></td>
+    <td><a href="aimet_zoo_torch/hrnet_semantic_segmentation/evaluators/hrnet_semantic_segmentation_quanteval.py">See Example</a></td>
     <td>(Cityscapes) mIOU</td>
     <td>81.04%</td>
     <td>80.65%</td>
     <td>80.07%</td>
   </tr>
   <tr>
-    <td>Semantic Segmentation</td>
     <td><a href="aimet_zoo_torch/inverseform/InverseForm.md">InverseForm (HRNet-16-Slim-IF)</a></td>
     <td><a href="https://github.com/Qualcomm-AI-research/InverseForm">GitHub Repo</a></td>
     <td><a href="https://github.com/Qualcomm-AI-research/InverseForm/releases/download/v1.0/hr16s_4k_slim.pth">Pretrained Model</a></td>
@@ -240,7 +227,6 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>TBD</td>
   </tr>
   <tr>
-    <td>Semantic Segmentation</td>
     <td><a href="aimet_zoo_torch/inverseform/InverseForm.md">InverseForm (OCRNet-48)</a></td>
     <td><a href="https://github.com/Qualcomm-AI-research/InverseForm">GitHub Repo</a></td>
     <td><a href="https://github.com/Qualcomm-AI-research/InverseForm/releases/download/v1.0/hrnet48_OCR_IF_checkpoint.pth">Pretrained Model</a></td>
@@ -251,7 +237,6 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>TBD</td>
   </tr>
   <tr>
-    <td>Semantic Segmentation</td>
     <td><a href="aimet_zoo_torch/ffnet/FFNet.md">FFNets</a></td>
     <td><a href="https://github.com/Qualcomm-AI-research/FFNet"> Github Repo</a></td>
     <td><a href="/../../releases/tag/torch_segmentation_ffnet">Prepared Models (5 in total)</a></td>
@@ -260,7 +245,6 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>TBD</td>
   </tr>
   <tr>
-    <td>Semantic Segmentation</td>
     <td><a href="aimet_zoo_torch/rangenet/rangeNet.md">RangeNet++</a></td>
     <td><a href="https://github.com/PRBonn/lidar-bonnetal">GitHub Repo</a></td>
     <td><a href="http://www.ipb.uni-bonn.de/html/projects/bonnetal/lidar/semantic/models/darknet21.tar.gz">Pretrained Model</a></td>
@@ -268,6 +252,16 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>(Semantic kitti) mIOU</td>
     <td>47.2%</td>
     <td>47.0%</td>
+    <td>46.5%</td>
+  </tr>
+  <tr>
+    <td><a href="aimet_zoo_torch/salsaNext/salsaNext.md">SalsaNext</a></td>
+    <td><a href="https://github.com/TiagoCortinhal/SalsaNext">GitHub Repo</a></td>
+    <td><a href="https://drive.google.com/file/d/10fxIwPK10UVVB9jsgXDZSDwj4vy9MyTl/view">Pretrained Model</a></td>
+    <td><a href="/../../releases/tag/torch_salsaNext_models">Quantized Model</a></td>
+    <td>(Semantic kitti) mIOU</td>
+    <td>55.8%</td>
+    <td>55.4%</td>
     <td>TBD</td>
   </tr>
   <tr>
@@ -282,10 +276,10 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>TBD</td>
   </tr>
   <tr>
-    <td rowspan="3">NLP / NLU</td>
+    <td rowspan="15">NLP / NLU</td>
     <td rowspan="3"><a href="aimet_zoo_torch/bert/Bert.md">Bert</a></td>
     <td rowspan="3"><a href="https://huggingface.co/docs/transformers/model_doc/bert">Repo</a></td>
-    <td rowspan="3"><a href="/../../releases/tag/bert">Prepared Models </a></td>
+    <td rowspan="3"><a href="/../../releases/tag/torch_bert">Prepared Models </a></td>
     <td rowspan="3"><a href="aimet_zoo_torch/bert/evaluators">See Example</a></td>
     <td>(GLUE dataset) GLUE score</td>
     <td>83.11</td>
@@ -302,10 +296,9 @@ An original FP32 source model is quantized either using post-training quantizati
     <td colspan="3"><a href="aimet_zoo_torch/bert/Bert.md#results"> Detailed Results</a></td>
   </tr>
   <tr>
-    <td rowspan="3">NLP / NLU</td>
     <td rowspan="3"><a href="aimet_zoo_torch/mobilebert/MobileBert.md">MobileBert</a></td>
     <td rowspan="3"><a href="https://huggingface.co/docs/transformers/model_doc/mobilebert">Repo</a></td>
-    <td rowspan="3"><a href="/../../releases/tag/mobilebert">Prepared Models </a></td>
+    <td rowspan="3"><a href="/../../releases/tag/torch_mobilebert">Prepared Models </a></td>
     <td rowspan="3"><a href="aimet_zoo_torch/mobilebert/evaluators">See Example</a></td>
     <td>(GLUE dataset) GLUE score</td>
     <td>81.24</td>
@@ -322,10 +315,9 @@ An original FP32 source model is quantized either using post-training quantizati
     <td colspan="3"><a href="aimet_zoo_torch/mobilebert/MobileBert.md#results"> Detailed Results</a></td>
   </tr>
   <tr>
-    <td rowspan="3">NLP / NLU</td>
     <td rowspan="3"><a href="aimet_zoo_torch/minilm/MiniLM.md">MiniLM</a></td>
     <td rowspan="3"><a href="https://huggingface.co/microsoft/MiniLM-L12-H384-uncased?text=I+like+you.+I+love+you">Repo</a></td>
-    <td rowspan="3"><a href="/../../releases/tag/minilm">Prepared Models </a></td>
+    <td rowspan="3"><a href="/../../releases/tag/torch_minilm">Prepared Models </a></td>
     <td rowspan="3"><a href="aimet_zoo_torch/minilm/evaluators">See Example</a></td>
     <td>(GLUE dataset) GLUE score</td>
     <td>82.23</td>
@@ -342,10 +334,9 @@ An original FP32 source model is quantized either using post-training quantizati
     <td colspan="3"><a href="aimet_zoo_torch/minilm/MiniLM.md#results"> Detailed Results</a></td>
   </tr>
   <tr>
-    <td rowspan="2">NLP / NLU</td>
     <td rowspan="2"><a href="aimet_zoo_torch/roberta/Roberta.md">Roberta</a></td>
     <td rowspan="2"><a href="https://huggingface.co/docs/transformers/model_doc/roberta">Repo</a></td>
-    <td rowspan="2"><a href="/../../releases/tag/roberta">Prepared Models </a></td>
+    <td rowspan="2"><a href="/../../releases/tag/torch_roberta">Prepared Models </a></td>
     <td rowspan="2"><a href="aimet_zoo_torch/roberta/evaluators">See Example</a></td>
     <td>(GLUE dataset) GLUE score</td>
     <td>85.11</td>
@@ -356,10 +347,9 @@ An original FP32 source model is quantized either using post-training quantizati
     <td colspan="3"><a href="aimet_zoo_torch/roberta/Roberta.md#results"> Detailed Results</a></td>
   </tr>
   <tr>
-    <td rowspan="3">NLP / NLU</td>
     <td rowspan="3"><a href="aimet_zoo_torch/distilbert/DistilBert.md">DistilBert</a></td>
     <td rowspan="3"><a href="https://huggingface.co/docs/transformers/model_doc/distilbert">Repo</a></td>
-    <td rowspan="3"><a href="/../../releases/tag/distilbert">Prepared Models </a></td>
+    <td rowspan="3"><a href="/../../releases/tag/torch_distilbert">Prepared Models </a></td>
     <td rowspan="3"><a href="aimet_zoo_torch/distilbert/evaluators">See Example</a></td>
     <td>(GLUE dataset) GLUE score</td>
     <td>80.71</td>
@@ -376,7 +366,6 @@ An original FP32 source model is quantized either using post-training quantizati
     <td colspan="3"><a href="aimet_zoo_torch/distilbert/DistilBert.md#results"> Detailed Results</a></td>
   </tr>
   <tr>
-    <td>NLP / NLU</td>
     <td><a href="aimet_zoo_torch/gpt2/GPT2.md">GPT2</a></td>
     <td><a href="https://huggingface.co/gpt2">Repo</a></td>
     <td><a href="/../../releases/tag/torch_gpt2">Prepared Models</a></td>
@@ -422,7 +411,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <th>W4A8<sup>[7]</sup></th>
   </tr>
   <tr>
-    <td>Image Classification</td>
+    <td rowspan="3">Image Classification</td>
     <td><a href="aimet_zoo_tensorflow/resnet50/ResNet50.md">ResNet-50 (v1)</a></td>
     <td><a href="https://github.com/tensorflow/models/tree/master/research/slim">GitHub Repo</a></td>
     <td><a href="http://download.tensorflow.org/models/resnet_v1_50_2016_08_28.tar.gz">Pretrained Model</a></td>
@@ -434,7 +423,6 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>TBD</td>
   </tr>
   <tr>
-    <td>Image Classification</td>
     <td><a href="aimet_zoo_tensorflow/mobilenet_v2/MobileNetV2.md">MobileNet-v2-1.4</a></td>
     <td><a href="https://github.com/tensorflow/models/tree/master/research/slim">GitHub Repo</a></td>
     <td><a href="https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.4_224.tgz">Pretrained Model</a></td>
@@ -446,7 +434,6 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>TBD</td>
   </tr>
   <tr>
-    <td>Image Classification</td>
     <td><a href="aimet_zoo_tensorflow/efficientnet/EfficientNetLite.md">EfficientNet Lite</a></td>
     <td><a href="https://github.com/tensorflow/tpu/tree/master/models/official/efficientnet/lite">GitHub Repo</a></td>
     <td><a href="https://storage.googleapis.com/cloud-tpu-checkpoints/efficientnet/lite/efficientnet-lite0.tar.gz">Pretrained Model</a> </td>
@@ -458,7 +445,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>TBD</td>
   </tr>
   <tr>
-    <td>Object Detection</td>
+    <td rowspan="3">Object Detection</td>
     <td><a href="aimet_zoo_tensorflow/ssd_mobilenet_v2/SSDMobileNetV2.md">SSD MobileNet-v2</a></td>
     <td><a href="https://github.com/tensorflow/models/tree/master/research/object_detection">GitHub Repo</a></td>
     <td><a href="http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v2_quantized_300x300_coco_2019_01_03.tar.gz">Pretrained Model</a></td>
@@ -470,7 +457,6 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>TBD</td>
   </tr>
   <tr>
-    <td>Object Detection</td>
     <td><a href="aimet_zoo_tensorflow/retinanet/RetinaNet.md">RetinaNet</a></td>
     <td><a href="https://github.com/fizyr/keras-retinanet">GitHub Repo</a></td>
     <td><a href="https://github.com/fizyr/keras-retinanet/releases/download/0.5.1/resnet50_coco_best_v2.1.0.h5">Pretrained Model</a></td>
@@ -482,7 +468,6 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>TBD</td>
   </tr>
   <tr>
-    <td>Object Detection</td>
     <td><a href="aimet_zoo_tensorflow/mobiledetedgetpu/MobileDetEdgeTPU.md">MobileDet-EdgeTPU</a></td>
     <td><a href="https://github.com/tensorflow/models/blob/master/research/object_detection/g3doc/tf1_detection_zoo.md">GitHub Repo</a></td>
     <td><a href="http://download.tensorflow.org/models/object_detection/ssdlite_mobiledet_edgetpu_320x320_coco_2020_05_19.tar.gz">Pretrained Model</a></td>

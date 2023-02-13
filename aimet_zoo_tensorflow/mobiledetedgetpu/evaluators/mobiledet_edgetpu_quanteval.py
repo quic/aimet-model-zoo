@@ -38,7 +38,7 @@ def download_files():
     # Download quantsim config file
     if not os.path.exists("./htp_quantsim_config.json"):
         urllib.request.urlretrieve(
-            "https://github.com/quic/aimet/blob/release-aimet-1.22/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config.json",
+            "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.22/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config.json",
             "htp_quantsim_config.json",
         )
 
@@ -60,7 +60,7 @@ def download_files():
     # Download adaround encoding file
     if not os.path.exists("./adaround_mobiledet.encodings"):
         urllib.request.urlretrieve(
-            "https://github.com/quic/aimet-model-zoo/releases/download/tensorflow_mobiledet_edgetpu_W8A8_quantsim/adaround_mobiledet.encodings%22,%22adaround_mobiledet.encodings",
+            "https://github.com/quic/aimet-model-zoo/releases/download/tensorflow_mobiledet_edgetpu_W8A8_quantsim/adaround_mobiledet.encodings",
             "adaround_mobiledet.encodings",
         )
 

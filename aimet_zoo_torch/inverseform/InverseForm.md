@@ -14,10 +14,6 @@ This model was tested with the `torch_gpu` variant of AIMET 1.23.
 ```
 
 ### Additional setup 
-Download base_loader.py file from this link https://github.com/NVIDIA/semantic-segmentation/blob/main/datasets/base_loader.py into *aimet_model_zoo/inverseform/dataloader/datasets/*
-
-> **_NOTE:_** The above file is available under a third-party license, and is *not* provided, supported or warranted by Qualcomm Innovation Center Inc. (QuIC) in any way. If you choose to access this content you must comply with the third-party terms provided with the content.
-
 Append the repo location to your `PYTHONPATH` with the following:  
   ```bash
   export PYTHONPATH=$PYTHONPATH:<path to parent of aimet_model_zoo>

@@ -6,7 +6,7 @@ This document describes how to run AIMET quantization on the following model(s) 
 ## Environment Setup
 
 ### 1. Setup AI Model Efficiency Toolkit
-Please [install and setup AIMET](https://github.com/quic/aimet/blob/release-aimet-1.23/packaging/install.md) before proceeding further. This model was tested with the `torch_gpu` variant of AIMET version 1.23.0.
+Please [install and setup AIMET](https://github.com/quic/aimet/blob/release-aimet-1.24/packaging/install.md) before proceeding further. This model was tested with the `torch_gpu` variant of AIMET version 1.24.0.
 
 ### 2. Install AIMET-Model-Zoo
 Clone the AIMET Model Zoo repo into your workspace:  
@@ -45,6 +45,8 @@ Available model configurations are:
 - quicksrnet_large_2x_w8a8
 - quicksrnet_large_3x_w8a8
 - quicksrnet_large_4x_w8a8
+- quicksrnet_large_4x_w4a8
+
 
 ---
 
@@ -55,19 +57,31 @@ Please note the following regarding the available checkpoints:
 - All model architectures were reimplemented from scratch and trained on the *DIV2k* dataset (available [here](https://data.vision.ee.ethz.ch/cvl/DIV2K/)).
 - The *float32* model is the full-precision model with the highest validation accuracy on the DIV2k dataset.
 - The *int8* model is the quantized model with the highest validation accuracy obtained using AIMET's [Quantization-aware Training](https://developer.qualcomm.com/blog/exploring-aimet-s-quantization-aware-training-functionality).
+- The *int4* model is the quantized model with the highest validation accuracy obtained using AIMET's [AdaRound](https://quic.github.io/aimet-pages/releases/latest/user_guide/adaround.html) 
 - The above quantized model along with the Encodings were exported using AIMET's export tool.
 
 ---
 
 ## Quantization Configuration
+W8A8 optimization
+
 In the evaluation notebook included, we have used the default config file, which configures the quantizer ops with the following assumptions:
 - Weight quantization: *8 bits, per tensor symmetric quantization*
 - Bias parameters are not quantized
 - Activation quantization: *8 bits, asymmetric quantization*
 - Model inputs are quantized
 - *TF_enhanced* was used as the quantization scheme
-
 ---
+W4A8 optimization
+
+In the evaluation notebook included, we have used the default config file, which configures the quantizer ops with the following assumptions:
+- Weight quantization: *4 bits, per channel symmetric quantization*
+- Bias parameters are not quantized
+- Activation quantization: *8 bits, asymmetric quantization*
+- Model inputs are quantized
+- *TF_enhanced* was used as the quantization scheme
+---
+
 
 ## Results
 **NOTE:**

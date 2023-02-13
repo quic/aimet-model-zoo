@@ -28,6 +28,8 @@ export PYTHONPATH=$PYTHONPATH:<path to TPU repo>/tpu/models/official/efficientne
   - https://image-net.org/download
 - 2012 ImageNet validation dataset is used for this evaluation script. The data should be organized in the following way
 - Imagenet validation label file ILSVRC2012_validation_ground_truth.txt is required for evaluation. This file should only contain labels of images. 
+- ILSVRC2012_validation_ground_truth.txt existing in ImageNet validation dataset has two columns. 1st column is ImageID, the 2nd column is labels of corresponding images. To get only the 2nd column, use ` awk '{ print $2}' ILSVRC2012_validation_ground_truth.txt > ILSVRC2012_validation_ground_truth.only_labels.txt `
+
 ```bash 
 <imagenet validation dataset path>/
 ├── ILSVRC2012_val_00000001.JPEG

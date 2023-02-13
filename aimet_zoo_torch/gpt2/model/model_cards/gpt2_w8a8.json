@@ -1,0 +1,34 @@
+{
+    "name": "GPT2",
+    "framework": "pytorch",
+    "task": "image classification",
+    "model_args": {
+        "dataset_name": "wikitext",
+        "dataset_config_name" :"wikitext-2-raw-v1",
+        "model_type":"gpt2",
+        "block_size":"256",
+        "config_file": "../model/weights/aimet_config",
+        "clamp_quantizer": "False",
+        "clamping_value": "30.0",
+        "model_name_or_path": "../model/weights/downloaded_weights",
+        "use_slow_tokenizer":"False"
+    },
+    "optimization_config": {
+        "quantization_configuration":
+            {
+                "param_bw": 8,
+                "output_bw": 8,
+                "input_quantization": true,
+                "quant_scheme": "tf_range_learning",
+                "techniques": ["qat"]
+            }
+        },
+    "artifacts": {
+        "url_pre_opt_weights": null, 
+        "url_post_opt_weights": null,
+        "tar_url_pre_opt_weights":"https://github.com/quic/aimet-model-zoo/releases/download/torch_gpt2/gpt2_wikitext_finetune.tar.gz",
+        "tar_url_post_opt_weights":"https://github.com/quic/aimet-model-zoo/releases/download/torch_gpt2/gpt2_wikitext_5e-5_1e-3_150_8.tar.gz",
+        "url_aimet_encodings": null,
+        "url_aimet_config": "https://github.com/quic/aimet-model-zoo/releases/download/torch_gpt2/default_config.json"        
+    }
+}

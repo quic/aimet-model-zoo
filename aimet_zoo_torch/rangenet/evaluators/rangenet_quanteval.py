@@ -36,20 +36,26 @@ from aimet_torch.quantsim import QuantizationSimModel
 from aimet_torch.quantsim import load_checkpoint
 from aimet_zoo_torch.common.utils.utils import get_device
 
-
 def download_weights(args):
+    """ Download weights to cache directory """
     # Download original model
     FILE_NAME = args.model_orig_path + "/darknet21"
-    ORIGINAL_MODEL_URL = "https://github.qualcomm.com/qualcomm-ai/aimet-model-zoo/releases/download/torch_rangenet_plus_w8a8/rangeNet_plus_FP32.tar.gz"
+    ORIGINAL_MODEL_URL = "https://github.com/quic/aimet-model-zoo/releases/download/torch_rangenet_plus_w8a8/rangeNet_plus_FP32.tar.gz"
     if not os.path.exists(FILE_NAME):
         urllib.request.urlretrieve(ORIGINAL_MODEL_URL, "darknet21.tar.gz")
         file = tarfile.open("darknet21.tar.gz")
         file.extractall(args.model_orig_path)
         os.remove("darknet21.tar.gz")
 
-    # Download optimized weights
+    # Download optimized w4a8 weights
+    FILE_NAME = args.model_optim_path + "/rangeNet_plus_w4a8_checkpoint.pth"
+    OPTIMIZED_CHECKPOINT_URL = "https://github.com/quic/aimet-model-zoo/releases/download/torch_rangenet_plus_w4a8/rangeNet_plus_w4a8_checkpoint.pth"
+    if not os.path.exists(FILE_NAME):
+        urllib.request.urlretrieve(OPTIMIZED_CHECKPOINT_URL, FILE_NAME)
+    
+    # Download optimized w8a8 weights
     FILE_NAME = args.model_optim_path + "/rangeNet_plus_w8a8_checkpoint.pth"
-    OPTIMIZED_CHECKPOINT_URL = "https://github.qualcomm.com/qualcomm-ai/aimet-model-zoo/releases/download/torch_rangenet_plus_w8a8/rangeNet_plus_w8a8_checkpoint.pth"
+    OPTIMIZED_CHECKPOINT_URL = "https://github.com/quic/aimet-model-zoo/releases/download/torch_rangenet_plus_w8a8/rangeNet_plus_w8a8_checkpoint.pth"
     if not os.path.exists(FILE_NAME):
         urllib.request.urlretrieve(OPTIMIZED_CHECKPOINT_URL, FILE_NAME)
 
@@ -58,8 +64,8 @@ def download_weights(args):
     if not os.path.exists("./default_config_per_channel.json"):
         urllib.request.urlretrieve(QUANTSIM_CONFIG_URL, "default_config_per_channel.json")
 
-# Set seed for reproducibility
 def seed(seed_number):
+    """" Set seed for reproducibility """
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = True
     torch.manual_seed(seed_number)
@@ -67,8 +73,8 @@ def seed(seed_number):
     torch.cuda.manual_seed_all(seed_number)
 
 
-
 def arguments():
+    """ argument parser """
     parser = argparse.ArgumentParser(description='Evaluation script for PyTorch RangeNet++ models.')
     parser.add_argument('--dataset-path',       help='The path to load your dataset', type=str, default=booger.TRAIN_PATH + '/tasks/semantic/dataset/')
     parser.add_argument('--model-orig-path',    help='The path to load your original model', type=str, default=booger.TRAIN_PATH + '/tasks/semantic/pre_trained_model')
@@ -80,14 +86,15 @@ def arguments():
     args = parser.parse_args()
     return args
 
-
 class ModelConfig():
+    """ adding hardcoded values into args from parseargs() and return config object """
     def __init__(self, args):
         self.input_shape = (1, 5, 64, 2048)
         self.DATA = yaml.safe_load(open(booger.TRAIN_PATH + "/tasks/semantic/config/labels/semantic-kitti.yaml", 'r'))
         self.ARCH = yaml.safe_load(open(booger.TRAIN_PATH + "/tasks/semantic/config/arch/darknet21.yaml", 'r'))
         self.original_checkpoint_path = args.model_orig_path + "/darknet21"
-        self.optimized_checkpoint_path = args.model_optim_path + "/rangeNet_plus_w8a8_checkpoint.pth"
+        self.optimized_w4a8_checkpoint_path = args.model_optim_path + "/rangeNet_plus_w4a8_checkpoint.pth"
+        self.optimized_w8a8_checkpoint_path = args.model_optim_path + "/rangeNet_plus_w8a8_checkpoint.pth"
         self.config_file = "./default_config_per_channel.json"
         for arg in vars(args):
             setattr(self, arg, getattr(args, arg))
@@ -107,10 +114,15 @@ def main(args):
     model_orig = model_orig.to(device)
     model_orig.eval()
 
-    # Load optimized model
-    model_optim = load_checkpoint(config.optimized_checkpoint_path)
-    model_optim = model_optim.to(device)
-    model_optim.eval()
+    # Load optimized w4a8 model
+    model_optim_w4a8 = load_checkpoint(config.optimized_w4a8_checkpoint_path)
+    model_optim_w4a8 = model_optim_w4a8.to(device)
+    model_optim_w4a8.eval()
+    
+    # Load optimized w8a8 model
+    model_optim_w8a8 = load_checkpoint(config.optimized_w8a8_checkpoint_path)
+    model_optim_w8a8 = model_optim_w8a8.to(device)
+    model_optim_w8a8.eval()
 
     # Get Dataloader
     val_loader = evaluate_model.parser.get_valid_set()
@@ -148,18 +160,23 @@ def main(args):
     mIoU_orig_fp32 = evaluate_model.validate(val_loader, model_orig)
     del model_orig
     torch.cuda.empty_cache()
-    mIoU_orig_w8a8 = evaluate_model.validate(val_loader, sim_orig.model)
+    mIoU_orig_quantsim = evaluate_model.validate(val_loader, sim_orig.model)
     del sim_orig
     torch.cuda.empty_cache()
 
     print('Evaluating Optimized Model')
-    mIoU_optim_w8a8 = evaluate_model.validate(val_loader, model_optim)
-    del model_optim
+    mIoU_optim_w4a8 = evaluate_model.validate(val_loader, model_optim_w4a8)
+    del model_optim_w4a8
+    torch.cuda.empty_cache()
+    
+    mIoU_optim_w8a8 = evaluate_model.validate(val_loader, model_optim_w8a8)
+    del model_optim_w8a8
     torch.cuda.empty_cache()
 
     print(f'Original Model | 32-bit Environment | mIoU: {mIoU_orig_fp32:.4f}')
-    print(f'Original Model | {config.default_param_bw}-bit Environment | mIoU: {mIoU_orig_w8a8:.4f}')
-    print(f'Optimized Model | {config.default_param_bw}-bit Environment | mIoU: {mIoU_optim_w8a8:.4f}')
+    print(f'Original Model | {config.default_param_bw}-bit Environment | mIoU: {mIoU_orig_quantsim:.4f}')
+    print(f'Optimized Model | 4-bit Environment | mIoU: {mIoU_optim_w4a8:.4f}')
+    print(f'Optimized Model | 8-bit Environment | mIoU: {mIoU_optim_w8a8:.4f}')
 
 
 if __name__ == '__main__':

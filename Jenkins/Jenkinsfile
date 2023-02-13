@@ -1,0 +1,135 @@
+pipeline {
+    parameters {
+        string(name: 'PROJECT_NAME', defaultValue: 'aimet-model-zoo', description: 'project name')
+        string(name: 'BUILD_LABEL_CPU', defaultValue: 'docker-build-aimet-pr-cpu', description: 'Jenkins node host name or label for CPU variants')
+        string(name: 'BUILD_TIMEOUT', defaultValue: '3', description: 'Build timeout in hours')
+        string(name: 'USE_LINARO', defaultValue: '-l', description: 'Use pre-built Linaro images, if available.')
+        string(name: 'PREBUILT_DOCKER_IMAGE_URL', defaultValue: '', description: 'Use pre-built docker image from URL, if available.')
+    }
+    agent { label "${params.BUILD_LABEL_CPU}" }
+    options {
+        timestamps()
+        timeout( time: 3, unit: 'HOURS' )
+    }
+    environment{
+        def workspace   = pwd()
+        def REPO_URL    = sh (script: "git config --get remote.origin.url",     returnStdout: true).trim()
+        def REPO_NAME   = sh (script: "basename -s .git ${REPO_URL}",           returnStdout: true).trim()
+
+        PROJECT_ROOT    = "${workspace}/${REPO_NAME}"
+        PROJECT_NAME    = "${params.PROJECT_NAME}"
+        PROJECT_BRANCH  = "${params.PROJECT_BRANCH}"
+        WORKSPACE_ROOT  = "${workspace}"
+        
+    }
+    stages {
+        stage('Setup') {
+            steps {
+                echo "*** Running SETUP stage on ${env.NODE_NAME} in workspace ${env.WORKSPACE_ROOT} ***"
+                sh 'bash -l -c "rm -rf ${PROJECT_ROOT} | true"'
+                sh 'bash -l -c "mkdir ${PROJECT_ROOT}"'
+                // moving all files and folders except current and parent into ${REPO_NAME} folder
+                sh 'mv `ls -1a | grep -v "^${REPO_NAME}$" | grep -v "^\\.$" | grep -v "^\\.\\.$" ` ${REPO_NAME}'
+                script {
+                    // load threshold file to be used for unit test and code quality reporting
+                    def THRESHOLD_FILE = "${PROJECT_ROOT}/Jenkins/jenkins_threshold_configs.json"
+                    if (!fileExists("${THRESHOLD_FILE}")) {
+                        error("Error: Threshold file must be specified for project. ${THRESHOLD_FILE} does not exist.")
+                    }
+
+                    echo "Loading Thresholds Config  file"
+                    THRESHOLD_OBJ = readJSON file: "${PROJECT_ROOT}/Jenkins/jenkins_threshold_configs.json";
+                }
+                stash name: 'AIMETBuildTree', useDefaultExcludes: false
+            }
+        }
+        stage('Pipelines start') {
+            parallel {
+                // Start the pipeline for Tensorflow CPU variant
+                stage("TF TORCH CPU") {
+                    agent { label "${params.BUILD_LABEL_CPU}" }
+                    stages {
+                        stage('Setup') {
+                            steps {
+                                cleanWs()
+                                unstash 'AIMETBuildTree'
+                                script {
+                                    env.AIMET_ZOO_VARIANT_TF_CPU = "tf-torch-cpu"
+                                }
+                                echo "*** Running SETUP stage for ${env.AIMET_ZOO_VARIANT_TF_CPU} variant on ${env.NODE_NAME} in workspace ${env.WORKSPACE_ROOT} ***"
+                            }
+                        }
+
+                        stage('Build Package') {
+                            steps {
+                                echo 'Building and Creating Package...'
+                                script {
+                                    //TODO Change option back to "-bp" as soon as issue is fixed
+                                    runStage(env.AIMET_ZOO_VARIANT_TF_CPU, "-bp")
+                                }
+                            }
+                        }
+
+                        
+
+                        stage('Code violations') {
+                            steps {
+                                echo 'Running code violations...'
+                                script {
+                                    runStage(env.AIMET_ZOO_VARIANT_TF_CPU, "-v")
+                                }
+                            }
+                            post {
+                                always {
+                                    step([
+                                            $class                      : 'WarningsPublisher',
+                                            parserConfigurations        : [[
+                                                                            parserName: 'PYLint',
+                                                                            pattern   : "**/**/**/*pylint_results.out"
+                                                                          ]],
+                                            failedTotalHigh             : THRESHOLD_OBJ.pylint_fail_thresholds.high_priority,
+                                            failedTotalNormal           : THRESHOLD_OBJ.pylint_fail_thresholds.normal_priority,
+                                            failedTotalLow              : THRESHOLD_OBJ.pylint_fail_thresholds.low_priority,
+                                            usePreviousBuildAsReference : true
+                                    ])
+                                    script {
+                                        if (currentBuild.currentResult.equals("FAILURE")) {
+                                            // the plugin won't fail the stage.  it only sets the build status, so we have to fail it
+                                            // manually
+                                            sh "exit 1"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } // stages
+                } 
+            }
+        }
+    }
+    post {
+        always {
+            script {
+                if (currentBuild.currentResult.equals("SUCCESS")) {
+                    echo 'Finished pull request Jenkins file'
+                }
+            }
+        }
+    }
+}
+
+def runStage(AIMET_ZOO_VARIANT, options) {
+
+    echo "*** Running stage ${options} for ${AIMET_ZOO_VARIANT} variant on ${env.NODE_NAME} in workspace ${env.WORKSPACE_ROOT} ***"
+
+    def changedFiles = pullRequest.files.collect {
+        it.getFilename()
+    }
+    print changedFiles
+    if (!changedFiles.contains("Jenkins/Dockerfile.${AIMET_ZOO_VARIANT}".toString())) {
+        print "Jenkins/Dockerfile.${AIMET_ZOO_VARIANT} not found in changed file list, so using Linaro Docker image for ${AIMET_ZOO_VARIANT}"
+    }
+    sh """
+        AIMET_ZOO_VARIANT=${AIMET_ZOO_VARIANT} bash -l -c "cd ${REPO_NAME} && ./Jenkins/buildntest.sh -e AIMET_ZOO_VARIANT ${options} ${env.USE_LINARO} ${env.PREBUILT_DOCKER_IMAGE_URL}"
+    """
+}

@@ -13,7 +13,10 @@ from pathlib import Path
 import os
 from shutil import copy2
 import gdown
-
+import progressbar 
+import tarfile 
+import shutil
+import urllib.request 
 
 class Downloader():
     """
@@ -25,6 +28,8 @@ class Downloader():
                  url_adaround_encodings: str = None,
                  url_aimet_encodings: str = None,
                  url_aimet_config: str = None,
+                 tar_url_pre_opt_weights: str= None,
+                 tar_url_post_opt_weights: str = None,
                  model_dir: str = '',
                  model_config: str = ''):
 
@@ -43,6 +48,8 @@ class Downloader():
         self.url_adaround_encodings = url_adaround_encodings
         self.url_aimet_encodings = url_aimet_encodings
         self.url_aimet_config = url_aimet_config
+        self.tar_url_pre_opt_weights = tar_url_pre_opt_weights
+        self.tar_url_post_opt_weights = tar_url_post_opt_weights
         self._download_storage_path = Path(model_dir + '/weights/' + model_config + '/') if model_config else Path(model_dir + '/weights/')
         self.path_pre_opt_weights = str(self._download_storage_path) + "/pre_opt_weights" if self.url_pre_opt_weights else None
         self.path_post_opt_weights = str(self._download_storage_path) + "/post_opt_weights" if self.url_post_opt_weights else None
@@ -85,3 +92,49 @@ class Downloader():
     def _download_aimet_config(self):
         """downloads aimet configuration"""
         self._download_from_url(src=self.url_aimet_config, dst=self.path_aimet_config)
+
+    def _download_tar_pre_opt_weights(self):
+        self._download_tar_decompress(tar_url=self.tar_url_pre_opt_weights)
+
+    def _download_tar_post_opt_weights(self):
+        self._download_tar_decompress(tar_url=self.tar_url_post_opt_weights)
+    
+
+    def _download_tar_decompress(self,tar_url):        
+        """"download tar bar and decompress into downloaded_weights folder"""
+        if not os.path.exists(self._download_storage_path):
+            os.mkdir(self._download_storage_path)
+        download_tar_name = str(self._download_storage_path) +"/downloaded_weights.tar.gz"
+        urllib.request.urlretrieve(tar_url,download_tar_name,DownloadProgressBar())
+        with tarfile.open(download_tar_name) as pth_weights:
+            pth_weights.extractall(self._download_storage_path)        
+            folder_name=pth_weights.getnames()[0]
+            download_path = str(self._download_storage_path)+'/'+str(folder_name)
+            new_download_path = str(self._download_storage_path)+'/downloaded_weights'
+            if os.path.exists(new_download_path):
+                shutil.rmtree(new_download_path)
+            os.rename(download_path,new_download_path)
+
+
+
+class DownloadProgressBar():
+    """Downloading progress bar to show status of downloading"""
+    def __init__(self):
+        self.dpb = None
+
+    def __call__(self, b_num, b_size, size):
+        widgets = [
+        '\x1b[33mDownloading weights \x1b[39m',
+        progressbar.Percentage(),
+        progressbar.Bar(marker='\x1b[32m#\x1b[39m'),
+        ]
+        if not self.dpb:
+            self.dpb=progressbar.ProgressBar(widgets=widgets, maxval=size,redirect_stdout=True)
+            self.dpb.start()
+
+        processed = b_num * b_size
+        if processed < size:
+            self.dpb.update(processed)
+        else:
+            self.dpb.finish()
+
