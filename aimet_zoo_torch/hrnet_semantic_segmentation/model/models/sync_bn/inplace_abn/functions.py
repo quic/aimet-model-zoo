@@ -1,3 +1,4 @@
+# pylint: skip-file
 # BSD 3-Clause License
 #
 # Copyright (c) 2017, mapillary

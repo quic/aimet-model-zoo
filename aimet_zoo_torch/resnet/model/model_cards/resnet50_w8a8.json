@@ -19,7 +19,7 @@
         },
     "artifacts": {
         "url_pre_opt_weights": null, 
-        "url_post_opt_weights": "https://github.com/quic/aimet-model-zoo/releases/download/phase_2_february_artifacts/resnet50_w4a8_state_dict.pth",
+        "url_post_opt_weights": "https://github.com/quic/aimet-model-zoo/releases/download/phase_2_february_artifacts/resnet50_w8a8_state_dict.pth",
         "url_adaround_encodings": "https://github.com/quic/aimet-model-zoo/releases/download/torchvision_classification_INT4%2F8/resnet50_W8A8.encodings",
         "url_aimet_encodings": null,
         "url_aimet_config": "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.23/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json"        

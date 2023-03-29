@@ -164,16 +164,16 @@ class ImageNetDataLoader:
             normalize])
 
         if is_training:
-            data_set = ImageFolder(
+            self.data_set = ImageFolder(
                 root=images_dir, transform=self.train_transforms,
                 num_samples_per_class=num_samples_per_class)
         else:
-            data_set = ImageFolder(
+            self.data_set = ImageFolder(
                 root=images_dir, transform=self.val_transforms,
                 num_samples_per_class=num_samples_per_class)
 
         self._data_loader = torch_data.DataLoader(
-            data_set, batch_size=batch_size, shuffle=is_training,
+            self.data_set, batch_size=batch_size, shuffle=is_training,
             num_workers=num_workers, pin_memory=True)
 
     @property

@@ -38,9 +38,10 @@ import torch.utils.checkpoint
 from torch import nn
 from torch.nn import CrossEntropyLoss, MSELoss
 
+
 from aimet_torch import elementwise_ops
 #from aimet_torch.transformers.activations import ACT2FN
-from huggingface import activations
+from aimet_zoo_torch.mobilevit.model.huggingface import activations
 
 from transformers.file_utils import (
     add_start_docstrings,

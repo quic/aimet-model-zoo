@@ -14,6 +14,7 @@
 import json
 import os
 import csv
+import pathlib
 from collections import defaultdict
 import torch
 from aimet_torch.quantsim import QuantizationSimModel
@@ -38,10 +39,10 @@ class gpt2(Downloader):
         model_config
         quantized
         """
-        parent_dir = "/".join(os.path.realpath(__file__).split("/")[:-1])
+        self.parent_dir = str(pathlib.Path(os.path.abspath(__file__)).parent)
         self.cfg = defaultdict(lambda: None)
         if model_config:
-            config_filepath = parent_dir + "/model_cards/" + model_config + ".json"
+            config_filepath = os.path.join( self.parent_dir, "/model_cards/", model_config , ".json")
             with open(config_filepath) as f_in:
                 self.cfg = json.load(f_in)
         Downloader.__init__(
@@ -50,10 +51,11 @@ class gpt2(Downloader):
             tar_url_post_opt_weights=self.cfg["artifacts"]["tar_url_post_opt_weights"],
             url_aimet_encodings=self.cfg["artifacts"]["url_aimet_encodings"],
             url_aimet_config=self.cfg["artifacts"]["url_aimet_config"],
-            model_dir=parent_dir,
+            model_dir=self.parent_dir,
         )
         self.model = None
         self.quantized = quantized
+        self.model_name_or_path = os.path.join(self.parent_dir,self.cfg["model_args"]["model_name_or_path"])
 
     def get_model_from_pretrained(self):
         """downloading model from github and return model object"""
@@ -67,18 +69,18 @@ class gpt2(Downloader):
         if self.cfg["model_args"]["model_type"]:
             config = AutoConfig.from_pretrained(self.cfg["model_args"]["model_type"])
         else:
-            config = AutoConfig.from_pretrained(self.cfg["model_args"]["model_type"])
+            raise ValueError('model type in model cards is not valid')
 
         tokenizer = AutoTokenizer.from_pretrained(
-            self.cfg["model_args"]["model_name_or_path"],
+            self.model_name_or_path,
             use_fast=not self.cfg["model_args"]["use_slow_tokenizer"],
         )
 
         config.return_dict = False
         config.activation_function = "gelu"
         self.model = SC.from_pretrained(
-            self.cfg["model_args"]["model_name_or_path"],
-            from_tf=bool(".ckpt" in self.cfg["model_args"]["model_name_or_path"]),
+            self.model_name_or_path,
+            from_tf=bool(".ckpt" in self.model_name_or_path),
             config=config,
         )
 
@@ -96,29 +98,24 @@ class gpt2(Downloader):
         """
 
         dummy_input = self._get_dummy_input(dataloader)
-
+        quant_scheme_card = self.cfg["optimization_config"]["quantization_configuration"]["quant_scheme"]
         if (
-                self.cfg["optimization_config"]["quantization_configuration"][
-                    "quant_scheme"
-                ]
-                == "tf"
+             quant_scheme_card == "tf"
         ):
             quant_scheme = QuantScheme.post_training_tf
         elif (
-                self.cfg["optimization_config"]["quantization_configuration"][
-                    "quant_scheme"
-                ]
-                == "tf_enhanced"
+             quant_scheme_card == "tf_enhanced"
         ):
             quant_scheme = QuantScheme.post_training_tf_enhanced
         elif (
-                self.cfg["optimization_config"]["quantization_configuration"][
-                    "quant_scheme"
-                ]
-                == "tf_range_learning"
+      
+             quant_scheme_card == "tf_range_learning"
         ):
             quant_scheme = QuantScheme.training_range_learning_with_tf_init
-
+        else:
+            raise ValueError('quant_scheme not valid in model cards')
+         
+        config_file = os.path.join(self.parent_dir,self.cfg["model_args"]["config_file"])
         quant_sim = QuantizationSimModel(
             model=self.model.cuda(),
             quant_scheme=quant_scheme,
@@ -131,7 +128,7 @@ class gpt2(Downloader):
                 "quantization_configuration"
             ]["param_bw"],
             in_place=True,
-            config_file=self.cfg["model_args"]["config_file"],
+            config_file=config_file,
         )
         # remove dropout quantizers
         disable_list = []
@@ -146,7 +143,7 @@ class gpt2(Downloader):
 
         # load encodings if there is encodings.csv
         self._load_encoding_data(
-            quant_sim, self.cfg["model_args"]["model_name_or_path"]
+            quant_sim, self.model_name_or_path
         )
         return quant_sim
 

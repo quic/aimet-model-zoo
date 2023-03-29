@@ -25,7 +25,6 @@
 import numpy as np
 import torch
 from torch.utils.data import Dataset
-from aimet_zoo_torch.deeplabv3.model.mypath import Path
 from tqdm import trange
 import os
 from pycocotools.coco import COCO
@@ -43,7 +42,7 @@ class COCOSegmentation(Dataset):
 
     def __init__(self,
                  args,
-                 base_dir=Path.db_root_dir('coco'),
+                 base_dir,
                  split='train',
                  year='2017'):
         super().__init__()

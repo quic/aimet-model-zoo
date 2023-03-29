@@ -1,3 +1,4 @@
+# pylint: skip-file
 # ------------------------------------------------------------------------------
 # Copyright (c) Microsoft
 # Licensed under the MIT License.

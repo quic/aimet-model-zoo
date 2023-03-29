@@ -17,3 +17,4 @@
 *.whl
 *.egg-info/
 build/
+packaging/results

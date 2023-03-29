@@ -30,6 +30,7 @@ class Downloader():
                  url_aimet_config: str = None,
                  tar_url_pre_opt_weights: str= None,
                  tar_url_post_opt_weights: str = None,
+                 url_zipped_checkpoint: str = None,
                  model_dir: str = '',
                  model_config: str = ''):
 
@@ -50,16 +51,19 @@ class Downloader():
         self.url_aimet_config = url_aimet_config
         self.tar_url_pre_opt_weights = tar_url_pre_opt_weights
         self.tar_url_post_opt_weights = tar_url_post_opt_weights
+        self.url_zipped_checkpoint = url_zipped_checkpoint
         self._download_storage_path = Path(model_dir + '/weights/' + model_config + '/') if model_config else Path(model_dir + '/weights/')
         self.path_pre_opt_weights = str(self._download_storage_path) + "/pre_opt_weights" if self.url_pre_opt_weights else None
         self.path_post_opt_weights = str(self._download_storage_path) + "/post_opt_weights" if self.url_post_opt_weights else None
         self.path_adaround_encodings = str(self._download_storage_path) + "/adaround_encodings" if self.url_adaround_encodings else None
         self.path_aimet_encodings = str(self._download_storage_path) + "/aimet_encodings" if self.url_aimet_encodings else None
         self.path_aimet_config = str(self._download_storage_path) + "/aimet_config" if self.url_aimet_config else None
+        self.path_zipped_checkpoint = str(self._download_storage_path) + "/zipped_checkpoint.zip" if self.url_zipped_checkpoint else None
+        self.extract_dir = self.path_zipped_checkpoint.split(".zip")[0] if self.path_zipped_checkpoint else None
 
     def _download_from_url(self, 
                            src: str, 
-                           dst: str):
+                           dst: str,show_progress=False):
         """Receives a source URL or path and a storage destination path, evaluates the source, fetches the file, and stores at the destination"""
         if not os.path.exists(self._download_storage_path):
             os.makedirs(self._download_storage_path)
@@ -68,18 +72,21 @@ class Downloader():
         if src.startswith('https://drive.google.com'):
             gdown.download(url=src, output=dst, quiet=True, verify=False)
         elif src.startswith('http'):
-            urlretrieve(src, dst)
+            if show_progress:
+                urlretrieve(src, dst, DownloadProgressBar())
+            else:
+                urlretrieve(src,dst)
         else:
             assert os.path.exists(src), 'URL passed is not an http, assumed it to be a system path, but such path does not exist'
             copy2(src, dst)
 
-    def _download_pre_opt_weights(self):
+    def _download_pre_opt_weights(self,show_progress=False):
         """downloads pre optimization weights"""
-        self._download_from_url(src=self.url_pre_opt_weights, dst=self.path_pre_opt_weights)
+        self._download_from_url(src=self.url_pre_opt_weights, dst=self.path_pre_opt_weights,show_progress=show_progress)
 
-    def _download_post_opt_weights(self):
+    def _download_post_opt_weights(self,show_progress=False):
         """downloads post optimization weights"""
-        self._download_from_url(src=self.url_post_opt_weights, dst=self.path_post_opt_weights)
+        self._download_from_url(src=self.url_post_opt_weights, dst=self.path_post_opt_weights,show_progress=show_progress)
 
     def _download_adaround_encodings(self):
         """downloads adaround encodings"""
@@ -98,10 +105,17 @@ class Downloader():
 
     def _download_tar_post_opt_weights(self):
         self._download_tar_decompress(tar_url=self.tar_url_post_opt_weights)
-    
 
-    def _download_tar_decompress(self,tar_url):        
-        """"download tar bar and decompress into downloaded_weights folder"""
+    def _download_compressed_checkpoint(self):
+        """ download a zipped checkpoint file and unzip it """
+        self._download_from_url(src=self.url_zipped_checkpoint, dst=self.path_zipped_checkpoint)
+        format = "".join(self.url_zipped_checkpoint.split('/')[-1].split('.')[1:][::-1])
+        if not os.path.exists(self.extract_dir):
+            os.makedirs(self.extract_dir)
+        shutil.unpack_archive(filename=self.path_zipped_checkpoint, extract_dir=self.extract_dir, format=format)
+    
+    def _download_tar_decompress(self, tar_url):        
+        """"download tarball and decompress into downloaded_weights folder"""
         if not os.path.exists(self._download_storage_path):
             os.mkdir(self._download_storage_path)
         download_tar_name = str(self._download_storage_path) +"/downloaded_weights.tar.gz"
@@ -114,7 +128,6 @@ class Downloader():
             if os.path.exists(new_download_path):
                 shutil.rmtree(new_download_path)
             os.rename(download_path,new_download_path)
-
 
 
 class DownloadProgressBar():
@@ -137,4 +150,5 @@ class DownloadProgressBar():
             self.dpb.update(processed)
         else:
             self.dpb.finish()
+
 

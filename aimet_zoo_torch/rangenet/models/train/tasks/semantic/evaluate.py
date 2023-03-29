@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
+# pylint: skip-file
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
 #
@@ -34,25 +35,22 @@
 # =============================================================================
 
 
-import imp
 import torch
-import yaml
 import time
 
-from common.avgmeter import AverageMeter
-from tasks.semantic.modules.ioueval import iouEval
+from ...common.avgmeter import AverageMeter
+from .modules.ioueval import iouEval
+from .dataset.kitti import parser as parserModule
 
 
 class evaluate():
+    """ class to iterate over a dataset and run it through a model and get a score"""
     def __init__(self, dataset_path, DATA, ARCH, gpu):
         self.gpu = gpu
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.datadir = dataset_path
         self.DATA = DATA
         self.ARCH = ARCH
-        parserModule = imp.load_source("parserModule",
-                                    '../models/train/tasks/semantic/dataset/' +
-                                    self.DATA["name"] + '/parser.py')
         self.parser = parserModule.Parser(root=self.datadir,
                                     train_sequences=self.DATA["split"]["train"],
                                     valid_sequences=self.DATA["split"]["valid"],
@@ -145,7 +143,7 @@ class evaluate():
             print('IoU class {i:} [{class_str:}] = {jacc:.3f}'.format(
                 i=i, class_str=self.class_func(i), jacc=jacc))
 
-        return acc.avg
+        return acc.avg, iou.avg
     
     def forward_func(self, model, iterations):
         dataloader = self.parser.get_valid_set()

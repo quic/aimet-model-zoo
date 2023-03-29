@@ -9,9 +9,10 @@
 # =============================================================================
 #pylint: skip-file
 """ module for getting dataloders"""
-
+import os 
 import logging
 import math
+import pathlib
 from itertools import chain
 import numpy as np
 from datasets import load_dataset
@@ -21,6 +22,28 @@ from torch.utils.data import DataLoader
 
 from transformers import (AutoTokenizer,
     default_data_collator)
+
+
+class DataConfig:
+    """adding hardcoded values into args from parseargs() and return config object"""
+
+    def __init__(self, args):
+        self.dataset_name = "wikitext"
+        self.dataset_config_name = "wikitext-2-raw-v1"
+        self.train_file = None
+        self.validation_file = None
+        self.validation_split_percentage = 5
+        self.parent_dir = str(pathlib.Path(os.path.abspath(__file__)).parent.parent)
+        self.model_name_or_path = os.path.join(self.parent_dir,"model/weights/downloaded_weights")
+        self.use_slow_tokenizer = False
+        self.per_device_train_batch_size = 4
+        self.block_size = 256
+        self.preprocessing_num_workers = None
+        self.overwrite_cache = False
+        for arg in vars(args):
+            setattr(self, arg, getattr(args, arg))
+
+
 
 def get_dataloaders(args):
     """Get the dataloaders"""
@@ -33,6 +56,9 @@ def get_dataloaders(args):
     #
     # In distributed training, the load_dataset function guarantee that only one local process can concurrently
     # download the dataset.
+
+    # hardcode arguments 
+    args = DataConfig(args)
     if args.dataset_name is not None:
         # Downloading and loading a dataset from the hub.
         raw_datasets = load_dataset(args.dataset_name, args.dataset_config_name)
@@ -73,7 +99,6 @@ def get_dataloaders(args):
                 split=f"train[{args.validation_split_percentage}%:]",
                 **dataset_args,
             )
-
     tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path, use_fast=not args.use_slow_tokenizer)
 
     # Preprocessing the datasets.
@@ -123,26 +148,6 @@ def get_dataloaders(args):
     # for each of those groups of 1,000 texts. You can adjust that batch_size here but a higher value might be slower
     # to preprocess.
     #
-
-    lm_datasets = tokenized_datasets.map(
-        group_texts,
-        batched=True,
-        num_proc=args.preprocessing_num_workers,
-        load_from_cache_file=not args.overwrite_cache,
-        desc=f"Grouping texts in chunks of {block_size}",
-    )
-
-    train_dataset = lm_datasets["train"]
-    eval_dataset = lm_datasets["validation"]
-
-    # DataLoaders creation:
-    train_dataloader = DataLoader(
-        train_dataset, shuffle=True, collate_fn=default_data_collator, batch_size=args.per_device_train_batch_size
-    )
-    eval_dataloader = DataLoader(
-        eval_dataset, collate_fn=default_data_collator, batch_size=args.per_device_eval_batch_size
-    )
-
  
     lm_datasets = tokenized_datasets.map(
         group_texts,

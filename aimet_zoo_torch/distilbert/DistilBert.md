@@ -1,5 +1,5 @@
-# PyTorch Transformer model DistilBert-base-uncased for Natural Language Classifier and Question Answering  
-This document describes evaluation of optimized checkpoints for transformer models DistilBert-base-uncased for NL Classification tasks and Question Answering tasks.
+# PyTorch Transformer model DistilBert-base-uncased for Natural Language Classification and Question Answering  
+This document describes evaluation of optimized checkpoints for transformer models DistilBert-base-uncased for NL Classification and Question Answering tasks.
 
 ## AIMET installation and setup
 Please [install and setup AIMET](https://github.com/quic/aimet/blob/release-aimet-1.23/packaging/install.md) (*Torch GPU* variant) before proceeding further.
@@ -13,9 +13,6 @@ Please [install and setup AIMET](https://github.com/quic/aimet/blob/release-aime
 ```
 pip install datasets==2.4.0
 pip install transformers==4.11.3 
-git clone https://github.com/NVIDIA/apex
-cd apex
-python setup.py install
 ```
 ## Model checkpoint
 - Original full precision checkpoints without downstream training were downloaded through hugging face 
@@ -28,42 +25,18 @@ python setup.py install
 - Dataset downloading is handled by evaluation script
 
 ## Usage
-### To run evaluation with QuantSim for Natural Language Classifier tasks in AIMET, use the following
+### To run evaluation with QuantSim in AIMET, use the following
 ```bash
-python transformers_nlclassifier_quanteval.py \
-        --model_name_or_path <MODEL_NAME> \
-        --task_name <TASK> \
+python distilbert_quanteval.py \
+        --model_config <MODEL_CONFIGURATION> \
         --per_device_eval_batch_size 4 \
         --output_dir <OUT_DIR> \
 ```
 * example 
     ```
-    python transformers_nlclassifier_quanteval.py  --model_name_or_path distilbert-base-uncased   --task_name rte  --per_device_eval_batch_size 4 --output_dir ./evaluation_result 
+    python distilbert_quanteval.py --model_config distilbert_w8a8_rte --per_device_eval_batch_size 4 --output_dir ./evaluation_result 
     ```
-
-* supported keyword of task_name supported are "rte","stsb","mrpc","cola","sst2","qnli","qqp","mnli"
-
-* supported model_name_or_path are "bert-base-uncased", "google/mobilebert-uncased", "microsoft/DistilBert-base-uncased", "distilbert-base-uncased", "roberta-base"
-
-### To run evaluation with QuantSim for Question Answering tasks in AIMET, use the following
-
-```bash
-
-python transformers_qa_quanteval.py \
-    --model_name_or_path <MODEL_NAME> \
-    --dataset_name <DATASET_NAME> \
-    --per_device_eval_batch_size 4 \
-    --output_dir <OUT_DIR>
-```
-
-* example
-  ```
-  python transformers_qa_quanteval.py  --model_name_or_path distilbert-base-uncased --dataset_name squad  --per_device_eval_batch_size 4 --output_dir ./evaluation_result 
-  ```
-
-* supported model_name_or_path are "bert-base-uncased", "google/mobilebert-uncased", "microsoft/DistilBert-base-uncased", "distilbert-base-uncased", "roberta-base"
-
-* supported dataset_name is "squad"
+* supported values of model_config are "distilbert_w8a8_rte","distilbert_w8a8_stsb","distilbert_w8a8_mrpc","distilbert_w8a8_cola","distilbert_w8a8_sst2","distilbert_w8a8_qnli","distilbert_w8a8_qqp","distilbert_w8a8_mnli", "distilbert_w8a8_squad"
 
 ## Quantization Configuration
 The following configuration has been used for the above models for INT8 quantization:

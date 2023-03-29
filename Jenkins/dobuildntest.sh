@@ -26,10 +26,10 @@
 set -e
 
 run_prep=1
-run_clean=1
-run_build=1
-run_package_gen=1
-run_code_violation=1
+run_clean=0
+run_build=0
+run_package_gen=0
+run_code_violation=0
 
 EXIT_CODE=0
 
@@ -69,6 +69,7 @@ trap pre_exit EXIT
 function check_stage() {
     RESULT=$1
     STAGE=$2
+
     if [ "$3" ]; then
         EXIT_ON_FAIL=$3
     fi
@@ -219,8 +220,11 @@ if [ $run_package_gen -eq 1 ]; then
 fi
 
 if [ $run_code_violation -eq 1 ]; then
+    cd $buildFolder
+
     echo -e "\n********** Stage 4: Code violation checks **********\n"
     make pylintmodelzoo
+    check_stage $? "Code Violations" "true"
 fi
 
 exit $EXIT_CODE

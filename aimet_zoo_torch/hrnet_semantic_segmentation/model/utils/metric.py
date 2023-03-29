@@ -1,3 +1,4 @@
+# pylint: skip-file
 # Originally written by wkentaro
 # https://github.com/wkentaro/pytorch-fcn/blob/master/torchfcn/utils.py
 

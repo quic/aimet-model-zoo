@@ -1,0 +1,30 @@
+{
+    "name": "MobileDet Edge TPU",
+    "framework": "tensorflow",
+    "task": "object detection",
+    "model_args": {
+        "num_classes": 81,
+        "starting_op_names": ["FeatureExtractor/MobileDetEdgeTPU/Conv/Conv2D"],
+        "output_op_names": ["concat", "concat_1"]
+    },
+    "input_shape": [null, 3, 640, 480],
+    "trainig_dataset": "MSCOCO",
+    "optimization_config": {
+        "quantization_configuration":
+            {
+                "param_bw": 8,
+                "output_bw": 8,
+                "input_quantization": true,
+                "quant_scheme": "tf",
+                "techniques": ["bnfold", "adaround"]
+            }
+        },
+    "artifacts": {
+        "url_pre_opt_weights": null, 
+        "url_post_opt_weights": null,
+        "url_adaround_encodings": "https://github.com/quic/aimet-model-zoo/releases/download/tensorflow_mobiledet_edgetpu_W8A8_quantsim/adaround_mobiledet.encodings",
+        "url_aimet_encodings": null,
+        "url_aimet_config": "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.22/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config.json",
+        "url_zipped_checkpoint": "https://github.com/quic/aimet-model-zoo/releases/download/tensorflow_mobiledet_edgetpu_W8A8_quantsim/checkpoint4AIMET.zip"        
+    }
+}

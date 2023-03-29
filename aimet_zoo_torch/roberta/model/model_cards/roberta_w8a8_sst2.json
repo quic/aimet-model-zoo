@@ -1,0 +1,44 @@
+{
+    "name": "ROBERTA",
+    "framework": "pytorch",
+    "task": "",
+    "data_training_args":{
+        "task_name":"sst2",
+        "max_seq_length":128,
+        "overwrite_cache":false,
+        "pad_to_max_length":true,
+        "train_file":null,
+        "validation_file":null,
+        "test_file":null,
+        "max_eval_samples":null
+    },
+    "model_args": {
+            "model_name_or_path":"microsoft/Roberta-base",
+            "config_name":null,
+        "tokenizer_name":null,
+        "cache_dir":null,
+        "use_fast_tokenizer":true,
+        "model_revision":"main",
+        "use_auth_token":false,
+        "attention_probs_dropout_prob":0.1
+    },
+    "aux_args":{
+        "fmodel_path":"../model/weights/fp.pth",
+        "qmodel_path":"../model/weights/qat.ckpt"
+    },
+    "optimization_config": {
+        "quantization_configuration":
+            {
+                "param_bw": 8,
+                "output_bw": 8,
+                "input_quantization": true,
+                "quant_scheme": "tf_range_learning",
+                "techniques": ["qat"]
+            }
+        },
+    "artifacts": {
+        "url_pre_opt_weights":"https://github.com/quic/aimet-model-zoo/releases/download/torch_roberta/sst2_fp.pth",
+        "url_post_opt_weights":"https://github.com/quic/aimet-model-zoo/releases/download/torch_roberta/sst2_qat.ckpt",
+        "url_aimet_config": "https://github.com/quic/aimet-model-zoo/releases/download/torch_vit/default_config.json"
+    }
+}
