@@ -1,38 +1,24 @@
 # PyTorch RangeNet++
 
-## Setup AI Model Efficiency Toolkit
+## Environment Setup
+
+### Setup AI Model Efficiency Toolkit
 Please [install and setup AIMET](https://github.com/quic/aimet/blob/release-aimet-1.24/packaging/install.md) before proceeding further.
 This model was tested with the `torch_gpu` variant of AIMET 1.24.0.
 
-## Model modifications & Experiment Setup
-1. Clone the [RangeNet++ repo](https://github.com/PRBonn/lidar-bonnetal)
-```
-git clone https://github.com/PRBonn/lidar-bonnetal.git
-```
-Remember to replace the folder name "lidar-bonnetal" to "models"
-
-2. Apply patches to darknet.py in the above repo using the command below:
-```bash
-patch /path/to/models/train/backbones/darknet.py /path/to/aimet-model-zoo/aimet_zoo_torch/rangenet/models/train/backbones/darknet.patch
-
-patch /path/to/models/train/tasks/semantic/decoders/darknet.py /path/to/aimet-model-zoo/aimet_zoo_torch/rangenet/models/train/tasks/semantic/decoders/darknet.patch
-```
-These changes are needed in order to meet prepare_model's requirements
-
-3. Create a new folder to put your downloaded dataset
-
-4. Create a new folder to put your downloaded original/optimized model
-
-5. Add the "/path/to/aimet-model-zoo/aimet_zoo_torch/rangenet/models/train/tasks/semantic/evaluate.py" file to your "/path/to/models/train/tasks/semantic" path
-
-6. Add AIMET Model Zoo to the python path 
+### Add AIMET Model Zoo to the python path 
 ```bash 
 export PYTHONPATH=$PYTHONPATH:<aimet_model_zoo_path>
 ```
 
+### Package Dependencies
+Install required packages
+```bash
+pip install -r <path to aimet-model-zoo>/aimet_zoo_torch/rangenet/requirements.txt
+```
 
-## Dataset
-The Semantic kitti Dataset can be downloaded from here:
+### Dataset
+Semantic Kitti can be downloaded from here:
   - http://www.semantic-kitti.org/dataset.html
 
 The folder structure and format of Semantic kitti dataset is like below:
@@ -49,6 +35,17 @@ The folder structure and format of Semantic kitti dataset is like below:
 			--poses.txt
 ```
 
+---
+
+## Usage
+```bash
+python rangenet_quanteval.py \
+		--dataset-path <The path to the dataset, default is '../models/train/tasks/semantic/dataset/'>
+		--use-cuda <Use cuda or cpu, default is True> \
+```
+
+---
+
 ## Model checkpoint and configuration
 
 - The original prepared RangeNet++ checkpoint can be downloaded from here: [darknet21.tar.gz](http://www.ipb.uni-bonn.de/html/projects/bonnetal/lidar/semantic/models/darknet21.tar.gz) or [rangeNet_plus_FP32.tar.gz](/../../releases/download/torch_rangenet_plus_w8a8/rangeNet_plus_FP32.tar.gz)
@@ -56,16 +53,7 @@ The folder structure and format of Semantic kitti dataset is like below:
 - Optimized w4a8 checkpoint can be downloaded from here: [rangeNet_plus_w4a8_checkpoint.pth](/../../releases/download/torch_rangenet_plus_w4a8/rangeNet_plus_w4a8_checkpoint.pth)
 - The Quantization Simulation (*Quantsim*) Configuration file can be downloaded from here: [default_config_per_channel.json](https://raw.githubusercontent.com/quic/aimet/release-aimet-1.23/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json) (Please see [this page](https://quic.github.io/aimet-pages/releases/1.23.0/user_guide/quantization_configuration.html) for more information on this file).
 
-## Usage
-To run evaluation with QuantSim in AIMET, use the following
-```bash
-python rangenet_quanteval.py \
-		--dataset-path <The path to the dataset, default is '../models/train/tasks/semantic/dataset/'>
-		--model-orig-path <The path to the model_orig, default is '../models/train/tasks/semantic/pre_trained_model'>
-		--model-optim-path <The path to the model_optim, default is '../models/train/tasks/semantic/quantized_model'>
-		--use-cuda <Use cuda or cpu, default is True> \
-		--batch-size <Number of images per batch, default is 1>
-```
+---
 
 ## Quantization Configuration (W4A8/W8A8)
 - Weight quantization: 4 bits for w4a8, 8 bits for w8a8, per channel symmetric quantization
@@ -75,8 +63,10 @@ python rangenet_quanteval.py \
 - Percentile was used as quantization scheme, and the value was set to 99.99
 - Bn fold and Adaround have been applied on optimized checkpoint
 
+---
+
 ## Results
-Below are the *mIoU* results of the PyTorch rangeNet++ model for the semantic kitti dataset:
+Below are the *mIoU* results of this RangeNet++ implementation on SemanticKitti:
 
 <table style= " width:50%">
   <tr>
@@ -89,14 +79,14 @@ Below are the *mIoU* results of the PyTorch rangeNet++ model for the semantic ki
   </tr>
   <tr>
     <td>rangeNet_plus_FP32 + simple PTQ(w8a8)</td>
-    <td>46.8</td>
+    <td>45.0</td>
   </tr>
   <tr>
     <td>rangeNet_plus_W8A8_checkpoint</td>
-    <td>47.0</td>
+    <td>47.1</td>
   </tr>
   <tr>
     <td>rangeNet_plus_W4A8_checkpoint</td>
-    <td>46.5</td>
+    <td>46.8</td>
   </tr>
 </table>

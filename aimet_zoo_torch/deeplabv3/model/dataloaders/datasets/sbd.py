@@ -29,7 +29,6 @@ import numpy as np
 import scipy.io
 import torch.utils.data as data
 from PIL import Image
-from aimet_zoo_torch.deeplabv3.model.mypath import Path
 
 from torchvision import transforms
 from aimet_zoo_torch.deeplabv3.model.dataloaders import custom_transforms as tr
@@ -39,7 +38,7 @@ class SBDSegmentation(data.Dataset):
 
     def __init__(self,
                  args,
-                 base_dir=Path.db_root_dir('sbd'),
+                 base_dir,
                  split='train',
                  ):
         """

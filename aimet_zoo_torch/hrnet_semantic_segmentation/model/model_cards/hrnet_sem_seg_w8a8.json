@@ -10,7 +10,7 @@
     "optimization_config": {
         "quantization_configuration":
             {
-                "param_bw": 4,
+                "param_bw": 8,
                 "output_bw": 8,
                 "input_quantization": true,
                 "quant_scheme": "tf_enhanced",

@@ -42,9 +42,10 @@ class ResNet(Downloader):
                                 model_dir = parent_dir,
                                 model_config = model_config)
             self.input_shape = tuple(x if x is not None else 1 for x in self.cfg['input_shape'])
-        if not model_config[:8].lower() == 'resnet18' and not model_config[:8].lower() == 'resnet50':
-            raise NotImplementedError('Only resnet18 and resnet50 are supported as model_config') 
-        self.resnet_variant = model_config[:8].lower()
+        self.resnet_variant=model_config.split('_')[0]
+        supported_resnet_variants = {'resnet18', 'resnet50', 'resnet101'}
+        if self.resnet_variant not in supported_resnet_variants:
+            raise NotImplementedError(f'Only support variants in {supported_resnet_variants}')
         self.model = getattr(torchvision.models, self.resnet_variant)(pretrained=True)
         self.model.cuda()
         self.model.eval()

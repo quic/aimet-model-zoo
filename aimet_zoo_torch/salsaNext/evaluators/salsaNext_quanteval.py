@@ -27,12 +27,14 @@ import yaml
 import numpy as np
 import imp
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 
 # torch imports
 import torch
 import torch.nn as nn
-torch.manual_seed(0)
+import pathlib
+
+parent_dir = str(pathlib.Path(os.path.abspath(__file__)).parent)
+sys.path.append(os.path.join(parent_dir, 'train'))
 
 # source code imports
 from tasks.semantic.modules.ioueval import iouEval
@@ -41,8 +43,6 @@ from tasks.semantic.modules.SalsaNext import *
 from tasks.semantic.modules.SalsaNextAdf import *
 from tasks.semantic.modules.ioueval import *
 from common.avgmeter import *
-
-from evaluation_func import str2bool,
     
 # AIMET IMPORTS
 from aimet_torch.quantsim import QuantizationSimModel
@@ -50,9 +50,15 @@ from aimet_torch.model_validator.model_validator import ModelValidator
 from aimet_torch.model_preparer import prepare_model
 from aimet_torch.quantsim import load_checkpoint
 from aimet_common.defs import QuantScheme
+from aimet_torch import batch_norm_fold
+from aimet_torch.quantsim import load_encodings_to_sim
+
+import evaluation_func 
+from evaluation_func import *
 
 # possible splits
 splits = ['train','valid','test']
+
 
 # Set seed for reproducibility
 def seed(seed_number):
@@ -61,46 +67,17 @@ def seed(seed_number):
     torch.manual_seed(seed_number)
     torch.cuda.manual_seed(seed_number)
     torch.cuda.manual_seed_all(seed_number)
-
-
-def download_weights():
-    # Download original model
-    FILE_NAME = "salsaNext_FP32.pth"
-    ORIGINAL_MODEL_URL = "https://github.com/quic/aimet-model-zoo/releases/download/salsaNext/" + FILE_NAME
-    if not os.path.exists(FILE_NAME):
-        urllib.request.urlretrieve(ORIGINAL_MODEL_URL, FILE_NAME)
-
-    # Download config file
-    QUANTSIM_CONFIG_URL = "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.23/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json"
-    if not os.path.exists("./default_config_per_channel.json"):
-        urllib.request.urlretrieve(QUANTSIM_CONFIG_URL, "default_config_per_channel.json")
-
-    # Download optimized weights
-    FILE_NAME = "SalsaNext_INT8_checkpoint.pth"
-    OPTIMIZED_WEIGHTS_URL = "https://github.com/quic/aimet-model-zoo/releases/download/salsaNext/" + FILE_NAME
-    if not os.path.exists(FILE_NAME):
-        urllib.request.urlretrieve(OPTIMIZED_WEIGHTS_URL, FILE_NAME)
-
-    # Download optimized encodings
-    FILE_NAME = "SalsaNext_INT8_torch.encodings"
-    OPTIMIZED_ENCODINGS_URL = "https://github.com/quic/aimet-model-zoo/releases/download/salsaNext/" + FILE_NAME
-    if not os.path.exists(FILE_NAME):
-        urllib.request.urlretrieve(OPTIMIZED_ENCODINGS_URL, FILE_NAME)
-
+        
+"""
+Arguments to run the script, at least including:
+--dataset, dataset folder
+--model, pretrained model folder
+--log, output log folder
+    
+One example: 
+python salsaNext_quanteval.py --dataset /tf/semntic_kitti/datasets_segmentation/dataset --log ./logs --model ./pretrained
+"""
 def arguments():
-    # -d, dataset folder
-    # -m, pretrained model folder
-    # -l, output log folder
-    # -s, indicate train/valid/test for evaluation, valid,
-    
-    # one example 
-    # python salsaNext_quanteval.py 
-    #        -d /tf/AIMET_DATASET/semntic_kitti/datasets_segmentation/dataset 
-    #        -l /tf/AIMET_DATASET/semntic_kitti/datasets_segmentation/pred 
-    #        -m /tf/AIMET_DATASET/semntic_kitti/SalsaNext_model/pretrained_old1
-    
-    #export PYTHONPATH=/tf/ren/SalsaNext/salsaNext_ModelZoo_release_Jan/SalsaNext/:$PYTHONPATH
-    #export PYTHONPATH=/tf/ren/SalsaNext/salsaNext_ModelZoo_release_Jan/SalsaNext/train/:$PYTHONPATH
 
     parser = argparse.ArgumentParser("./salsaNext_quanteval.py")
 
@@ -113,9 +90,8 @@ def arguments():
     parser.add_argument(
         '--log', '-l',
         type=str,
-        default=os.path.expanduser("~") + '/logs/' +
-                datetime.datetime.now().strftime("%Y-%-m-%d-%H:%M") + '/',
-        help='Directory to put the predictions. Default: ~/logs/date+time'
+        required=True,
+        help='Directory to put the predictions.'
     )
     parser.add_argument(
         '--model', '-m',
@@ -187,6 +163,50 @@ def arguments():
 
     return FLAGS
 
+"""
+Download the related files and checkpoints
+"""
+def download_weights(FLAGS):
+    """ Download weights to cache directory """
+    # Download original model
+    FILE_NAME = os.path.join(FLAGS.model, "SalsaNext")
+    ORIGINAL_MODEL_URL = "https://github.com/quic/aimet-model-zoo/releases/download/torch_salsanext/SalsaNext"
+    if not os.path.exists(FILE_NAME):
+        urllib.request.urlretrieve(ORIGINAL_MODEL_URL, FILE_NAME)
+    
+    # Download optimized w8a8 weights
+    FILE_NAME = os.path.join(FLAGS.model, "SalsaNext_optimized_model.pth")
+    OPTIMIZED_CHECKPOINT_URL = "https://github.com/quic/aimet-model-zoo/releases/download/torch_salsanext/SalsaNext_optimized_model.pth"
+    if not os.path.exists(FILE_NAME):
+        urllib.request.urlretrieve(OPTIMIZED_CHECKPOINT_URL, FILE_NAME)
+    
+    # Download optimized w8a8 encodings
+    FILE_NAME = os.path.join(FLAGS.model, "SalsaNext_optimized_encoding.encodings")
+    OPTIMIZED_ENCODINGS_URL = "https://github.com/quic/aimet-model-zoo/releases/download/torch_salsanext/SalsaNext_optimized_encoding.encodings"
+    if not os.path.exists(FILE_NAME):
+        urllib.request.urlretrieve(OPTIMIZED_ENCODINGS_URL, FILE_NAME)
+        
+    # Download config file
+    FILE_NAME = os.path.join(FLAGS.model, "htp_quantsim_config_pt_pertensor.json")
+    QUANTSIM_CONFIG_URL = "https://raw.githubusercontent.com/quic/aimet/develop/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config.json"
+    if not os.path.exists(FILE_NAME):
+        urllib.request.urlretrieve(QUANTSIM_CONFIG_URL, FILE_NAME)
+    
+    # Downlod model config files
+    FILE_NAME = os.path.join(FLAGS.model, "arch_cfg.yaml")
+    QUANTSIM_CONFIG_URL = "https://github.com/quic/aimet-model-zoo/releases/download/torch_salsanext/arch_cfg.yaml"
+    if not os.path.exists(FILE_NAME):
+        urllib.request.urlretrieve(QUANTSIM_CONFIG_URL, FILE_NAME)
+        
+    FILE_NAME = os.path.join(FLAGS.model, "data_cfg.yaml")
+    QUANTSIM_CONFIG_URL = "https://github.com/quic/aimet-model-zoo/releases/download/torch_salsanext/data_cfg.yaml"
+    if not os.path.exists(FILE_NAME):
+        urllib.request.urlretrieve(QUANTSIM_CONFIG_URL, FILE_NAME)        
+
+"""
+First step in eval_func()
+Make the inference. Save the inference output.
+"""
 def infer_main(FLAGS, model_given):
     # print summary of what we will do
     print("----------")
@@ -205,7 +225,7 @@ def infer_main(FLAGS, model_given):
     # open arch config file
     try:
         print("Opening arch config file from %s" % FLAGS.model)
-        ARCH = yaml.safe_load(open(FLAGS.model + "/arch_cfg.yaml", 'r'))
+        ARCH = yaml.safe_load(open(os.path.join(FLAGS.model, "arch_cfg.yaml"), 'r'))
     except Exception as e:
         print(e)
         print("Error opening arch yaml file.")
@@ -214,7 +234,7 @@ def infer_main(FLAGS, model_given):
     # open data config file
     try:
         print("Opening data config file from %s" % FLAGS.model)
-        DATA = yaml.safe_load(open(FLAGS.model + "/data_cfg.yaml", 'r'))
+        DATA = yaml.safe_load(open(os.path.join(FLAGS.model, "data_cfg.yaml"), 'r'))
     except Exception as e:
         print(e)
         print("Error opening data yaml file.")
@@ -369,6 +389,10 @@ def eval(test_sequences,splits,pred,remap_lut,evaluator, class_strings, class_in
     
     return m_jaccard.item()
 
+"""
+second step in eval_func()
+Function to evaluate the model, and output the results.
+"""
 def evaluate_main(FLAGS):
     splits = ['train','valid','test']
     # fill in real predictions dir
@@ -390,7 +414,7 @@ def evaluate_main(FLAGS):
 
     # open data config file
     try:
-        FLAGS.data_cfg_1 = os.getcwd()+ '/train/tasks/semantic/' + FLAGS.data_cfg
+        FLAGS.data_cfg_1 = os.path.join(parent_dir, 'train/tasks/semantic/', FLAGS.data_cfg)
         print("Opening data config file %s" % FLAGS.data_cfg_1)
         DATA = yaml.safe_load(open(FLAGS.data_cfg_1, 'r'))
     except Exception as e:
@@ -441,16 +465,25 @@ def evaluate_main(FLAGS):
 
     return mIoU
 
+"""
+Main function to evaluate the model, including two steps:
+1st: make the inferene, and save the prediction.
+2nd: load prediction, and further make the final evaluation.
+"""
 def eval_func(temp_model, FLAGS):
     temp_model.eval()
     infer_main(FLAGS, temp_model)
     mIoU = evaluate_main(FLAGS)
     return mIoU
 
+
+"""
+The function to output the salsaNext FP32 model, and the related configuration of the dataset.
+"""
 def build_FP32_model(FLAGS):
     try:
         print("Opening arch config file from %s" % FLAGS.model)
-        ARCH = yaml.safe_load(open(FLAGS.model + "/arch_cfg.yaml", 'r'))
+        ARCH = yaml.safe_load(open(os.path.join(FLAGS.model, "arch_cfg.yaml"), 'r'))
     except Exception as e:
         print(e)
         print("Error opening arch yaml file.")
@@ -459,14 +492,14 @@ def build_FP32_model(FLAGS):
         # open data config file
     try:
         print("Opening data config file from %s" % FLAGS.model)
-        DATA = yaml.safe_load(open(FLAGS.model + "/data_cfg.yaml", 'r'))
+        DATA = yaml.safe_load(open(os.path.join(FLAGS.model, "data_cfg.yaml"), 'r'))
     except Exception as e:
         print(e)
         print("Error opening data yaml file.")
         quit()
 
     parserModule = imp.load_source("parserModule",
-                                   os.getcwd()+ '/train' + '/tasks/semantic/dataset/' +
+                                   parent_dir+ '/train' + '/tasks/semantic/dataset/' +
                                    DATA["name"] + '/parser.py')
     parser = parserModule.Parser(root=FLAGS.dataset,
                                       train_sequences=DATA["split"]["train"],
@@ -485,7 +518,7 @@ def build_FP32_model(FLAGS):
 
 
     temp_model = SalsaNext(parser.get_n_classes())
-    w_dict = torch.load(FLAGS.model + "/SalsaNext",
+    w_dict = torch.load(os.path.join(FLAGS.model, "SalsaNext"),
                         map_location=lambda storage, loc: storage)
     s_dict=w_dict['state_dict']
     from collections import OrderedDict
@@ -498,15 +531,21 @@ def build_FP32_model(FLAGS):
 
     return temp_model, parser
 
+"""
+parameters configuration for AIMET. 
+"""
 class ModelConfig():
     def __init__(self, FLAGS):
         self.input_shape = (1, 5, 64, 2048)
-        self.config_file = '/htp_quantsim_config_pt.json'
+        self.config_file = 'htp_quantsim_config_pt_pertensor.json'
         self.param_bw    = 8
         self.output_bw   = 8
         for arg in vars(FLAGS):
             setattr(self, arg, getattr(FLAGS, arg))
 
+"""
+The simplified forward function for model compute_encoding in AIMET. 
+"""
 def forward_func(model,cal_dataloader):
   iterations = 0
   with torch.no_grad():
@@ -524,9 +563,16 @@ def forward_func(model,cal_dataloader):
 
     return 0.5
 
+
+"""
+The main function. 
+"""
 def main(FLAGS):
     seed(1234)
-    ## first step
+    
+    """
+    create the FP32 model, and futher verify the baseline FP32 performance. 
+    """
     
     # build the original FP32 model
     print("build the salsaNext model baseline, FP32")
@@ -534,7 +580,10 @@ def main(FLAGS):
     print("evaluate the FP32 performance")
     mIoU_FP32 = eval_func(temp_model_FP32, FLAGS)
     
-    ## second step
+    """
+    Make the basic W8A8 PTQ, 
+    including the model validation/pre and folding. 
+    """
     
     # Quant configuration
     config = ModelConfig(FLAGS)
@@ -543,46 +592,45 @@ def main(FLAGS):
         'quant_scheme': QuantScheme.post_training_percentile,
         'default_param_bw': config.param_bw,
         'default_output_bw': config.output_bw,
-        'config_file': FLAGS.model + config.config_file,
+        'config_file': os.path.join(FLAGS.model, config.config_file),
         'dummy_input': size_data.cuda()
     }
-    
-    print("*" * 60)
-    print("firstly make the validation before model preparing")
-    ModelValidator.validate_model(temp_model_FP32.cuda(), model_input=size_data.cuda())
-    
-    print("*" * 60)
-    print("Secondly make the model preparing")        
+        
+    print("make the validation and model-preparing")
+    ModelValidator.validate_model(temp_model_FP32.cuda(), model_input=size_data.cuda())        
     temp_model_FP32 = prepare_model(temp_model_FP32.eval())
-    
-    print("*" * 60)
-    print("Thirdly make the model validation again")
     ModelValidator.validate_model(temp_model_FP32.cuda(), model_input=size_data.cuda())
     
-    print("*" * 60)
-    print("build the sim")
-    sim = QuantizationSimModel(temp_model_FP32.cuda(), **kwargs)
+    print("make the norm folding")
+    batch_norm_fold.fold_all_batch_norms(temp_model_FP32, config.input_shape)
     
+    print("W8A8 PTQ quantization")
+    sim = QuantizationSimModel(temp_model_FP32.cuda(), **kwargs)    
     cal_dataloader = parser.get_train_set()
     sim.set_percentile_value(99.9)
     sim.compute_encodings(forward_pass_callback=forward_func, forward_pass_callback_args=cal_dataloader)
-
     temp_model = sim.model
     mIoU_INT8 = eval_func(temp_model, FLAGS)    
 
-    print("*" * 60)
-    print("load reuse_quantized_model")
-    path_file = FLAGS.model + '/SalsaNext_INT8_checkpoint.pth'
-    temp_model =  load_checkpoint(path_file)
-    mIoU_INT8_pre = eval_func(temp_model, FLAGS)
+    """
+    Load the encoding file of the optimized W8A8 model.    
+    """
+    model_reload = torch.load(os.path.join(FLAGS.model, 'SalsaNext_optimized_model.pth'))
+    sim_reload = QuantizationSimModel(model_reload.cuda(), **kwargs)
+    load_encodings_to_sim(sim_reload, os.path.join(FLAGS.model, 'SalsaNext_optimized_encoding.encodings'))
+    mIoU_INT8_pre_encoding = eval_func(sim_reload.model.eval(), FLAGS)
 
-    print("*" * 60)
-    print(f'Original Model | 32-bit Environment | mIoU: {mIoU_FP32:.4f}')
-    print(f'Original Model | 8-bit Environment | mIoU: {mIoU_INT8:.4f}')
-    print(f'Optimized Model | 8-bit Environment | mIoU: {mIoU_INT8_pre:.4f}')
+    """
+    Print the evaluation results, 
+    including: baseline FP32, W8A8 (PTQ), the optimized W8A8 checkpoint. 
+    """
+    print(f'Original Model | 32-bit Environment | mIoU: {mIoU_FP32:.3f}')
+    print(f'Original Model | 8-bit Environment | mIoU: {mIoU_INT8:.3f}')
+    print(f'Optimized Model, load encoding | 8-bit Environment | mIoU: {mIoU_INT8_pre_encoding:.3f}')
 
 if __name__ == '__main__':
 
     FLAGS = arguments()
+    download_weights(FLAGS)
     main(FLAGS)
 

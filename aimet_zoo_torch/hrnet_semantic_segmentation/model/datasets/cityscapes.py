@@ -1,3 +1,4 @@
+# pylint: skip-file
 # ------------------------------------------------------------------------------
 # Copyright (c) Microsoft
 # Licensed under the MIT License.
@@ -59,7 +60,8 @@ class Cityscapes(BaseDataset):
         self.flip = flip
         self.center_crop_test = center_crop_test
         
-        self.img_list = [line.strip().split() for line in open(os.path.abspath('../dataloader/')+"/"+list_path)]
+        model_folder = str(pathlib.Path(os.path.abspath(__file__)).parent.parent.parent) # this is at [...]/aimet_zoo_torch/hrnet_semantic_segmentation
+        self.img_list = [line.strip().split() for line in open(os.path.join(model_folder, 'dataloader', list_path))]
         self.img_list = [(os.path.join(self.root, x), os.path.join(self.root, y)) for x, y in self.img_list]
 
         self.files = self.read_files()

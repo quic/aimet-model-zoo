@@ -1,0 +1,25 @@
+{
+    "name": "HRNet PoseNet",
+    "framework": "pytorch",
+    "task": "pose estimation",
+    "model_args": {},
+    "input_shape": [null, 3, 256, 192],
+    "trainig_dataset": "COCO 2014",
+    "optimization_config": {
+        "quantization_configuration":
+            {
+                "param_bw": 4,
+                "output_bw": 8,
+                "input_quantization": true,
+                "quant_scheme": "tf",
+                "techniques": ["bn_fold"]
+            }
+        },
+    "artifacts": {
+        "url_pre_opt_weights": "https://github.com/quic/aimet-model-zoo/releases/download/phase_2_march_artifacts/hrnet_posenet_FP32_state_dict.pth", 
+        "url_post_opt_weights": "https://github.com/quic/aimet-model-zoo/releases/download/phase_2_march_artifacts/hrnet_posenet_W4A8_state_dict.pth",
+        "url_adaround_encodings": "https://github.com/quic/aimet-model-zoo/releases/download/hrnet-posenet/hrnet_posenet_W4A8.encodings",
+        "url_aimet_encodings": null,
+        "url_aimet_config": "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.22.1/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json"        
+    }
+}

@@ -1,53 +1,50 @@
-#!/usr/bin/env python3.6
-#pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912
+#!/usr/bin/env python3
+# pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912
 # -*- mode: python -*-
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
 #
-#  Copyright (c) 2022 of Qualcomm Innovation Center, Inc. All rights reserved.
+#  Copyright (c) 2023 of Qualcomm Innovation Center, Inc. All rights reserved.
 #
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
 
 """quantsim evalution script for ssd mobilenet v2"""
 
-import os
 import argparse
 import logging
-import urllib
-import tarfile
-from aimet_tensorflow import quantsim
-from aimet_tensorflow.batch_norm_fold import fold_all_batch_norms
-from data_and_model_utils import CocoParser, TfRecordGenerator, MobileNetV2SSDRunner
+import os
+import tensorflow.compat.v1 as tf
+from tensorflow.compat.v1 import ConfigProto
+from tensorflow.compat.v1 import InteractiveSession
+from aimet_zoo_tensorflow.ssd_mobilenet_v2 import SSDMobileNetV2
+from aimet_zoo_tensorflow.ssd_mobilenet_v2.dataloader.dataloaders_and_eval_func import (
+    get_dataloader,
+)
 
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+tf.disable_v2_behavior()
+assert tf.__version__ >= "2"
 logger = logging.getLogger(__file__)
 
-
-def download_weights():
-    """Downloading weights and config"""
-    # Download and decompress pth file
-    if not os.path.exists("ssd_mobilenet_v2"):
-        urllib.request.urlretrieve(
-            "https://github.com/quic/aimet-model-zoo/releases/download/ssd_mobilenet_v2_tf/ssd_mobilenet_v2.tar.gz",
-            "ssd_mobilenet_v2.tar.gz",
-        )
-        with tarfile.open("ssd_mobilenet_v2.tar.gz") as pth_weights:
-            pth_weights.extractall("./")
-
-    # download aimet 1.19 default config
-    url_config = "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.19/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config.json"
-    urllib.request.urlretrieve(url_config, "default_config.json")
+config = ConfigProto()
+config.gpu_options.allow_growth = True
+session = InteractiveSession(config=config)
 
 
-def parse_args():
-    """Parse the arguments."""
+def arguments():
+    """argument parser"""
     parser = argparse.ArgumentParser(
-        description="Evaluation script for SSD MobileNet v2."
+        description="Evaluation script for TensorFlow SSD-MobileNetV2."
     )
     parser.add_argument(
-        "--dataset-path",
-        help="path way to 2017 MSCOCO TFRecords (generated TFRecord format using --include_mask options on)",
-        required=True,
+        "--model-config",
+        help="Model configuration to evaluate",
+        default="ssd_mobilenetv2_w8a8",
+        choices=["ssd_mobilenetv2_w8a8"],
+    )
+    parser.add_argument(
+        "--dataset-path", help="Dir path to dataset in TFRecord format", required=True
     )
     parser.add_argument(
         "--annotation-json-file",
@@ -55,87 +52,54 @@ def parse_args():
         required=True,
     )
     parser.add_argument(
-        "--model-to-eval",
-        help="which model to evaluate. There are two options: fp32 or int8 ",
-        default="int8",
-        choices={"fp32", "int8"},
+        "--batch-size", help="Data batch size for a model", type=int, default=1
     )
     parser.add_argument(
-        "--batch-size", help="Batch size to evaluate", default=1, type=int
+        "--use-cuda", help="Run evaluation on GPU", type=bool, default=True
     )
-
-    return parser.parse_args()
+    args = parser.parse_args()
+    return args
 
 
 class ModelConfig:
-    """hardcoded values into args from parseargs() and return config object"""
+    """Hardcoded model configuration"""
+
     def __init__(self, args):
-        self.model_checkpoint = (
-            "./ssd_mobilenet_v2/model.ckpt"  # Path to model checkpoint
-        )
-        self.TFRecord_file_pattern = (
-            "coco_val.record-*-of-00010"  # TFRecord Dataset file pattern
-        )
-        self.eval_num_examples = 5000  # Number of examples to evaluate
+        args.TFRecord_file_pattern = "coco_val.record-*-of-00050"
+        args.eval_num_examples = 5000
         for arg in vars(args):
             setattr(self, arg, getattr(args, arg))
 
 
-def ssd_mobilenet_v2_quanteval(args):
-    """main quantsim evaluaiton scripts"""
-    download_weights()
+def main():
+    """Evaluation main function"""
+    args = arguments()
     config = ModelConfig(args)
 
-    parser = CocoParser(batch_size=config.batch_size)
-    generator = TfRecordGenerator(
+    dataloader = get_dataloader(
         dataset_dir=config.dataset_path,
         file_pattern=config.TFRecord_file_pattern,
-        parser=parser,
-        is_trainning=False,
+        annotation_json_file=config.annotation_json_file,
+        batch_size=config.batch_size,
     )
 
-    # Allocate the runner related to model session run
-    runner = MobileNetV2SSDRunner(
-        generator=generator,
-        checkpoint=config.model_checkpoint,
-        annotation_file=config.annotation_json_file,
-        graph=config.model_checkpoint + ".meta",
-        fold_bn=False,
-        quantize=False,
-        is_train=False,
-    )
-    float_sess = runner.eval_session
-
+    model = SSDMobileNetV2(model_config=config.model_config)
+    float_sess = model.get_session(quantized=False)
     iterations = int(config.eval_num_examples / config.batch_size)
-    if args.model_to_eval == "fp32":
-        runner.evaluate(float_sess, iterations, "original model evaluating")
-    else:
-        # Fold BN
-        after_fold_sess, _ = fold_all_batch_norms(
-            float_sess, generator.get_data_inputs(), ["concat", "concat_1"]
-        )
-        #
-        # Allocate the quantizer and quantize the network using the default 8
-        # bit params/activations
-        sim = quantsim.QuantizationSimModel(
-            after_fold_sess,
-            ["FeatureExtractor/MobilenetV2/MobilenetV2/input"],
-            output_op_names=["concat", "concat_1"],
-            quant_scheme="tf",
-            default_output_bw=8,
-            default_param_bw=8,
-            use_cuda=False,
-            config_file="./default_config.json",
-        )
-        # Compute encodings
-        sim.compute_encodings(
-            runner.forward_func,
-            forward_pass_callback_args=50)
+    dataloader.run_graph(session=float_sess, iterations=iterations, compute_miou=True)
 
-        # Evaluate simulated quantization performance
-        runner.evaluate(sim.session, iterations, "quantized model evaluating")
+    # Compute activation encodings (only adaround param encodings are preloaded)
+    sim = model.get_quantsim(quantized=True)
+    sim.compute_encodings(
+        dataloader.forward_func,
+        forward_pass_callback_args={"iterations": 50, "compute_miou": False},
+    )
+
+    # Evaluate simulated quantization performance
+    dataloader.run_graph(session=sim.session, iterations=iterations, compute_miou=True)
+
+    float_sess.close()
 
 
 if __name__ == "__main__":
-    args = parse_args()
-    ssd_mobilenet_v2_quanteval(args)
+    main()

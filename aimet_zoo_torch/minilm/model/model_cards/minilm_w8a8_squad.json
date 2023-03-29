@@ -1,0 +1,52 @@
+{
+    "name": "MINILM",
+    "framework": "pytorch",
+    "task": "",
+    "data_training_args":{
+        "dataset_name":"squad",
+        "dataset_config_name":null,
+        "train_file":null,
+        "validation_file":null,
+        "test_file":null,
+        "overwrite_cache":false,
+        "preprocessing_num_workers":null,
+        "max_seq_length":384,        
+        "pad_to_max_length":true,
+        "max_train_samples":null,
+        "max_eval_samples":null,
+        "max_predict_samples":null,
+        "version_2_with_negative":false,
+        "null_score_diff_threshold":0.0,
+        "doc_stride":128,
+        "n_best_size":20,
+        "max_answer_length":30
+    },
+    "model_args": {
+	    "model_name_or_path":"microsoft/MiniLM-L12-H384-uncased",
+	    "config_name":null,
+        "tokenizer_name":null,
+        "cache_dir":null,
+        "model_revision":"main",
+        "use_auth_token":false
+    },
+    "aux_args":{
+        "fmodel_path":"../model/weights/pre_opt_weights",
+        "qmodel_path":"../model/weights/post_opt_weights"
+    },
+    "optimization_config": {
+        "quantization_configuration":
+            {
+                "param_bw": 8,
+                "output_bw": 8,
+                "input_quantization": true,
+                "quant_scheme": "tf_range_learning",
+                "techniques": ["qat"]
+            }
+        },
+    "artifacts": {
+	"url_pre_opt_weights":"https://github.com/quic/aimet-model-zoo/releases/download/torch_minilm/squad_fp.pth",
+	"url_post_opt_weights":"https://github.com/quic/aimet-model-zoo/releases/download/torch_minilm/squad_qat.ckpt",
+        "url_aimet_config": "https://github.com/quic/aimet-model-zoo/releases/download/torch_vit/default_config.json"
+    }
+}
+

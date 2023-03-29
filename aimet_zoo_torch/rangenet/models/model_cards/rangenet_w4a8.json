@@ -1,0 +1,26 @@
+{
+    "name": "RangeNet++",
+    "framework": "pytorch",
+    "task": "semantic segmentation",
+    "model_args": {},
+    "input_shape": [1, 5, 64, 2048],
+    "training_dataset": "SemanticKitti",
+    "optimization_config": {
+        "quantization_configuration":
+            {
+                "param_bw": 4,
+                "output_bw": 8,
+                "input_quantization": true,
+                "quant_scheme": "percentile",
+                "techniques": ["cle", "adaround"]
+            }
+        },
+    "artifacts": {
+        "url_pre_opt_weights": null, 
+        "url_post_opt_weights": "https://github.com/quic/aimet-model-zoo/releases/download/phase_2_march_artifacts/rangenet_w4a8_state_dict.pth",
+        "url_adaround_encodings": null,
+        "url_aimet_encodings": "https://github.com/quic/aimet-model-zoo/releases/download/phase_2_march_artifacts/rangenet_w4a8_torch.encodings",
+        "url_aimet_config": "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.23/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json",
+        "url_zipped_checkpoint": "https://github.com/quic/aimet-model-zoo/releases/download/torch_rangenet_plus_w8a8/rangeNet_plus_FP32.tar.gz"        
+    }
+}

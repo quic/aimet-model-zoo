@@ -48,3 +48,30 @@ def return_dataloader(num_workers, batch_size, cityscapes_base_path=None):
     )
 
     return val_loader
+
+
+def return_dataset(num_workers, batch_size, cityscapes_base_path=None):
+    """
+    Returns a torch.Dataset containing image normalization preprocessing and conversion to tensor. 
+    Object can be drawn from using __getittem__
+    """
+
+    val_joint_transform_list = None
+
+    mean_std = (CITYSCAPES_MEAN, CITYSCAPES_STD)
+    target_transform = extended_transforms.MaskToTensor()
+
+    val_input_transform = standard_transforms.Compose(
+        [standard_transforms.ToTensor(), standard_transforms.Normalize(*mean_std)]
+    )
+
+    val_frame = Cityscapes(
+        mode="val",
+        joint_transform_list=val_joint_transform_list,
+        img_transform=val_input_transform,
+        label_transform=target_transform,
+        eval_folder=None,
+        cityscapes_base_path=cityscapes_base_path
+    )
+
+    return val_frame

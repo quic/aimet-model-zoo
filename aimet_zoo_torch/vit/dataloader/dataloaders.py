@@ -172,7 +172,7 @@ def get_dataset(config):
     # automatically from the datasets Hub).
 
     # In distributed training, the load_dataset function guarantees that only one local process can concurrently
-    download the dataset.
+    # download the dataset.
     # imagenet custom script loader
     data_files = {}
     data_files["train"] = config.train_dir

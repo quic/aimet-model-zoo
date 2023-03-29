@@ -1,7 +1,0 @@
-112,114c112,113
-<     if feats.shape[-1] > x.shape[-1]:
-<       os //= 2  # match skip
-<       feats = feats + skips[os].detach()  # add skip
----
->     os //= 2  # match skip
->     feats = feats + skips[os].detach()  # add skip

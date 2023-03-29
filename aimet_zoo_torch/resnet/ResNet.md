@@ -56,20 +56,21 @@ python resnet_quanteval.py\
 Available model configurations are:
 - resnet18_w8a8
 - resnet50_w8a8
-
+- resnet101_w8a8
 ---
 
 ## Quantization Configuration
 W8A8 optimization
 
-The following configuration has been used for the above models for INT8 quantization:
+The following configuration has been used for the above models for W8A8 quantization:
 - Weight quantization: 8 bits, symmetric quantization
 - Bias parameters are not quantized
 - Activation quantization: 8 bits, asymmetric quantization
 - Model inputs are quantized
 - 2000 images from the calibration dataset were used for computing encodings
 - TF_enhanced was used as quantization scheme
-- Cross layer equalization and Adaround in per channel mode has been applied for all the models to get the best INT8 optimized checkpoint
+- Cross layer equalization and Adaround in per channel mode has been applied for ResNet18, ResNet50 to get the best W8A8 optimized checkpoint
+- Cross layer equalization and Adaround in per tensor mode has been applied for ResNet101 to get the best W8A8 optimized checkpoint
 
 W4A8 optimization
 

@@ -27,14 +27,13 @@ import numpy as np
 import scipy.misc as m
 from PIL import Image
 from torch.utils import data
-from aimet_zoo_torch.deeplabv3.model.mypath import Path
 from torchvision import transforms
 from aimet_zoo_torch.deeplabv3.model.dataloaders import custom_transforms as tr
 
 class CityscapesSegmentation(data.Dataset):
     NUM_CLASSES = 19
 
-    def __init__(self, args, root=Path.db_root_dir('cityscapes'), split="train"):
+    def __init__(self, args, root, split="train"):
 
         self.root = root
         self.split = split

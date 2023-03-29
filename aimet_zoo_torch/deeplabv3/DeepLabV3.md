@@ -48,8 +48,7 @@ Available model configurations are:
 ---
 
 ## Quantization Configuration
-INT8 optimization
-The following configuration has been used for the above model for INT8 quantization
+W8A8 Quantization | The following configuration has been used:
 - Weight quantization: 8 bits, per tensor symmetric quantization
 - Bias parameters are not quantized
 - Activation quantization: 8 bits, asymmetric quantization
@@ -58,8 +57,7 @@ The following configuration has been used for the above model for INT8 quantizat
 - Cross layer equalization and Adaround has been applied on optimized checkpoint
 - Data Free Quantization has been performed on the optimized checkpoint
 
-INT4 optimization
-The following configuration has been used for the above model for W4A8 quantization
+W4A8 Quantization | The following configuration has been used:
 - Weight quantization: 4 bits, per channel symmetric quantization
 - Bias parameters are not quantized
 - Activation quantization: 8 bits, asymmetric quantization
