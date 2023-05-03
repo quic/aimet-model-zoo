@@ -5,5 +5,5 @@
 #
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
-
+""" loading yolox model downloader class"""
 from .model.model_definition import YOLOX

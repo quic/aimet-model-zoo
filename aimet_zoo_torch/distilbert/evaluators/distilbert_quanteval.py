@@ -38,11 +38,11 @@ def parse_args():
     parser.add_argument(
         "--model_config",
         default="distilbert_w8a8_mnli",
-        help="choice [ mobilebert_w8a8_cola,"\
-                "mobilebert_w8a8_mnli,mobilebert_w8a8_mrpc,"\
-                "mobilebert_w8a8_qnli,mobilebert_w8a8_qqp,"\
-                "mobilebert_w8a8_rte,mobilebert_w8a8_squad,"\
-                "mobilebert_w8a8_sst2,mobilebert_w8a8_stsb]",
+        help="choice [ mobilebert_w8a8_cola,"
+        "mobilebert_w8a8_mnli,mobilebert_w8a8_mrpc,"
+        "mobilebert_w8a8_qnli,mobilebert_w8a8_qqp,"
+        "mobilebert_w8a8_rte,mobilebert_w8a8_squad,"
+        "mobilebert_w8a8_sst2,mobilebert_w8a8_stsb]",
     )
     parser.add_argument(
         "--per_device_eval_batch_size",

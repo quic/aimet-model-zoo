@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
-#pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912,W1203,W1201,R0201
+# pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912,W1203,W1201,R0201
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
 #
@@ -14,7 +14,6 @@ import os
 import csv
 from collections import defaultdict
 import torch
-import datasets
 from transformers import AutoConfig as Config
 from transformers import AutoFeatureExtractor as FeatureExtractor
 from aimet_torch.quantsim import QuantizationSimModel
@@ -24,11 +23,12 @@ from aimet_zoo_torch.common.downloader import Downloader
 from aimet_zoo_torch.vit.model.huggingface.baseline_models.vit.modeling_vit import (
     ViTForImageClassification as VitModel,
 )
-
+import datasets
 
 
 class vit(Downloader):
-    """ model vit configuration class """
+    """model vit configuration class"""
+
     def __init__(self, model_config=None, quantized=False):
         """
         dataloader
@@ -87,7 +87,7 @@ class vit(Downloader):
         feature_extractor = FeatureExtractor.from_pretrained(
             model_name_or_path,
         )
-
+        # pylint:disable = unused-variable
         interpolate = False
         higher_resolution = self.cfg["model_args"]["higher_resolution"] == "True"
         ignore_mismatched_sizes = (
@@ -146,26 +146,18 @@ class vit(Downloader):
 
         metric = datasets.load_metric("accuracy")
         dummy_input = self._get_dummy_input(dataloader)
+        quant_scheme_config = self.cfg["optimization_config"]["quantization_configuration"]["quant_scheme"]
 
         if (
-                self.cfg["optimization_config"]["quantization_configuration"][
-                    "quant_scheme"
-                ]
-                == "tf"
+                quant_scheme_config == "tf"
         ):
             quant_scheme = QuantScheme.post_training_tf
         elif (
-                self.cfg["optimization_config"]["quantization_configuration"][
-                    "quant_scheme"
-                ]
-                == "tf_enhanced"
+                quant_scheme_config == "tf_enhanced"
         ):
             quant_scheme = QuantScheme.post_training_tf_enhanced
         elif (
-                self.cfg["optimization_config"]["quantization_configuration"][
-                    "quant_scheme"
-                ]
-                == "tf_range_learning"
+                quant_scheme_config == "tf_range_learning"
         ):
             quant_scheme = QuantScheme.training_range_learning_with_tf_init
 
@@ -191,6 +183,7 @@ class vit(Downloader):
         self._load_encoding_data(quant_sim, model_name_or_path)
         # remove dropout quantizers
         disable_list = []
+        #pylint:disable = protected-access, unused-variable
         for name, module in quant_sim.model.named_modules():
             if isinstance(module, QcQuantizeWrapper) and isinstance(
                     module._module_to_wrap, torch.nn.Dropout

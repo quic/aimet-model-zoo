@@ -21,7 +21,7 @@ from aimet_torch.quantsim import QuantizationSimModel, load_encodings_to_sim
 from aimet_torch.cross_layer_equalization import equalize_model
 from aimet_torch.model_preparer import prepare_model
 from aimet_zoo_torch.common.downloader import Downloader
-from aimet_zoo_torch.hrnet_image_classification.model.lib import models
+from aimet_zoo_torch.hrnet_image_classification.model.lib import models #pylint:disable = unused-import
 from aimet_zoo_torch.hrnet_image_classification.model.lib.config import config
 
 

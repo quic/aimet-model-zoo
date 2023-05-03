@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912
+# pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912
 # -*- mode: python -*-
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
@@ -31,6 +31,7 @@ import torch
 from aimet_torch import quantsim
 
 import codes.options.options as option
+#pylint:disable = consider-using-from-import
 import codes.utils.util as util
 from codes.data.util import bgr2ycbcr
 from codes.data import create_dataset, create_dataloader
@@ -41,12 +42,8 @@ from aimet_zoo_torch.common.utils import utils
 
 
 def evaluate_generator(
-        generator,
-        test_loader,
-        options,
-        mode="y_channel",
-        output_dir=None,
-        device=None):
+        generator, test_loader, options, mode="y_channel", output_dir=None, device=None
+):
     """
     :param generator: an srgan model`s generator part, must be an nn.module
     :param test_loader: a pytorch dataloader
@@ -62,8 +59,8 @@ def evaluate_generator(
         print("Testing on Y channel...")
     else:
         raise ValueError(
-            "evaluation mode not supported!"
-            "Must be one of `RGB` or `y_channel`")
+            "evaluation mode not supported! Must be one of `RGB` or `y_channel`"
+        )
 
     psnr_values = []
     ssim_values = []
@@ -102,8 +99,7 @@ def evaluate_generator(
         # calculate PSNR and SSIM
         if need_GT:
             gt_img = util.tensor2img(visuals["GT"])
-            sr_img, gt_img = util.crop_border(
-                [sr_img, gt_img], options["scale"])
+            sr_img, gt_img = util.crop_border([sr_img, gt_img], options["scale"])
 
             if mode == "rgb":
                 psnr = util.calculate_psnr(sr_img, gt_img)
@@ -285,9 +281,7 @@ def parse_args():
         "-bout",
         help="Default bitwidth (4-31) to use for quantizing layer inputs and outputs",
         default=8,
-        choices=range(
-            4,
-            32),
+        choices=range(4, 32),
         type=int,
     )
     parser.add_argument(
@@ -313,9 +307,9 @@ def parse_args():
     return parser.parse_args()
 
 
-
 class ModelConfig:
     """Adding hardcoded values into args from parseargs() and return config object"""
+
     def __init__(self, args):
         self.yml = "./test_SRGAN.yml"
         self.quant_scheme = "tf_enhanced"
@@ -388,7 +382,8 @@ def main(args):
         test_set_name = test_loader.dataset.opt["name"]
         print(f"Testing on dataset {test_set_name}")
         psnr_vals, ssim_vals = evaluate_generator(
-            sim.model, test_loader, opt, device=device, output_dir=config.output_dir)
+            sim.model, test_loader, opt, device=device, output_dir=config.output_dir
+        )
         psnr_val = np.mean(psnr_vals)
         ssim_val = np.mean(ssim_vals)
         print(

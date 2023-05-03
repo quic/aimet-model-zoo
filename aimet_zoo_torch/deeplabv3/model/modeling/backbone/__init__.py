@@ -1,3 +1,4 @@
+# pylint: skip-file
 #!/usr/bin/env python3
 # -*- mode: python -*-
 
@@ -34,16 +35,22 @@
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
 
-from aimet_zoo_torch.deeplabv3.model.modeling.backbone import resnet, xception, drn, mobilenet
+from aimet_zoo_torch.deeplabv3.model.modeling.backbone import (
+    resnet,
+    xception,
+    drn,
+    mobilenet,
+)
+
 
 def build_backbone(backbone, output_stride, BatchNorm):
-    if backbone == 'resnet':
+    if backbone == "resnet":
         return resnet.ResNet101(output_stride, BatchNorm)
-    elif backbone == 'xception':
+    elif backbone == "xception":
         return xception.AlignedXception(output_stride, BatchNorm)
-    elif backbone == 'drn':
+    elif backbone == "drn":
         return drn.drn_d_54(BatchNorm)
-    elif backbone == 'mobilenet':
+    elif backbone == "mobilenet":
         return mobilenet.MobileNetV2(output_stride, BatchNorm)
     else:
         raise NotImplementedError

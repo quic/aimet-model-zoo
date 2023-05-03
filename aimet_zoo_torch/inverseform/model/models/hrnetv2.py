@@ -1,3 +1,5 @@
+# pylint: skip-file
+# pylint: skip-file
 # Most of the code below is from the following repo:
 #  https://github.com/HRNet/HRNet-Semantic-Segmentation/tree/HRNet-OCR
 #

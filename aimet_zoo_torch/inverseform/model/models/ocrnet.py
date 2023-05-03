@@ -1,3 +1,5 @@
+# pylint: skip-file
+# pylint: skip-file
 """
 Copyright 2020 Nvidia Corporation
 

@@ -1,3 +1,4 @@
+# pylint: skip-file
 # -*- coding: utf-8 -*-
 # File   : replicate.py
 # Author : Jiayuan Mao

@@ -11,9 +11,9 @@
 
 import torch
 import torch.utils.data
-import torchvision.transforms as transforms
+from torchvision import transforms
 from aimet_zoo_torch.hrnet_posenet.models.core.function import validate
-import aimet_zoo_torch.hrnet_posenet.models.dataset as dataset
+from aimet_zoo_torch.hrnet_posenet.models import dataset
 from aimet_zoo_torch.hrnet_posenet.models.core.loss import JointsMSELoss
 
 

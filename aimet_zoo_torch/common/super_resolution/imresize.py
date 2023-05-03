@@ -1,3 +1,5 @@
+# pylint: skip-file
+# pylint: skip-file
 #!/usr/bin/env python3
 # -*- mode: python -*-
 # =============================================================================

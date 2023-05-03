@@ -27,7 +27,7 @@ from aimet_zoo_torch.hrnet_posenet.models.config import cfg, update_config
 from aimet_zoo_torch.hrnet_posenet.models.core.loss import JointsMSELoss
 
 
-def parse_args():
+def parse_args(raw_args):
     """parse user arguments"""
     parser = argparse.ArgumentParser(description="Evaluate keypoints network")
     parser.add_argument(
@@ -63,14 +63,14 @@ def parse_args():
         nargs=argparse.REMAINDER,
     )
 
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
     return args
 
 
-def main():
+def main(raw_args=None):
     """execute evaluation"""
     # Load parameters from arguments
-    args = parse_args()
+    args = parse_args(raw_args)
 
     # Set dir args to default
     args.modelDir = "./"

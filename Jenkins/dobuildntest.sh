@@ -223,9 +223,29 @@ if [ $run_code_violation -eq 1 ]; then
     cd $buildFolder
 
     echo -e "\n********** Stage 4: Code violation checks **********\n"
+
+    extra_opts=""
+    # Add build options based on variant
+    echo -e "Verify aimet variant: $AIMET_ZOO_VARIANT"
+    if [ -n "$AIMET_ZOO_VARIANT" ]; then
+        if [[ "$AIMET_ZOO_VARIANT" == *"tf"* ]]; then
+            extra_opts+=" -DENABLE_TENSORFLOW=ON"
+        fi
+        if [[ "$AIMET_ZOO_VARIANT" == *"torch"* ]]; then
+            extra_opts+=" -DENABLE_TORCH=ON"
+        fi
+        if [[ "$AIMET_ZOO_VARIANT" != *"tf"* ]]; then
+            extra_opts+=" -DENABLE_TENSORFLOW=OFF"
+        fi
+        if [[ "$AIMET_ZOO_VARIANT" != *"torch"* ]]; then
+            extra_opts+=" -DENABLE_TORCH=OFF"
+        fi
+    fi
+    echo -e "Extra Options added: " ${extra_opts}
+    cmake ${extra_opts} ..
+
     make pylintmodelzoo
     check_stage $? "Code Violations" "true"
 fi
 
 exit $EXIT_CODE
-

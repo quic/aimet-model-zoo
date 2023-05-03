@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912
+# pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912
 # -*- mode: python -*-
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
@@ -9,6 +9,8 @@
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
 """Quantsim evaluation for resnet50"""
+# pylint:disable = import-error, wrong-import-order
+# adding this due to docker image not setup yet
 import ast
 import tarfile
 import urllib.request
@@ -29,8 +31,6 @@ from preprocessing import preprocessing_factory
 from nets import nets_factory
 
 
-
-
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 
@@ -49,12 +49,7 @@ def download_weights():
         urllib.request.urlretrieve(URL, "default_config.json")
 
 
-def wrap_preprocessing(
-        preprocessing,
-        height,
-        width,
-        num_classes,
-        labels_offset):
+def wrap_preprocessing(preprocessing, height, width, num_classes, labels_offset):
     """Wrap preprocessing function to do parsing of TFrecords."""
 
     def parse(serialized_example):
@@ -77,9 +72,10 @@ def wrap_preprocessing(
 
     return parse
 
-#pylint: disable=W0612
+
+# pylint: disable=W0612
 def run_evaluation(args):
-    """run evaluatioin and build graph definition for evaluation """
+    """run evaluatioin and build graph definition for evaluation"""
     # Build graph definition
     with tf.Graph().as_default():
         # Create iterator
@@ -103,20 +99,19 @@ def run_evaluation(args):
         images, labels = iterator.get_next()
 
         network_fn = nets_factory.get_network_fn(
-            args.model_name, num_classes=(
-                1001 - args.labels_offset), is_training=False)
+            args.model_name, num_classes=(1001 - args.labels_offset), is_training=False
+        )
         with tf.device("/cpu:0"):
-            images = tf.placeholder_with_default(images, shape=(
-                None, args.image_size, args.image_size, 3), name="input")
+            images = tf.placeholder_with_default(
+                images, shape=(None, args.image_size, args.image_size, 3), name="input"
+            )
             labels = tf.placeholder_with_default(
                 labels, shape=(None, 1001 - args.labels_offset), name="labels"
             )
         logits, end_points = network_fn(images)
         confidences = tf.nn.softmax(logits, axis=1, name="confidences")
-        categorical_preds = tf.argmax(
-            confidences, axis=1, name="categorical_preds")
-        categorical_labels = tf.argmax(
-            labels, axis=1, name="categorical_labels")
+        categorical_preds = tf.argmax(confidences, axis=1, name="categorical_preds")
+        categorical_labels = tf.argmax(labels, axis=1, name="categorical_labels")
         correct_predictions = tf.equal(categorical_labels, categorical_preds)
         top1_acc = tf.reduce_mean(
             tf.cast(correct_predictions, tf.float32), name="top1-acc"
@@ -241,10 +236,8 @@ def run_evaluation(args):
 
         print()
         print("Evaluation Summary")
-        print(
-            f"Optimized Model | FP32 Environment | Accuracy: {acc_optim_fp32}")
-        print(
-            f"Optimized Model | INT8 Environment | Accuracy: {acc_optim_int8}")
+        print(f"Optimized Model | FP32 Environment | Accuracy: {acc_optim_fp32}")
+        print(f"Optimized Model | INT8 Environment | Accuracy: {acc_optim_int8}")
 
     if args.eval_quantized:
         eval_quantized_model(sess, args, logits)
@@ -262,14 +255,8 @@ def parse_args(args):
     parser = argparse.ArgumentParser(
         description="Evaluation script for an Resnet 50 network."
     )
-    parser.add_argument(
-        "--dataset-path",
-        help="Imagenet eval dataset directory.")
-    parser.add_argument(
-        "--batch-size",
-        help="Batch size.",
-        type=int,
-        default=32)
+    parser.add_argument("--dataset-path", help="Imagenet eval dataset directory.")
+    parser.add_argument("--batch-size", help="Batch size.", type=int, default=32)
     parser.add_argument(
         "--default-output-bw",
         help="Default output bitwidth for quantization.",
@@ -292,6 +279,7 @@ def parse_args(args):
 
 class ModelConfig:
     """hardcoded model configuration"""
+
     def __init__(self, args):
         self.model_name = "resnet_v1_50"
         self.labels_offset = 1

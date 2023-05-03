@@ -20,6 +20,8 @@ pipeline {
         PROJECT_NAME    = "${params.PROJECT_NAME}"
         PROJECT_BRANCH  = "${params.PROJECT_BRANCH}"
         WORKSPACE_ROOT  = "${workspace}"
+        // Bypass the pre-built images until we have model-zoo-dev images
+        USE_LINARO = ""
         
     }
     stages {
@@ -54,9 +56,9 @@ pipeline {
                                 cleanWs()
                                 unstash 'AIMETBuildTree'
                                 script {
-                                    env.AIMET_ZOO_VARIANT_TF_CPU = "tf-torch-cpu"
+                                    env.AIMET_ZOO_VARIANT = "tf-torch-cpu"
                                 }
-                                echo "*** Running SETUP stage for ${env.AIMET_ZOO_VARIANT_TF_CPU} variant on ${env.NODE_NAME} in workspace ${env.WORKSPACE_ROOT} ***"
+                                echo "*** Running SETUP stage for ${env.AIMET_ZOO_VARIANT} variant on ${env.NODE_NAME} in workspace ${env.WORKSPACE_ROOT} ***"
                             }
                         }
 
@@ -65,7 +67,7 @@ pipeline {
                                 echo 'Building and Creating Package...'
                                 script {
                                     //TODO Change option back to "-bp" as soon as issue is fixed
-                                    runStage(env.AIMET_ZOO_VARIANT_TF_CPU, "-bp")
+                                    runStage(env.AIMET_ZOO_VARIANT, "-bp")
                                 }
                             }
                         }
@@ -74,7 +76,7 @@ pipeline {
                             steps {
                                 echo 'Running code violations...'
                                 script {
-                                    runStage(env.AIMET_ZOO_VARIANT_TF_CPU, "-v")
+                                    runStage(env.AIMET_ZOO_VARIANT, "-v")
                                 }
                             }
                             post {
@@ -117,17 +119,28 @@ pipeline {
     }
 }
 
-def runStage(AIMET_ZOO_VARIANT, options) {
-
-    echo "*** Running stage ${options} for ${AIMET_ZOO_VARIANT} variant on ${env.NODE_NAME} in workspace ${env.WORKSPACE_ROOT} ***"
-
+def didDockerFileChange(AIMET_ZOO_VARIANT) {
     def changedFiles = pullRequest.files.collect {
         it.getFilename()
     }
     print changedFiles
-    if (!changedFiles.contains("Jenkins/Dockerfile.${AIMET_ZOO_VARIANT}".toString())) {
-        print "Jenkins/Dockerfile.${AIMET_ZOO_VARIANT} not found in changed file list, so using Linaro Docker image for ${AIMET_ZOO_VARIANT}"
+    if (changedFiles.contains("Jenkins/Dockerfile.${AIMET_ZOO_VARIANT}".toString())) {
+        print "Jenkins/Dockerfile.${AIMET_ZOO_VARIANT} changed in PR, so building docker image locally."
+        return true
     }
+    print "Jenkins/Dockerfile.${AIMET_ZOO_VARIANT} NOT changed in PR, so using pre-built docker image."
+    return false
+}
+
+def runStage(AIMET_ZOO_VARIANT, options) {
+
+    echo "*** Running stage ${options} for ${AIMET_ZOO_VARIANT} variant on ${env.NODE_NAME} in workspace ${env.WORKSPACE_ROOT} ***"
+
+
+    if (didDockerFileChange(env.AIMET_ZOO_VARIANT)) {
+        env.USE_LINARO=""
+    }
+
     sh """
         AIMET_ZOO_VARIANT=${AIMET_ZOO_VARIANT} bash -l -c "cd ${REPO_NAME} && ./Jenkins/buildntest.sh -e AIMET_ZOO_VARIANT ${options} ${env.USE_LINARO} ${env.PREBUILT_DOCKER_IMAGE_URL}"
     """

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.6
-#pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912
+# pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912
 # -*- mode: python -*-
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
@@ -9,25 +9,27 @@
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
 """Quanteval Evaluation script for efficientnet"""
+# pylint:disable = import-error, wrong-import-order
+# adding this due to docker image not setup yet
 import os
 import argparse
 import urllib
 import tarfile
-import aimet_common.defs
 import numpy as np
-import eval_ckpt_main
-import model_builder_factory
+import aimet_common.defs
 from aimet_tensorflow.batch_norm_fold import fold_all_batch_norms
 from aimet_tensorflow.quantsim import QuantizationSimModel
+import eval_ckpt_main
+import model_builder_factory
 
 # import tensorflow as tf
 import tensorflow.compat.v1 as tf
-
 tf.disable_v2_behavior()
 
 
 class EvalCkptDriver(eval_ckpt_main.EvalCkptDriver):
-    """Wrap evaluation with quantsim evaluation """
+    """Wrap evaluation with quantsim evaluation"""
+
     def build_dataset(self, filenames, labels, is_training):
         """Wrap build_dataset function to create an initializable iterator rather than a one shot iterator."""
         make_one_shot_iterator = tf.data.Dataset.make_one_shot_iterator
@@ -38,7 +40,8 @@ class EvalCkptDriver(eval_ckpt_main.EvalCkptDriver):
         tf.data.Dataset.make_one_shot_iterator = make_one_shot_iterator
 
         return r
-    #pylint: disable=W0613
+
+    # pylint: disable=W0613
     def run_inference(
             self, ckpt_path, image_files, labels, enable_ema=True, export_ckpt=None
     ):
@@ -71,15 +74,14 @@ class EvalCkptDriver(eval_ckpt_main.EvalCkptDriver):
             # Return the top 5 predictions (idx and prob) for each image.
             return prediction_idx, prediction_prob
         # Fold all BatchNorms before QuantSim
-        #pylint: disable=W0612
-        sess, folded_pairs = fold_all_batch_norms(
-            sess, ["IteratorGetNext"], ["logits"]
-        )
+        # pylint: disable=W0612
+        sess, folded_pairs = fold_all_batch_norms(sess, ["IteratorGetNext"], ["logits"])
         with sess.graph.as_default():
             checkpoint = ckpt_path
             saver = tf.train.Saver()
             saver.restore(sess, checkpoint)
         sess.run("MakeIterator")
+
         # Define an eval function to use during compute encodings
         def eval_func(sess, iterations):
             sess.run("MakeIterator")
@@ -89,18 +91,18 @@ class EvalCkptDriver(eval_ckpt_main.EvalCkptDriver):
         # Select the right quant_scheme
         if self.quant_scheme == "range_learning_tf":
             quant_scheme = (
-                aimet_common.defs.QuantScheme.training_range_learning_with_tf_init)
+                aimet_common.defs.QuantScheme.training_range_learning_with_tf_init
+            )
         elif self.quant_scheme == "range_learning_tf_enhanced":
             quant_scheme = (
-                aimet_common.defs.QuantScheme.training_range_learning_with_tf_enhanced_init)
+                aimet_common.defs.QuantScheme.training_range_learning_with_tf_enhanced_init
+            )
         elif self.quant_scheme == "tf":
             quant_scheme = aimet_common.defs.QuantScheme.post_training_tf
         elif self.quant_scheme == "tf_enhanced":
             quant_scheme = aimet_common.defs.QuantScheme.post_training_tf_enhanced
         else:
-            raise ValueError(
-                "Got unrecognized quant_scheme: " +
-                self.quant_scheme)
+            raise ValueError("Got unrecognized quant_scheme: " + self.quant_scheme)
 
         # Create QuantizationSimModel
         sim = QuantizationSimModel(
@@ -142,7 +144,7 @@ def run_evaluation(args):
         include_background_label=args.include_background_label,
         advprop_preprocessing=args.advprop_preprocessing,
     )
-    #pylint: disable=W0201
+    # pylint: disable=W0201
     driver.quant_scheme = args.quant_scheme
     driver.round_mode = args.round_mode
     driver.default_output_bw = args.default_output_bw
@@ -180,6 +182,7 @@ def download_weights():
 
 class ModelConfig:
     """hardcoded model configurations"""
+
     def __init__(self, args):
         self.model_name = "efficientnet-lite0"
         if args.model_to_eval == "fp32":

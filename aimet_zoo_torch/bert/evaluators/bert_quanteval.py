@@ -28,8 +28,6 @@
 
 import argparse
 import logging
-from transformers.utils.versions import require_version
-from datasets import load_dataset, load_metric
 
 from aimet_zoo_torch.bert import Bert
 from aimet_zoo_torch.bert.dataloader import get_datasets, eval_function

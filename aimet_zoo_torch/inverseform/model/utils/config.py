@@ -1,3 +1,4 @@
+# pylint: skip-file
 """
 # Code adapted from:
 # https://github.com/facebookresearch/Detectron/blob/master/detectron/core/config.py

@@ -1,3 +1,4 @@
+# pylint: skip-file
 from aimet_zoo_torch.inverseform.dataloader.transforms import transforms as extended_transforms
 from torch.utils.data import DataLoader
 

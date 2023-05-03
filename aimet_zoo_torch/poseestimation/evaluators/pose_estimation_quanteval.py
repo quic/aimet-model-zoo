@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.6
-#pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912,C0111
+# pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912,C0111
 # -*- mode: python -*-
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
@@ -31,7 +31,7 @@ import numpy as np
 from scipy.ndimage.filters import gaussian_filter
 
 import torch
-import torch.nn as nn
+from torch import nn
 
 # aimet import
 from aimet_torch import quantsim
@@ -190,8 +190,9 @@ def get_model(upsample=False):
             one_ = block[i]
             for k, v in zip(one_.keys(), one_.values()):
                 if "pool" in k:
-                    layers += [nn.MaxPool2d(kernel_size=v[0],
-                                            stride=v[1], padding=v[2])]
+                    layers += [
+                        nn.MaxPool2d(kernel_size=v[0], stride=v[1], padding=v[2])
+                    ]
                 elif "sequential" in k:
                     conv2d_1 = nn.Conv2d(
                         in_channels=v[0][0],
@@ -279,6 +280,7 @@ class PoseModel(nn.Module):
     """
 
     def __init__(self, model_dict, upsample=False):
+        #pylint:disable = super-with-arguments
         super(PoseModel, self).__init__()
         self.upsample = upsample
         self.basemodel = model_dict["block0"]
@@ -379,7 +381,8 @@ def pad_image(img, stride, padding):
 
     return img_padded, pad
 
-#pylint: disable=I1101
+
+# pylint: disable=I1101
 def encode_input(image, scale, stride, padding):
     image_scaled = cv2.resize(
         image, (0, 0), fx=scale, fy=scale, interpolation=cv2.INTER_CUBIC
@@ -394,8 +397,7 @@ def decode_output(data, stride, padding, input_shape, image_shape):
     output = cv2.resize(
         output, (0, 0), fx=stride, fy=stride, interpolation=cv2.INTER_CUBIC
     )
-    output = output[: input_shape[0] - padding[2],
-                    : input_shape[1] - padding[3], :]
+    output = output[: input_shape[0] - padding[2], : input_shape[1] - padding[3], :]
     output = cv2.resize(
         output, (image_shape[1], image_shape[0]), interpolation=cv2.INTER_CUBIC
     )
@@ -452,13 +454,10 @@ def run_model(model, image, fast=False):
             )
         else:
             image_encoded, pad = encode_input(image, scale, stride, padValue)
-        image_encoded_ = preprocess(
-            image_encoded, [
-                "addchannel", "normalize", "bgr"])
+        image_encoded_ = preprocess(image_encoded, ["addchannel", "normalize", "bgr"])
         image_encoded_ = np.transpose(image_encoded_, (0, 3, 1, 2))
         with torch.no_grad():
-            input_image = torch.FloatTensor(
-                torch.from_numpy(image_encoded_).float())
+            input_image = torch.FloatTensor(torch.from_numpy(image_encoded_).float())
             if next(model.parameters()).is_cuda:
                 input_image = input_image.to(device="cuda")
             output = model(input_image)
@@ -466,18 +465,11 @@ def run_model(model, image, fast=False):
         heatmap = output[3].cpu().data.numpy().transpose((0, 2, 3, 1))
         if fast:
             paf = cv2.resize(paf[0], (image.shape[1], image.shape[0]))
-            heatmap = cv2.resize(
-                heatmap[0], dsize=(
-                    image.shape[1], image.shape[0]))
+            heatmap = cv2.resize(heatmap[0], dsize=(image.shape[1], image.shape[0]))
         else:
             # paf = paf.transpose((0, 3, 1, 2))
             # heatmap = heatmap.transpose((0, 3, 1, 2))
-            paf = decode_output(
-                paf,
-                stride,
-                pad,
-                image_encoded.shape,
-                image.shape)
+            paf = decode_output(paf, stride, pad, image_encoded.shape, image.shape)
             heatmap = decode_output(
                 heatmap, stride, pad, image_encoded.shape, image.shape
             )
@@ -501,12 +493,7 @@ def get_keypoints(heatmap):
     return keypoints_all
 
 
-def get_limb_consistency(
-        paf,
-        start_keypoint,
-        end_keypoint,
-        image_h,
-        div_num=10):
+def get_limb_consistency(paf, start_keypoint, end_keypoint, image_h, div_num=10):
     vec_key = np.subtract(end_keypoint[:2], start_keypoint[:2])
     vec_key_norm = math.sqrt(vec_key[0] * vec_key[0] + vec_key[1] * vec_key[1])
     if vec_key_norm == 0:
@@ -520,17 +507,14 @@ def get_limb_consistency(
         )
     )
 
-    vec_paf_x = np.array([paf[vec_paf[k][1], vec_paf[k][0], 0]
-                          for k in range(div_num)])
-    vec_paf_y = np.array([paf[vec_paf[k][1], vec_paf[k][0], 1]
-                          for k in range(div_num)])
+    vec_paf_x = np.array([paf[vec_paf[k][1], vec_paf[k][0], 0] for k in range(div_num)])
+    vec_paf_y = np.array([paf[vec_paf[k][1], vec_paf[k][0], 1] for k in range(div_num)])
 
     # To see how well the direction of the prediction over the line connecting the limbs aligns
     # with the vec_key we compute the integral of the dot product of the "affinity vector at point
     # 'u' on the line" and the "vec_key".
     # In discrete form, this integral is done as below:
-    vec_sims = np.multiply(
-        vec_paf_x, vec_key[0]) + np.multiply(vec_paf_y, vec_key[1])
+    vec_sims = np.multiply(vec_paf_x, vec_key[0]) + np.multiply(vec_paf_y, vec_key[1])
 
     # this is just a heuristic approach to punish very long predicted limbs
     vec_sims_prior = vec_sims.mean() + min(0.5 * image_h / vec_key_norm - 1, 0)
@@ -542,6 +526,7 @@ def connect_keypoints(image_shape, keypoints, paf, limbs, limbsInds):
     thre2 = 0.05
     connections = []
     small_limb_list = [1, 15, 16, 17, 18]
+    #pylint:disable = consider-using-enumerate
     for k in range(len(limbsInds)):
         paf_limb = paf[:, :, limbsInds[k]]
         limb_strs = keypoints[limbs[k][0]]
@@ -555,10 +540,12 @@ def connect_keypoints(image_shape, keypoints, paf, limbs, limbsInds):
                     # measure a score using the get_limb_consistency function
                     if limbs[k][0] in small_limb_list or limbs[k][1] in small_limb_list:
                         sims, sims_p = get_limb_consistency(
-                            paf_limb, limb_str, limb_end, image_shape[0], div_num=10)
+                            paf_limb, limb_str, limb_end, image_shape[0], div_num=10
+                        )
                     else:
                         sims, sims_p = get_limb_consistency(
-                            paf_limb, limb_str, limb_end, image_shape[0], div_num=10)
+                            paf_limb, limb_str, limb_end, image_shape[0], div_num=10
+                        )
                     if (
                             len(np.where(sims > thre2)[0]) > int(0.80 * len(sims))
                             and sims_p > 0
@@ -589,15 +576,16 @@ def create_skeletons(keypoints, connections, limbs):
     # the second last number in each row is the score of the overall
     # configuration
     skeletons = -1 * np.ones((0, 20))
-    keypoints_flatten = np.array(
-        [item for sublist in keypoints for item in sublist])
+    keypoints_flatten = np.array([item for sublist in keypoints for item in sublist])
 
+    #pylint:disable = consider-using-enumerate
     for k in range(len(limbs)):
         if connections[k]:
             detected_str = connections[k][:, 0]
             detected_end = connections[k][:, 1]
             limb_str, limb_end = np.array(limbs[k])
 
+            #pylint:disable = consider-using-enumerate
             for i in range(len(connections[k])):
                 found = 0
                 subset_idx = [-1, -1]
@@ -625,7 +613,7 @@ def create_skeletons(keypoints, connections, limbs):
                         (skeletons[j1] >= 0).astype(int)
                         + (skeletons[j2] >= 0).astype(int)
                     )[:-2]
-                    #pylint: disable=C1801
+                    # pylint: disable=C1801
                     if len(np.nonzero(membership == 2)[0]) == 0:  # merge
                         skeletons[j1][:-2] += skeletons[j2][:-2] + 1
                         skeletons[j1][-2:] += skeletons[j2][-2:]
@@ -645,12 +633,15 @@ def create_skeletons(keypoints, connections, limbs):
                     row[limb_str] = detected_str[i]
                     row[limb_end] = detected_end[i]
                     row[-1] = 2
-                    row[-2] = (sum(keypoints_flatten[connections[k]
-                                                     [i, :2].astype(int), 2]) + connections[k][i][2])
+                    row[-2] = (
+                        sum(keypoints_flatten[connections[k][i, :2].astype(int), 2])
+                        + connections[k][i][2]
+                    )
                     skeletons = np.vstack([skeletons, row])
 
     # delete some rows of subset which has few parts occur
     deleteIdx = []
+    #pylint:disable = consider-using-enumerate
     for i in range(len(skeletons)):
         if skeletons[i][-1] < 4 or skeletons[i][-2] / skeletons[i][-1] < 0.4:
             deleteIdx.append(i)
@@ -710,22 +701,20 @@ def estimate_pose(image_shape, heatmap, paf):
     keypoints = get_keypoints(heatmap)
 
     # Computing which pairs of joints should be connected based on the paf.
-    connections = connect_keypoints(
-        image_shape, keypoints, paf, limbs, limbsInd)
+    connections = connect_keypoints(image_shape, keypoints, paf, limbs, limbsInd)
 
     skeletons = create_skeletons(keypoints, connections, limbs)
 
-    return skeletons, np.array(
-        [item for sublist in keypoints for item in sublist])
+    return skeletons, np.array([item for sublist in keypoints for item in sublist])
 
 
 def parse_results(skeletons, points):
-    coco_indices = [0, -1, 6, 8, 10, 5, 7, 9,
-                    12, 14, 16, 11, 13, 15, 2, 1, 4, 3]
+    coco_indices = [0, -1, 6, 8, 10, 5, 7, 9, 12, 14, 16, 11, 13, 15, 2, 1, 4, 3]
 
     skeletons_out, scores = [], []
     for score, keypoints in zip(skeletons["scores"], skeletons["keypoints"]):
         skeleton = []
+        #pylint:disable = consider-using-enumerate
         for p in range(len(keypoints)):
             if p == 1:
                 continue
@@ -776,12 +765,11 @@ class COCOWrapper:
         cocoEval.summarize()
         return cocoEval.stats[0::5]
 
-    #pylint: disable=R0201
+    # pylint: disable=R0201
     def get_results_json(self, results, imgs):
         results_obj = []
         for img, result in list(zip(imgs, results)):
-            for score, skeleton in list(
-                    zip(result["scores"], result["skeletons"])):
+            for score, skeleton in list(zip(result["scores"], result["skeletons"])):
                 obj = {
                     "image_id": img["id"],
                     "category_id": 1,
@@ -815,8 +803,7 @@ class COCOWrapper:
         cocoGT = COCO(annFile)
 
         if not cocoGT:
-            raise AttributeError(
-                "COCO ground truth demo failed to initialize!")
+            raise AttributeError("COCO ground truth demo failed to initialize!")
 
         return cocoGT
 
@@ -890,13 +877,12 @@ def download_weights():
 
 
 def pose_estimation_quanteval(args):
-
     download_weights()
     # load the model checkpoint from meta
     model_builder = ModelBuilder()
     model_builder.create_model()
     model = model_builder.model
-    #pylint: disable = no-value-for-parameter
+    # pylint: disable = no-value-for-parameter
     state_dict = torch.load("pe_weights.pth")
     state = model.state_dict()
     state.update(state_dict)

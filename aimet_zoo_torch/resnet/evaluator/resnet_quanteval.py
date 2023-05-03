@@ -15,22 +15,22 @@ from aimet_zoo_torch.resnet.dataloader.dataloaders_and_eval_func import eval_fun
 from aimet_zoo_torch.resnet import ResNet
 
 
-def arguments():
+def arguments(raw_args):
     """ Parse input arguments """
     parser = argparse.ArgumentParser(description='script for classification model quantization')
-    parser.add_argument('--model-config', help='model configuration to use', default="resnet50_w8a8", 
-                        choices = ['resnet18_w4a8', 'resnet18_w8a8', 'resnet50_w4a8', 'resnet50_w8a8', 'resnet101_w8a8'], 
+    parser.add_argument('--model-config', help='model configuration to use', default="resnet50_w8a8",
+                        choices = ['resnet18_w4a8', 'resnet18_w8a8', 'resnet50_w4a8', 'resnet50_w8a8', 'resnet101_w8a8'],
                         type=str, required=True)
     parser.add_argument('--dataset-path', help='path to evaluation dataset',type=str, required=True)
     parser.add_argument('--use-cuda', help='Use cuda', default=True, type=bool)
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
+    print(vars(args))
     return args
 
 
-def main():
+def main(raw_args=None):
     """ Run evaluations """
-    args = arguments()
-    
+    args = arguments(raw_args)
     # Dataloaders
     encoding_dataloader = ImageNetDataLoader(args.dataset_path,image_size=224,num_samples_per_class=2).data_loader
     eval_dataloader = ImageNetDataLoader(args.dataset_path,image_size=224).data_loader
@@ -49,8 +49,7 @@ def main():
     quant_acc = eval_func(model = sim.model.cuda(), dataloader = eval_dataloader)
     print(f'Quantized quantized accuracy: {quant_acc:0.3f}%')
 
+    return quant_acc
+
 if __name__ == '__main__':
     main()
-
-
-

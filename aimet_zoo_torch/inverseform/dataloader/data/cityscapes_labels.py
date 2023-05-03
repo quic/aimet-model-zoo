@@ -1,3 +1,4 @@
+# pylint: skip-file
 """
 # File taken from https://github.com/mcordts/cityscapesScripts/
 # License File Available at:

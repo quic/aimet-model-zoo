@@ -21,7 +21,7 @@ from aimet_zoo_torch.hrnet_semantic_segmentation.dataloader.dataloaders_and_eval
 from aimet_zoo_torch.hrnet_semantic_segmentation import HRNetSemSeg
 
 
-def arguments():
+def arguments(raw_args):
     """parse command line arguments"""
     parser = argparse.ArgumentParser(description="Evaluation script for HRNet")
     parser.add_argument(
@@ -36,7 +36,7 @@ def arguments():
         "--use-cuda", help="Use GPU for evaluation", default=True, type=bool
     )
     parser.add_argument("--dataset-path", help="Use GPU for evaluation", type=str)
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
     return args
 
 
@@ -67,9 +67,9 @@ class ModelConfig:
             setattr(self, arg, getattr(args, arg))
 
 
-def main():
+def main(raw_args=None):
     """run evaluator"""
-    args = arguments()
+    args = arguments(raw_args)
     config = ModelConfig(args)
     seed(config.seed, config.use_cuda)
 

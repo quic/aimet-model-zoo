@@ -1,3 +1,4 @@
+# pylint: skip-file
 """
 Network Initializations
 """
@@ -27,6 +28,7 @@ def wrap_network_in_dataparallel(net, use_apex_data_parallel=False):
     """
     if use_apex_data_parallel:
         import apex
+
         net = apex.parallel.DistributedDataParallel(net)
     else:
         net = torch.nn.DataParallel(net)
@@ -37,13 +39,15 @@ def get_model(network, num_classes, criterion, has_edge=False):
     """
     Fetch Network Function Pointer
     """
-    module = network[:network.rfind('.')]
-    model = network[network.rfind('.') + 1:]
+    module = network[: network.rfind(".")]
+    model = network[network.rfind(".") + 1 :]
     mod = importlib.import_module(module)
 
     net_func = getattr(mod, model)
     if not has_edge:
         net = net_func(num_classes=num_classes, criterion=criterion)
     else:
-        net = net_func(num_classes=num_classes, criterion=criterion, has_edge_head=has_edge)
+        net = net_func(
+            num_classes=num_classes, criterion=criterion, has_edge_head=has_edge
+        )
     return net

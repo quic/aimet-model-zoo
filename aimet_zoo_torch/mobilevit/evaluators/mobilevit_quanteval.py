@@ -18,7 +18,7 @@ import datasets
 from accelerate import Accelerator
 from accelerate.logging import get_logger
 from accelerate.utils import set_seed
-from aimet_zoo_torch.mobilevit.dataloader import get_dataloaders, get_dataset
+from aimet_zoo_torch.mobilevit.dataloader import get_dataloaders
 from aimet_zoo_torch.mobilevit import mobilevit
 
 logger = get_logger(__name__)
@@ -109,12 +109,10 @@ def main():
         set_seed(config.seed)
 
     accelerator.wait_for_everyone()
-    # get dataset for gathering information to load model
-    dataset = get_dataset(config)
 
     # loading finetuned original model
     model = mobilevit(model_config=args.model_config, quantized=False)
-    model_orig = model.get_model_from_pretrained(dataset)
+    model_orig = model.get_model_from_pretrained()
 
     feature_extractor = model.get_feature_extractor_from_pretrained()
 
@@ -146,7 +144,7 @@ def main():
 
     # loading optimized model
     model = mobilevit(model_config=args.model_config, quantized=True)
-    model_w8a8 = model.get_model_from_pretrained(dataset)
+    model_w8a8 = model.get_model_from_pretrained()
 
     # Prepare everything with our `accelerator`.
     model_w8a8, train_dataloader, eval_dataloader = accelerator.prepare(

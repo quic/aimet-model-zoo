@@ -1,0 +1,24 @@
+{
+    "name": "mobilenetv2",
+    "framework": "tensorflow2.x",
+    "task": "image classification",
+    "input_shape": [null, 256, 256, 3],
+    "dataset": "imagenet",
+    "optimization_config": {
+        "quantization_configuration":
+            {
+                "param_bw": 8,
+                "output_bw": 8,
+                "input_quantization": true,
+                "quant_scheme": "tf",
+                "techniques": "simple PTQ"
+            }
+        },
+    "artifacts": {
+        "url_pre_opt_weights": null,
+        "url_post_opt_weights": null,
+        "url_adaround_encodings": null,
+        "url_aimet_encodings": "https://github.com/quic/aimet-model-zoo/releases/download/tensorflow2-mobilenetv2/mobilenetv2_w8a8.encodings",
+        "url_aimet_config": "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.25/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json"
+    }
+}

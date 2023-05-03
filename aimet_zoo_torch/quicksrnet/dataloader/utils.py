@@ -1,3 +1,4 @@
+# pylint: skip-file
 #!/usr/bin/env python3
 # -*- mode: python -*-
 # =============================================================================
@@ -35,7 +36,7 @@ def load_dataset(test_images_dir, scaling_factor=2):
     IMAGES_HR = []
 
     # Load the test images
-    for img_path in glob.glob(os.path.join(test_images_dir, '*')):
+    for img_path in glob.glob(os.path.join(test_images_dir, "*")):
         img = cv2.imread(img_path)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
@@ -61,8 +62,12 @@ def create_hr_lr_pair(img, scaling_factor=2):
     height, width = img.shape[0:2]
 
     # Take the largest possible center-crop of it such that its dimensions are perfectly divisible by the scaling factor
-    x_remainder = width % (2 * scaling_factor if scaling_factor == 1.5 else scaling_factor)
-    y_remainder = height % (2 * scaling_factor if scaling_factor == 1.5 else scaling_factor)
+    x_remainder = width % (
+        2 * scaling_factor if scaling_factor == 1.5 else scaling_factor
+    )
+    y_remainder = height % (
+        2 * scaling_factor if scaling_factor == 1.5 else scaling_factor
+    )
     left = int(x_remainder // 2)
     top = int(y_remainder // 2)
     right = int(left + (width - x_remainder))
@@ -71,15 +76,20 @@ def create_hr_lr_pair(img, scaling_factor=2):
 
     hr_height, hr_width = hr_img.shape[0:2]
 
-    hr_img = np.array(hr_img, dtype='float64')
-    lr_img = imresize(hr_img, 1. / scaling_factor)  # equivalent to matlab's imresize
-    lr_img = np.uint8(np.clip(lr_img, 0., 255.))  # this is to simulate matlab's imwrite operation
+    hr_img = np.array(hr_img, dtype="float64")
+    lr_img = imresize(hr_img, 1.0 / scaling_factor)  # equivalent to matlab's imresize
+    lr_img = np.uint8(
+        np.clip(lr_img, 0.0, 255.0)
+    )  # this is to simulate matlab's imwrite operation
     hr_img = np.uint8(hr_img)
 
     lr_height, lr_width = lr_img.shape[0:2]
 
     # Sanity check
-    assert hr_width == lr_width * scaling_factor and hr_height == lr_height * scaling_factor
+    assert (
+        hr_width == lr_width * scaling_factor
+        and hr_height == lr_height * scaling_factor
+    )
 
     lr_img = torch.from_numpy(lr_img.transpose((2, 0, 1))).contiguous()
     lr_img = lr_img.to(dtype=torch.float32).div(255)
@@ -100,8 +110,8 @@ def post_process(img):
         The image after reverting the changes done in the pre-processing steps
     """
     img = img.permute((1, 2, 0))  # CHW > HWC
-    img = img.cpu().numpy() # torch > numpy
-    img = np.clip(255. * img, 0., 255.) # float [0, 1] to [0, 255]
+    img = img.cpu().numpy()  # torch > numpy
+    img = np.clip(255.0 * img, 0.0, 255.0)  # float [0, 1] to [0, 255]
     img = np.uint8(img)
     return img
 
@@ -113,11 +123,8 @@ def imshow(image):
     :param image:
         Image to plot
     """
-    plt.imshow(image, interpolation='nearest')
-    plt.tick_params(left=False,
-                    bottom=False,
-                    labelleft=False,
-                    labelbottom=False)
+    plt.imshow(image, interpolation="nearest")
+    plt.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
 
 
 def pass_calibration_data(model, calibration_data):
@@ -132,15 +139,17 @@ def pass_calibration_data(model, calibration_data):
 
     images, use_cuda = calibration_data
     if use_cuda:
-        device = torch.device('cuda')
+        device = torch.device("cuda")
     else:
-        device = torch.device('cpu')
+        device = torch.device("cpu")
 
     model.eval()
 
     with torch.no_grad():
         for itx, img in enumerate(images):
-            print(f'\rCalibrate activation encodings: {itx + 1} / {len(images)}', end='')
+            print(
+                f"\rCalibrate activation encodings: {itx + 1} / {len(images)}", end=""
+            )
             input_img = img.unsqueeze(0).to(device)
             _ = model(input_img)
-    print('\n')
+    print("\n")

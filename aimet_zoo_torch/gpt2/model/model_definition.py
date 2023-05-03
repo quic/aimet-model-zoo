@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
-#pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912,W1203,W1201
+# pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912,W1203,W1201
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
 #
@@ -10,6 +10,8 @@
 # =============================================================================
 
 """ model gpt2 configuration class """
+# pylint:disable = import-error, wrong-import-order
+# adding this due to docker image not setup yet
 
 import json
 import os
@@ -31,7 +33,8 @@ from aimet_zoo_torch.gpt2.model.huggingface.baseline_models.gpt2.modeling_gpt2 i
 
 
 class gpt2(Downloader):
-    """ model gpt2 configuration class"""
+    """model gpt2 configuration class"""
+
     def __init__(self, model_config=None, quantized=False):
         """
         dataloader
@@ -42,7 +45,9 @@ class gpt2(Downloader):
         self.parent_dir = str(pathlib.Path(os.path.abspath(__file__)).parent)
         self.cfg = defaultdict(lambda: None)
         if model_config:
-            config_filepath = os.path.join( self.parent_dir, "/model_cards/", model_config , ".json")
+            config_filepath = os.path.join(
+                self.parent_dir, "model_cards", model_config + ".json"
+            )
             with open(config_filepath) as f_in:
                 self.cfg = json.load(f_in)
         Downloader.__init__(
@@ -55,7 +60,9 @@ class gpt2(Downloader):
         )
         self.model = None
         self.quantized = quantized
-        self.model_name_or_path = os.path.join(self.parent_dir,self.cfg["model_args"]["model_name_or_path"])
+        self.model_name_or_path = os.path.join(
+            self.parent_dir, self.cfg["model_args"]["model_name_or_path"]
+        )
 
     def get_model_from_pretrained(self):
         """downloading model from github and return model object"""
@@ -69,7 +76,7 @@ class gpt2(Downloader):
         if self.cfg["model_args"]["model_type"]:
             config = AutoConfig.from_pretrained(self.cfg["model_args"]["model_type"])
         else:
-            raise ValueError('model type in model cards is not valid')
+            raise ValueError("model type in model cards is not valid")
 
         tokenizer = AutoTokenizer.from_pretrained(
             self.model_name_or_path,
@@ -98,24 +105,21 @@ class gpt2(Downloader):
         """
 
         dummy_input = self._get_dummy_input(dataloader)
-        quant_scheme_card = self.cfg["optimization_config"]["quantization_configuration"]["quant_scheme"]
-        if (
-             quant_scheme_card == "tf"
-        ):
+        quant_scheme_card = self.cfg["optimization_config"][
+            "quantization_configuration"
+        ]["quant_scheme"]
+        if quant_scheme_card == "tf":
             quant_scheme = QuantScheme.post_training_tf
-        elif (
-             quant_scheme_card == "tf_enhanced"
-        ):
+        elif quant_scheme_card == "tf_enhanced":
             quant_scheme = QuantScheme.post_training_tf_enhanced
-        elif (
-      
-             quant_scheme_card == "tf_range_learning"
-        ):
+        elif quant_scheme_card == "tf_range_learning":
             quant_scheme = QuantScheme.training_range_learning_with_tf_init
         else:
-            raise ValueError('quant_scheme not valid in model cards')
-         
-        config_file = os.path.join(self.parent_dir,self.cfg["model_args"]["config_file"])
+            raise ValueError("quant_scheme not valid in model cards")
+
+        config_file = os.path.join(
+            self.parent_dir, self.cfg["model_args"]["config_file"]
+        )
         quant_sim = QuantizationSimModel(
             model=self.model.cuda(),
             quant_scheme=quant_scheme,
@@ -132,8 +136,11 @@ class gpt2(Downloader):
         )
         # remove dropout quantizers
         disable_list = []
-        for name, module in quant_sim.model.named_modules():
-            if isinstance(module, QcQuantizeWrapper) and isinstance(module._module_to_wrap, torch.nn.Dropout):
+        # pylint: disable = protected-access
+        for _, module in quant_sim.model.named_modules():
+            if isinstance(module, QcQuantizeWrapper) and isinstance(
+                    module._module_to_wrap, torch.nn.Dropout
+            ):
                 disable_list.append(module)
         for module in disable_list:
             module.output_quantizers[0].enabled = False
@@ -142,13 +149,12 @@ class gpt2(Downloader):
         quant_sim.compute_encodings(eval_function, (10, dataloader, metric))
 
         # load encodings if there is encodings.csv
-        self._load_encoding_data(
-            quant_sim, self.model_name_or_path
-        )
+        self._load_encoding_data(quant_sim, self.model_name_or_path)
         return quant_sim
 
-    def _get_dummy_input(self, dataloader):
-        """getting dummy input from dataloader """
+    @staticmethod
+    def _get_dummy_input(dataloader):
+        """getting dummy input from dataloader"""
         for batch in dataloader:
             output = []
             input_args = ["input_ids"]
@@ -160,7 +166,8 @@ class gpt2(Downloader):
                     raise ValueError("dummy data error")
             return tuple(output)
 
-    def _load_encoding_data(self, quant_sim, save_dir):
+    @staticmethod
+    def _load_encoding_data(quant_sim, save_dir):
         """loading encoding data from previously saved encoding.csv file zipped in tar file"""
         fname = os.path.join(save_dir, "encodings.csv")
         if not os.path.exists(fname):
