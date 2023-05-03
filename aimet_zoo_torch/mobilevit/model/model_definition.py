@@ -12,22 +12,22 @@
 import json
 import os
 import csv
-import datasets
-import torch
 from collections import defaultdict
+import torch
 from transformers import AutoConfig as Config
 from transformers import AutoFeatureExtractor as FeatureExtractor
-from aimet_common.defs import QuantScheme
-from aimet_torch.quantsim import QuantizationSimModel
+from aimet_common.defs import QuantScheme #pylint:disable = import-error
+from aimet_torch.quantsim import QuantizationSimModel #pylint:disable = import-error
 from aimet_zoo_torch.common.downloader import Downloader
 from aimet_zoo_torch.mobilevit.model.huggingface.baseline_models.mobilevit.modeling_mobilevit import (
     MobileViTForImageClassification as MobileVitModel,
 )
-
+import datasets # pylint: disable = import-error
 
 
 class mobilevit(Downloader):
-    """class for mobilevit configuration """
+    """class for mobilevit configuration"""
+
     def __init__(self, model_config=None, quantized=False):
         """
         dataloader
@@ -50,7 +50,7 @@ class mobilevit(Downloader):
         self.model = None
         self.quantized = quantized
 
-    def get_model_from_pretrained(self, dataset):
+    def get_model_from_pretrained(self):
         """get original or optmized model
         Parameters:
             dataset:
@@ -156,7 +156,8 @@ class mobilevit(Downloader):
         self._load_encoding_data(quant_sim, model_name_or_path)
         return quant_sim
 
-    def _get_dummy_input(self, dataloader):
+    @staticmethod
+    def _get_dummy_input(dataloader):
         """get dummy input of dataloader for vit model"""
         for batch in dataloader:
             output = []
@@ -167,7 +168,8 @@ class mobilevit(Downloader):
                     output.append(batch[k].to("cuda"))
             return tuple(output)
 
-    def _load_encoding_data(self, quant_sim, save_dir):
+    @staticmethod
+    def _load_encoding_data(quant_sim, save_dir):
         """loading saved encodings.csv file"""
         fname = os.path.join(save_dir, "encodings.csv")
         if not os.path.exists(fname):

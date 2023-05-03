@@ -1,7 +1,8 @@
+# pylint: skip-file
 import os
 import os.path as path
 from aimet_zoo_torch.inverseform.model.utils.config import cfg
-import aimet_model_zoo.aimet_zoo_torch.inverseform.dataloader.data.cityscapes_labels as cityscapes_labels
+import aimet_zoo_torch.inverseform.dataloader.data.cityscapes_labels as cityscapes_labels
 
 
 def find_directories(root):

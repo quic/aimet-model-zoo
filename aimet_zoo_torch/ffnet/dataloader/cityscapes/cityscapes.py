@@ -1,3 +1,4 @@
+# pylint: skip-file
 import os
 import os.path as path
 from . import cityscapes_labels

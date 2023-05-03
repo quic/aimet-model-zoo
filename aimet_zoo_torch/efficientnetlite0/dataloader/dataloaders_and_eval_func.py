@@ -7,15 +7,17 @@
 #
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
+""" module for getting imagenet dataloader, evaluation function and forward pass"""
 
-import torch
 import torchvision
 from torchvision import transforms as T
-from torch.utils.data import Dataset, DataLoader
+import torch
+from torch.utils.data import DataLoader
 from tqdm import tqdm
 
-# ImageNet data loader
+
 def get_imagenet_dataloader(image_dir, BATCH_SIZE=64):
+    """get imagenet dataloder"""
     def generate_dataloader(data, transform, batch_size=BATCH_SIZE):
         if data is None:
             return None
@@ -25,22 +27,26 @@ def get_imagenet_dataloader(image_dir, BATCH_SIZE=64):
         else:
             dataset = torchvision.datasets.ImageFolder(data, transform=transform)
 
-        dataloader = DataLoader(dataset, batch_size=batch_size,
-                                shuffle=False, num_workers=4)
+        dataloader = DataLoader(
+            dataset, batch_size=batch_size, shuffle=False, num_workers=4
+        )
 
         return dataloader
 
     # Define transformation
-    preprocess_transform_pretrain = T.Compose([
-        T.Resize(256),  # Resize images to 256 x 256
-        T.CenterCrop(224),  # Center crop image
-        T.RandomHorizontalFlip(),
-        T.ToTensor(),  # Converting cropped images to tensors
-        T.Normalize(mean=[0.485, 0.456, 0.406],
-                    std=[0.229, 0.224, 0.225])
-    ])
+    preprocess_transform_pretrain = T.Compose(
+        [
+            T.Resize(256),  # Resize images to 256 x 256
+            T.CenterCrop(224),  # Center crop image
+            T.RandomHorizontalFlip(),
+            T.ToTensor(),  # Converting cropped images to tensors
+            T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ]
+    )
 
-    dataloader = generate_dataloader(image_dir, transform=preprocess_transform_pretrain, batch_size=BATCH_SIZE)
+    dataloader = generate_dataloader(
+        image_dir, transform=preprocess_transform_pretrain, batch_size=BATCH_SIZE
+    )
     return dataloader
 
 
@@ -69,11 +75,12 @@ def pass_calibration_data(model, args):
     """Forward pass for encoding calculations"""
     # Get Dataloader
 
-    dataloader_encoding = get_imagenet_dataloader(args['evaluation_dataset'])
+    dataloader_encoding = get_imagenet_dataloader(args["evaluation_dataset"])
     on_cuda = next(model.parameters()).is_cuda
     model.eval()
     batch_counter = 0
     samples = 100  # number of samples for validation
+    #pylint: disable = unused-variable
     with torch.no_grad():
         for input_data, target_data in dataloader_encoding:
             if on_cuda:
@@ -81,19 +88,19 @@ def pass_calibration_data(model, args):
 
             output_data = model(input_data)
             batch_counter += 1
-            if (batch_counter * args['batch_size']) > samples:
+            if (batch_counter * args["batch_size"]) > samples:
                 break
+
 
 def forward_pass(model, dataloader):
     """forward pass through the calibration dataset"""
+    #pylint:disable = unused-variable
     model.eval()
-
     on_cuda = next(model.parameters()).is_cuda
     with torch.no_grad():
         for data, label in tqdm(dataloader):
             if on_cuda:
                 data, label = data.cuda(), label.cuda()
             output = model(data)
-
 
     del dataloader

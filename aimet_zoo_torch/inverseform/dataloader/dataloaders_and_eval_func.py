@@ -1,3 +1,4 @@
+# pylint: skip-file
 # from ..transforms.joint_transforms import joint_transforms
 from .transforms import transforms as extended_transforms
 from torch.utils.data import DataLoader
@@ -56,7 +57,7 @@ def model_eval(dataloader, use_cuda):
 		S = 0
 		with torch.no_grad():
 			for i, batch in enumerate(tqdm(dataloader)):
-				if i >= N and N >= 0:
+				if type(N) is int and N >= 0 and i >= N:
 					break
 				images, gt_image, edge, _, _ = batch
 				inputs = torch.cat((images, gt_image.unsqueeze(dim=1), edge), dim=1)

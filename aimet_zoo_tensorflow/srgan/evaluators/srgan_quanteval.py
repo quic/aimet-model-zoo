@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912
+# pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912
 # -*- mode: python -*-
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
@@ -9,6 +9,8 @@
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
 """Quantsim evaluation script for srgan"""
+# pylint:disable = import-error, wrong-import-order
+# adding this due to docker image not setup yet
 from functools import partial
 import argparse
 import tarfile
@@ -31,7 +33,6 @@ from skimage.metrics import structural_similarity as ssim
 from skimage.metrics import peak_signal_noise_ratio as psnr
 
 
-
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 
 
@@ -47,12 +48,8 @@ def make_dataset(filenames):
 
 
 def evaluate_session(
-        sess,
-        image_files,
-        input_name,
-        output_name,
-        mode="y_channel",
-        output_dir=None):
+        sess, image_files, input_name, output_name, mode="y_channel", output_dir=None
+):
     """
     :param sess: a tensorflow session on which we run evaluation
     :param image_files: a sequence containing sequence of image filenames as strings
@@ -70,8 +67,8 @@ def evaluate_session(
         print("Testing on Y channel...")
     else:
         raise ValueError(
-            "evaluation mode not supported!"
-            "Must be one of `RGB` or `y_channel`")
+            "evaluation mode not supported!Must be one of `RGB` or `y_channel`"
+        )
     # batch size needed to align with input shape (?, ?, ?, 3)
     batch_size = 1
 
@@ -123,10 +120,8 @@ def evaluate_session(
                 sr_img = np.expand_dims(sr_img, axis=-1)
                 hr_img = np.expand_dims(hr_img, axis=-1)
 
-            sr_img = sr_img[:, crop_border:-
-                            crop_border, crop_border:-crop_border, :]
-            hr_img = hr_img[:, crop_border:-
-                            crop_border, crop_border:-crop_border, :]
+            sr_img = sr_img[:, crop_border:-crop_border, crop_border:-crop_border, :]
+            hr_img = hr_img[:, crop_border:-crop_border, crop_border:-crop_border, :]
 
             psnr_value = psnr(hr_img[0], sr_img[0], data_range=255)
             ssim_value = ssim(
@@ -177,9 +172,7 @@ def parse_args():
         "--default-output-bw",
         help="Default bitwidth (4-31) to use for quantizing layer inputs and outputs",
         default=16,
-        choices=range(
-            4,
-            32),
+        choices=range(4, 32),
         type=int,
     )
     parser.add_argument(
@@ -216,16 +209,8 @@ def main(args):
             srgan_generator.load_weights("weights/srgan/gan_generator.h5")
 
     # sort files by filenames, assuming names match in both paths
-    lr_images_files = sorted(
-        glob.glob(
-            os.path.join(
-                args.dataset_path,
-                "*LR.png")))
-    hr_images_files = sorted(
-        glob.glob(
-            os.path.join(
-                args.dataset_path,
-                "*HR.png")))
+    lr_images_files = sorted(glob.glob(os.path.join(args.dataset_path, "*LR.png")))
+    hr_images_files = sorted(glob.glob(os.path.join(args.dataset_path, "*HR.png")))
 
     # check if number of images align
     if len(lr_images_files) != len(hr_images_files):
@@ -245,7 +230,8 @@ def main(args):
     ### ===========Original Model=============###
     # Evaluate original model on gpu
     psnr_vals, ssim_vals = evaluate_session(
-        gen_sess, image_files, srgan_generator.input.name, srgan_generator.output.name)
+        gen_sess, image_files, srgan_generator.input.name, srgan_generator.output.name
+    )
     psnr_val_orig_fp32 = np.mean(psnr_vals)
     ssim_val_orig_fp32 = np.mean(ssim_vals)
 
@@ -287,7 +273,8 @@ def main(args):
 
     # Evaluate optimized model on gpu
     psnr_vals, ssim_vals = evaluate_session(
-        gen_sess, image_files, srgan_generator.input.name, srgan_generator.output.name)
+        gen_sess, image_files, srgan_generator.input.name, srgan_generator.output.name
+    )
     psnr_val_optim_fp32 = np.mean(psnr_vals)
     ssim_val_optim_fp32 = np.mean(ssim_vals)
 

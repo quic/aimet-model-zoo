@@ -1,3 +1,4 @@
+# pylint: skip-file
 # import datasets.cityscapes.dataloader.joint_transforms as joint_transforms
 from . import transforms as extended_transforms
 from torch.utils.data import DataLoader

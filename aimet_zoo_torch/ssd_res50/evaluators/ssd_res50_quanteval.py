@@ -36,32 +36,50 @@
 """
 ''' AIMET Quantsim evaluation code for SSD Res50 '''
 
-
 import argparse
 
 import numpy as np
-import torch
 from tqdm import tqdm
+import torch
 from torch.utils.data import DataLoader
-from pycocotools.cocoeval import COCOeval
+
 from aimet_torch.model_preparer import prepare_model
 from aimet_torch.model_validator.model_validator import ModelValidator
-
-from src.utils import generate_dboxes, Encoder
-from src.transform import SSDTransformer
 from aimet_zoo_torch.ssd_res50.dataloader.dataset import CocoDataset
 from aimet_zoo_torch.ssd_res50.dataloader.dataset import collate_fn
 from aimet_zoo_torch.ssd_res50.model.model_definition import SSD_Res50
 
+from src.utils import generate_dboxes, Encoder # pylint:disable = import-error
+from src.transform import SSDTransformer # pylint:disable = import-error
+from pycocotools.cocoeval import COCOeval # pylint:disable = import-error
 
 def get_args():
+    """argument parser"""
+    #pylint:disable = redefined-outer-name
     parser = argparse.ArgumentParser("Evaluation script for quantized SSD Res50 Model")
-    parser.add_argument('--model-config', help='model configuration to use', required=True, type=str,
-                        default='ssd_res50_w8a8', choices=['ssd_res50_w8a8'])
-    parser.add_argument('--dataset-path', help='The path to COCO 2017 dataset', required=True)
-    parser.add_argument('--batch-size', default=1, type=int, help='The batch size for dataloaders')
-    parser.add_argument('--num-workers', default=0, type=int, help='The number of workers for dataloaders')
-    parser.add_argument('--use-cuda', help='Use GPU for evaluation', action="store_true")
+    parser.add_argument(
+        "--model-config",
+        help="model configuration to use",
+        required=True,
+        type=str,
+        default="ssd_res50_w8a8",
+        choices=["ssd_res50_w8a8"],
+    )
+    parser.add_argument(
+        "--dataset-path", help="The path to COCO 2017 dataset", required=True
+    )
+    parser.add_argument(
+        "--batch-size", default=1, type=int, help="The batch size for dataloaders"
+    )
+    parser.add_argument(
+        "--num-workers",
+        default=0,
+        type=int,
+        help="The number of workers for dataloaders",
+    )
+    parser.add_argument(
+        "--use-cuda", help="Use GPU for evaluation", action="store_true"
+    )
 
     args = parser.parse_args()
     return args
@@ -71,33 +89,46 @@ def ssd_res50_quanteval(args):
     """
     Evaluation function for SSD Res50 quantized model
     """
+    #pylint:disable = redefined-outer-name
     if args.use_cuda:
         if torch.cuda.is_available():
-            device = torch.device('cuda')
+            device = torch.device("cuda")
         else:
-            raise RuntimeError('Trying to use cuda device while no available cuda device is found!')
+            raise RuntimeError(
+                "Trying to use cuda device while no available cuda device is found!"
+            )
     else:
-        device = torch.device('cpu')
+        device = torch.device("cpu")
 
     model_downloader = SSD_Res50(model_config=args.model_config)
     model_downloader.from_pretrained(quantized=False)
     model_downloader.model.to(device=device)
 
     dboxes = generate_dboxes()
-    test_set = CocoDataset(args.dataset_path, 2017, "val", SSDTransformer(dboxes, (300, 300), val=True))
+    test_set = CocoDataset(
+        args.dataset_path, 2017, "val", SSDTransformer(dboxes, (300, 300), val=True)
+    )
     encoder = Encoder(dboxes)
 
-    test_params = {"batch_size": args.batch_size,
-                   "shuffle": False,
-                   "drop_last": False,
-                   "num_workers": args.num_workers,
-                   "collate_fn": collate_fn}
+    test_params = {
+        "batch_size": args.batch_size,
+        "shuffle": False,
+        "drop_last": False,
+        "num_workers": args.num_workers,
+        "collate_fn": collate_fn,
+    }
 
     test_loader = DataLoader(test_set, **test_params)
     shape = model_downloader.input_shape
     dummy_input = torch.randn(shape).to(device)
 
-    evaluate(model_downloader.model, test_loader, encoder, model_downloader.cfg["evaluation"], device)
+    evaluate(
+        model_downloader.model,
+        test_loader,
+        encoder,
+        model_downloader.cfg["evaluation"],
+        device,
+    )
 
     print("\n######### Prepare Model Started ############\n")
     model_downloader.model = prepare_model(model_downloader.model)
@@ -110,7 +141,9 @@ def ssd_res50_quanteval(args):
     sim = model_downloader.get_quantsim(quantized=True)
 
     print("\n######### Validation for QuantSim ############\n")
-    evaluate(sim.model, test_loader, encoder, model_downloader.cfg["evaluation"], device)
+    evaluate(
+        sim.model, test_loader, encoder, model_downloader.cfg["evaluation"], device
+    )
 
 
 def evaluate(model, test_loader, encoder, args, device):
@@ -125,13 +158,17 @@ def evaluate(model, test_loader, encoder, args, device):
 
     :return: Evaluation score in Average Precision
     """
+    #pylint:disable = too-many-locals, bare-except, unused-variable, redefined-outer-name
+    #ignored due to third party licensed function
     model.eval()
 
     nms_threshold = args["nms_threshold"]
     detections = []
     category_ids = test_loader.dataset.coco.getCatIds()
 
-    for nbatch, (img, img_id, img_size, _, _) in tqdm(enumerate(test_loader), total=len(test_loader)):
+    for nbatch, (img, img_id, img_size, _, _) in tqdm(
+            enumerate(test_loader), total=len(test_loader)
+    ):
         if img_id:
             img = img.to(device)
 
@@ -144,7 +181,9 @@ def evaluate(model, test_loader, encoder, args, device):
                 ploc_i = ploc[idx, :, :].unsqueeze(0)
                 plabel_i = plabel[idx, :, :].unsqueeze(0)
                 try:
-                    result = encoder.decode_batch(ploc_i, plabel_i, nms_threshold, 200)[0]
+                    result = encoder.decode_batch(ploc_i, plabel_i, nms_threshold, 200)[
+                        0
+                    ]
                 except:
                     print("No object detected in idx: {}".format(idx))
                     continue
@@ -152,13 +191,25 @@ def evaluate(model, test_loader, encoder, args, device):
                 height, width = img_size[idx]
                 loc, label, prob = [r.cpu().numpy() for r in result]
                 for loc_, label_, prob_ in zip(loc, label, prob):
-                    detections.append([img_id[idx], loc_[0] * width, loc_[1] * height, (loc_[2] - loc_[0]) * width,
-                                       (loc_[3] - loc_[1]) * height, prob_,
-                                       category_ids[label_ - 1]])
+                    detections.append(
+                        [
+                            img_id[idx],
+                            loc_[0] * width,
+                            loc_[1] * height,
+                            (loc_[2] - loc_[0]) * width,
+                            (loc_[3] - loc_[1]) * height,
+                            prob_,
+                            category_ids[label_ - 1],
+                        ]
+                    )
 
     detections = np.array(detections, dtype=np.float32)
 
-    coco_eval = COCOeval(test_loader.dataset.coco, test_loader.dataset.coco.loadRes(detections), iouType="bbox")
+    coco_eval = COCOeval(
+        test_loader.dataset.coco,
+        test_loader.dataset.coco.loadRes(detections),
+        iouType="bbox",
+    )
     coco_eval.evaluate()
     coco_eval.accumulate()
     coco_eval.summarize()

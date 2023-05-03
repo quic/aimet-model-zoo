@@ -7,7 +7,7 @@
 #
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
-#pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912,W1203,W1201,R0902,R0903,C0103
+# pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912,W1203,W1201,R0902,R0903,C0103
 
 """ Quatization evaluation script for GPT-2 model"""
 
@@ -20,8 +20,9 @@ from accelerate.logging import get_logger
 
 logger = get_logger(__name__)
 
-def parse_args():
-    """ argument parser"""
+
+def parse_args(raw_args):
+    """argument parser"""
     parser = argparse.ArgumentParser(
         description="Finetune a transformers model on a causal language modeling task"
     )
@@ -38,13 +39,13 @@ def parse_args():
         default=8,
         help="Batch size (per device) for the evaluation dataloader.",
     )
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
     return args
 
 
-def main():
-    """ main evaluation script"""
-    args = parse_args()
+def main(raw_args=None):
+    """main evaluation script"""
+    args = parse_args(raw_args)
 
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",

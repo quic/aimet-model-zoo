@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- mode: python -*-
-#pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912,W1203,W1201,R0201
+# pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912,W1203,W1201,R0201
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
 #
@@ -9,47 +9,43 @@
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
 """Class for downloading and setting up of optimized and original distilbert model for AIMET model zoo"""
+# pylint:disable = import-error, wrong-import-order
+# adding this due to docker image not setup yet
 import json
 import os
-import csv
 import sys
+import pathlib
 from collections import defaultdict
 import torch
-import datasets
-from transformers import AutoConfig as Config
-from transformers import AutoFeatureExtractor as FeatureExtractor
-from aimet_common.defs import QuantScheme
+
 # AIMET imports
 from aimet_torch.quantsim import load_checkpoint
-from aimet_torch.quantsim import QuantizationSimModel
-from aimet_torch.qc_quantize_op import QcQuantizeWrapper
+
+from transformers import HfArgumentParser
+from transformers import AutoConfig, AutoTokenizer, TrainingArguments
+
 # transformers import
 from aimet_zoo_torch.distilbert.model.baseline_models import distilbert
 from aimet_zoo_torch.common.downloader import Downloader
-sys.modules['baseline_models.distilbert'] = distilbert
 
-from transformers import HfArgumentParser
-from transformers import (
-    AutoConfig,
-    AutoTokenizer,
-    TrainingArguments
-)
+sys.modules["baseline_models.distilbert"] = distilbert
 
 class DistilBert(Downloader):
-    """ model distilbert configuration class """
+    """model distilbert configuration class"""
+    #pylint:disable = import-outside-toplevel
     def __init__(self, model_config=None):
-        if model_config=="distilbert_w8a8_squad":
+        if model_config == "distilbert_w8a8_squad":
             from aimet_zoo_torch.distilbert.model.utils.utils_qa_dataclass import (
                 ModelArguments,
                 DataTrainingArguments,
                 AuxArguments,
-            )  
+            )
         else:
             from aimet_zoo_torch.distilbert.model.utils.utils_nlclassifier_dataclass import (
                 ModelArguments,
                 DataTrainingArguments,
                 AuxArguments,
-            )                  
+            )
         parent_dir = str(pathlib.Path(os.path.abspath(__file__)).parent)
         self.cfg = defaultdict(lambda: None)
         if model_config:
@@ -65,47 +61,43 @@ class DistilBert(Downloader):
         )
         # Parse arguments
         parser = HfArgumentParser(
-        (ModelArguments,
-            DataTrainingArguments,
-            TrainingArguments,
-            AuxArguments))
+            (ModelArguments, DataTrainingArguments, TrainingArguments, AuxArguments)
+        )
         (
-        model_args,
-        data_args,
-        training_args,
-        aux_args,
+            model_args,
+            data_args,
+            training_args,
+            aux_args,
         ) = parser.parse_args_into_dataclasses()
 
-
         self.model = None
-        self.model_args=model_args
-        self.data_args =data_args
+        self.model_args = model_args
+        self.data_args = data_args
         self.training_args = training_args
         self.aux_args = aux_args
-        #additional setup of the argsumetns from model_config 
-        if model_config=="distilbert_w8a8_squad":
-            self.data_args.dataset_name=self.cfg["data_training_args"]["dataset_name"]
+        # additional setup of the argsumetns from model_config
+        if model_config == "distilbert_w8a8_squad":
+            self.data_args.dataset_name = self.cfg["data_training_args"]["dataset_name"]
         else:
-            self.data_args.task_name=self.cfg["data_training_args"]["task_name"]
+            self.data_args.task_name = self.cfg["data_training_args"]["task_name"]
 
-        self.aux_args.model_config=model_config
-        self.training_args.do_eval=True 
+        self.aux_args.model_config = model_config
+        self.training_args.do_eval = True
         # setup the download path from arguments
-        self.path_pre_opt_weights = self.aux_args.fmodel_path 
+        self.path_pre_opt_weights = self.aux_args.fmodel_path
         self.path_post_opt_weights = self.aux_args.qmodel_path
-   
 
     def get_model_from_pretrained(self):
         """get original or optimized model
         Parameters:
             dataset:
         Return:
-            model : pretrained/optimized model            
+            model : pretrained/optimized model
         """
-        #case1. model for squad dataset 
-        if hasattr(self.data_args,'dataset_name'):
+        # case1. model for squad dataset
+        if hasattr(self.data_args, "dataset_name"):
             self._download_pre_opt_weights(show_progress=True)
-            self._download_aimet_config()            
+            self._download_aimet_config()
             config = AutoConfig.from_pretrained(
                 self.model_args.config_name
                 if self.model_args.config_name
@@ -128,10 +120,10 @@ class DistilBert(Downloader):
                 use_auth_token=True if self.model_args.use_auth_token else None,
             )
 
-            self.model = torch.load(self.aux_args.fmodel_path)           
-            return self.model,tokenizer
-        #case2. model for glue dataset 
-        num_labels=2
+            self.model = torch.load(self.aux_args.fmodel_path)
+            return self.model, tokenizer
+        # case2. model for glue dataset
+        num_labels = 2
         self._download_pre_opt_weights(show_progress=True)
         self._download_aimet_config()
         # Load pretrained model and tokenizer
@@ -148,7 +140,9 @@ class DistilBert(Downloader):
         # ++++
         config.return_dict = False
         config.classifier_dropout = None
-        config.attention_probs_dropout_prob = self.model_args.attention_probs_dropout_prob
+        config.attention_probs_dropout_prob = (
+            self.model_args.attention_probs_dropout_prob
+        )
 
         # ++++
         tokenizer = AutoTokenizer.from_pretrained(
@@ -162,12 +156,12 @@ class DistilBert(Downloader):
         )
 
         self.model = torch.load(self.aux_args.fmodel_path)
-        return self.model,tokenizer 
+        return self.model, tokenizer
 
     def get_quantsim(self):
-        """get quantsim object """
+        """get quantsim object"""
         self._download_post_opt_weights(show_progress=True)
         # Load the Quantsim_model object
         quantsim_model = load_checkpoint(self.aux_args.qmodel_path)
 
-        return quantsim_model 
+        return quantsim_model

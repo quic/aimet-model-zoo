@@ -1,3 +1,4 @@
+# pylint: skip-file
 """
 Copyright 2020 Nvidia Corporation
 Redistribution and use in source and binary forms, with or without
@@ -31,10 +32,10 @@ import torch
 
 from PIL import Image
 from torch.utils import data
-from aimet_model_zoo.zoo_torch.inverseform.model.utils.config import cfg
-from aimet_model_zoo.zoo_torch.inverseform.model.utils.misc import tensor_to_pil
-from aimet_model_zoo.zoo_torch.inverseform.dataloader.data.cityscapes import find_directories
-import aimet_model_zoo.zoo_torch.inverseform.dataloader.data.cityscapes_labels as cityscapes_labels
+from aimet_zoo_torch.inverseform.model.utils.config import cfg
+from aimet_zoo_torch.inverseform.model.utils.misc import tensor_to_pil
+from aimet_zoo_torch.inverseform.dataloader.data.cityscapes import find_directories
+import aimet_zoo_torch.inverseform.dataloader.data.cityscapes_labels as cityscapes_labels
 from scipy.ndimage.morphology import distance_transform_edt
 
 

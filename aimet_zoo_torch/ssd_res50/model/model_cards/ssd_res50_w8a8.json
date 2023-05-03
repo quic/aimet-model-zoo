@@ -20,7 +20,7 @@
         "url_pre_opt_weights": "https://drive.google.com/u/0/uc?id=1NGh8D7zAStasdLvLT1dRRiYFZRr0K4j3",
         "url_post_opt_weights": null,
         "url_adaround_encodings": null,
-        "url_aimet_encodings": "https://github.com/quic/aimet-model-zoo/releases/download/SSD_Res50/SSD_Res50_torch.encodings",
+        "url_aimet_encodings": "https://github.com/quic/aimet-model-zoo/releases/download/torch_ssd_res50/SSD_Res50_torch.encodings",
         "url_aimet_config": "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.23/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json"
     }
 }

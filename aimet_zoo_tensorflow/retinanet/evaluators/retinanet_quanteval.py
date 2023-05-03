@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912
+# pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912
 # -*- mode: python -*-
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
@@ -9,6 +9,8 @@
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
 """Quantsim evaluation script for retinanet"""
+# pylint:disable = import-error, wrong-import-order
+# adding this due to docker image not setup yet
 from glob import glob
 import urllib.request
 import argparse
@@ -24,7 +26,6 @@ from keras_retinanet import models
 from keras_retinanet.utils.coco_eval import evaluate_coco
 from keras_retinanet.utils.image import read_image_bgr, preprocess_image, resize_image
 from keras import backend as K
-
 
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
@@ -46,8 +47,10 @@ def download_weights():
         URL = "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.22/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config.json"
         urllib.request.urlretrieve(URL, "default_config.json")
 
-#pylint: disable=W0613
-#pylint: disable=W0612
+
+# pylint: disable=W0613
+# pylint: disable=W0612
+
 
 def quantize_retinanet(model_path, cocopath, action):
     """
@@ -93,6 +96,7 @@ def quantize_retinanet(model_path, cocopath, action):
             "filtered_detections/map/TensorArrayStack_2/TensorArrayGatherV3:0",
         ]
         selected_ops = ["P" + str(i) + "/BiasAdd" for i in range(3, 8)]
+        #pylint:disable = use-maxsplit-arg
         sim = quantsim.QuantizationSimModel(
             session,
             [in_tensor.split(":")[0]],
@@ -119,9 +123,11 @@ def quantize_retinanet(model_path, cocopath, action):
             "filtered_detections/map/TensorArrayStack_2/TensorArrayGatherV3:0",
         ]
         selected_ops = ["P" + str(i) + "/BiasAdd" for i in range(3, 8)]
+        #pylint:disable = use-maxsplit-arg
         session, folded_pairs = fold_all_batch_norms(
             session, [in_tensor.split(":")[0]], selected_ops
         )
+        #pylint:disable = use-maxsplit-arg
         sim = quantsim.QuantizationSimModel(
             session,
             [in_tensor.split(":")[0]],
@@ -148,6 +154,7 @@ def quantize_retinanet(model_path, cocopath, action):
             "filtered_detections/map/TensorArrayStack_1/TensorArrayGatherV3:0",
             "filtered_detections/map/TensorArrayStack_2/TensorArrayGatherV3:0",
         ]
+        #pylint:disable = use-maxsplit-arg
         selected_ops = ["P" + str(i) + "/BiasAdd" for i in range(3, 8)]
         session, folded_pairs = fold_all_batch_norms(
             session, [in_tensor.split(":")[0]], selected_ops
@@ -168,7 +175,7 @@ def quantize_retinanet(model_path, cocopath, action):
         save_checkpoint(sim, "./optimized_int8/model.ckpt", "model")
 
     else:
-        raise Exception(
+        raise ValueError(
             "--action must be one of: original_fp32, original_int8, optimized_fp32, optimized_int8"
         )
 
@@ -195,20 +202,16 @@ def evaluate(generator, action, threshold=0.05):
 
     with tf.Session() as new_sess:
         if action == "original_fp32":
-            saver = tf.train.import_meta_graph(
-                "./original_fp32/model.ckpt.meta")
+            saver = tf.train.import_meta_graph("./original_fp32/model.ckpt.meta")
             saver.restore(new_sess, "./original_fp32/model.ckpt")
         elif action == "original_int8":
-            new_quantsim = load_checkpoint(
-                "./original_int8/model.ckpt", "model")
+            new_quantsim = load_checkpoint("./original_int8/model.ckpt", "model")
             new_sess = new_quantsim.session
         elif action == "optimized_fp32":
-            saver = tf.train.import_meta_graph(
-                "./optimized_fp32/model.ckpt.meta")
+            saver = tf.train.import_meta_graph("./optimized_fp32/model.ckpt.meta")
             saver.restore(new_sess, "./optimized_fp32/model.ckpt")
         elif action == "optimized_int8":
-            new_quantsim = load_checkpoint(
-                "./optimized_int8/model.ckpt", "model")
+            new_quantsim = load_checkpoint("./optimized_int8/model.ckpt", "model")
             new_sess = new_quantsim.session
 
         model = TFRunWrapper(new_sess, in_tensor, out_tensor)
@@ -225,7 +228,7 @@ def create_generator(args, preprocess_image):
     common_args = {
         "preprocess_image": preprocess_image,
     }
-
+    #pylint:disable = import-outside-toplevel
     from keras_retinanet.preprocessing.coco import CocoGenerator
 
     validation_generator = CocoGenerator(
@@ -253,20 +256,16 @@ def parse_args(args):
         "--action",
         help="action to perform - eval_quantized|eval_original",
         default="eval_quantized",
-        choices={
-            "original_fp32",
-            "original_int8",
-            "optimized_fp32",
-            "optimized_int8"},
+        choices={"original_fp32", "original_int8", "optimized_fp32", "optimized_int8"},
     )
     return parser.parse_args(args)
 
 
-
 class TFRunWrapper:
     """The coco_eval in keras-retinanet repository needs a model as input for prediction
-        We have a TF back-end session - so we wrap it in a Wrapper and implement
-        predict to call session run"""
+    We have a TF back-end session - so we wrap it in a Wrapper and implement
+    predict to call session run"""
+
     def __init__(self, tf_session, in_tensor, out_tensor):
         self.sess = tf_session
         self.in_tensor = in_tensor
@@ -274,13 +273,12 @@ class TFRunWrapper:
 
     def predict_on_batch(self, input_name):
         """predict on batch"""
-        return self.sess.run(
-            self.out_tensor, feed_dict={
-                self.in_tensor: input_name})
+        return self.sess.run(self.out_tensor, feed_dict={self.in_tensor: input_name})
 
 
 class ModelConfig:
     """Hardcoded model configuration"""
+
     def __init__(self, args):
         self.model_path = "./"
         self.score_threshold = 0.05

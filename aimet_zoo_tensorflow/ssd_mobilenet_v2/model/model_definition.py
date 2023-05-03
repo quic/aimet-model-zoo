@@ -7,14 +7,16 @@
 #
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
-
-import os, json
-import tensorflow.compat.v1 as tf
+"""Class for downloading and setting up of optmized and original ssd-mobilenetv2 model for AIMET model zoo"""
+import os
+import json
 import pathlib
-tf.disable_v2_behavior()
-from aimet_tensorflow.quantsim import QuantizationSimModel
-from aimet_tensorflow.batch_norm_fold import fold_all_batch_norms
+import tensorflow.compat.v1 as tf
+
+from aimet_tensorflow.quantsim import QuantizationSimModel # pylint: disable=import-error
+from aimet_tensorflow.batch_norm_fold import fold_all_batch_norms # pylint: disable=import-error
 from aimet_zoo_tensorflow.common.downloader import Downloader
+tf.disable_v2_behavior()
 
 
 class SSDMobileNetV2(Downloader):
@@ -40,12 +42,17 @@ class SSDMobileNetV2(Downloader):
                 model_config=model_config,
             )
             self.input_shape = tuple(
-                x if x != None else 1 for x in self.cfg["input_shape"]
+                x if x is not None else 1 for x in self.cfg["input_shape"]
             )
             self.starting_op_names = self.cfg["model_args"]["starting_op_names"]
             self.output_op_names = self.cfg["model_args"]["output_op_names"]
 
-    def from_pretrained(self, quantized=False):
+    @classmethod
+    def from_pretrained(cls, quantized=False):
+        #pylint:disable = unused-argument
+        """load pretrained model
+           for tensorflow models, get_session is used instead
+        """
         return "For TF 1.X based models, use get_session()"
 
     def get_quantsim(self, quantized=False):
@@ -84,6 +91,7 @@ class SSDMobileNetV2(Downloader):
         self._download_adaround_encodings()
         self._download_compressed_checkpoint()
         meta_graph = None
+        # pylint:disable = unused-variable
         for root, dirs, files in os.walk(self.extract_dir):
             for file in files:
                 if file.endswith(".meta"):

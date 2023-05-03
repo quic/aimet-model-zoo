@@ -112,7 +112,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="aimet_zoo_torch/efficientnetlite0/EfficientNet-lite0.md">EfficientNet-lite0</a></td>
     <td><a href="https://github.com/rwightman/gen-efficientnet-pytorch">GitHub Repo</a></td>
     <td><a href="https://github.com/rwightman/pytorch-image-models/releases/download/v0.1-weights/efficientnet_lite0_ra-37913777.pth">Pretrained Model</a></td>
-    <td><a href="/../../releases/tag/torch_effnet_checkpoint">Quantized Model</a></td>
+    <td><a href="/../../releases/tag/torch_effnet_lite0_w8a8_pc">Quantized Model</a></td>
     <td>(ImageNet) Top-1 Accuracy</td>
     <td>75.40%</td>
     <td>75.36%</td>
@@ -197,8 +197,8 @@ An original FP32 source model is quantized either using post-training quantizati
   <tr>
     <td rowspan="2"><a href="aimet_zoo_torch/hrnet_posenet/Hrnet-posenet.md">HRNET-Posenet</a></td>
     <td rowspan="2"><a href="https://github.com/leoxiaobin/deep-high-resolution-net.pytorch">Based on Ref.</a></td>
-    <td rowspan="2"><a href="/../../releases/tag/torch_hrnet_posenet">FP32 Model</a></td>
-    <td rowspan="2"><a href="/../../releases/tag/torch_hrnet_posenet">Quantized Model</a></td>
+    <td rowspan="2"><a href="/../../releases/tag/phase_2_march_artifacts">FP32 Model</a></td>
+    <td rowspan="2"><a href="/../../releases/tag/phase_2_march_artifacts">Quantized Model</a></td>
     <td>(COCO) mAP</td>
     <td>0.765</td>
     <td>0.763</td>
@@ -248,13 +248,13 @@ An original FP32 source model is quantized either using post-training quantizati
   <tr>
     <td><a href="aimet_zoo_torch/quicksrnet/QuickSRNet.md">QuickSRNet</a></td>
     <td><a> - </a></td>
-    <td><a href="/../../releases/tag/torch_quicksrnet_checkpoint">See Tarballs</a></td>
+    <td><a href="/../../releases/tag/phase_2_january_artifacts">See Tarballs</a></td>
     <td><a href="aimet_zoo_torch/quicksrnet/evaluators/quicksrnet_quanteval.py">See Example</a></td>
     <td colspan="3"><a href="aimet_zoo_torch/quicksrnet/QuickSRNet.md#results"> Average PSNR Results</a></td>
     <td>TBD</td>
   </tr>
   <tr>
-    <td rowspan="7">Semantic Segmentation</td>
+    <td rowspan="8">Semantic Segmentation</td>
     <td><a href="aimet_zoo_torch/deeplabv3/DeepLabV3.md">DeepLabV3+</a></td>
     <td><a href="https://github.com/jfzhang95/pytorch-deeplab-xception">GitHub Repo</a></td>
     <td><a href="https://drive.google.com/file/d/1G9mWafUAj09P4KvGSRVzIsV_U5OqFLdt/view">Pretrained Model</a></td>
@@ -268,7 +268,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td><a href="aimet_zoo_torch/hrnet_semantic_segmentation/HRNet_Semantic_Segmentation.md">HRNet-W48</a></td>
     <td><a href="https://github.com/HRNet/HRNet-Semantic-Segmentation/tree/pytorch-v1.1">GitHub Repo</a></td>
     <td> Original model weight not available </a></td>
-    <td><a href="/../../releases/tag/torch_hrnet_w8a8_pc">Quantized Model</a></td>
+    <td><a href="/../../releases/tag/phase_2_february_artifacts">Quantized Model</a></td>
     <td>(Cityscapes) mIOU</td>
     <td>81.04%</td>
     <td>80.65%</td>
@@ -313,14 +313,24 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>46.8%</td>
   </tr>
   <tr>
-    <td><a href="aimet_zoo_torch/salsaNext/salsaNext.md">SalsaNext</a></td>
+    <td><a href="aimet_zoo_torch/salsanext/SalsaNext.md">SalsaNext</a></td>
     <td><a href="https://github.com/TiagoCortinhal/SalsaNext">GitHub Repo</a></td>
     <td><a href="https://drive.google.com/file/d/10fxIwPK10UVVB9jsgXDZSDwj4vy9MyTl/view">Pretrained Model</a></td>
-    <td><a href="/../../releases/tag/torch_salsanext_models">Quantized Model</a></td>
+    <td><a href="/../../releases/tag/torch_salsanext">Quantized Model</a></td>
     <td>(Semantic kitti) mIOU</td>
     <td>55.8%</td>
     <td>54.9%</td>
-    <td>TBD</td>
+    <td>55.1%</td>
+  </tr>
+  <tr>
+    <td><a href="aimet_zoo_torch/segnet/SegNet.md">SegNet</a></td>
+    <td><a href="https://github.com/alexgkendall/SegNet-Tutorial">GitHub Repo</a></td>
+    <td><a href="/../../releases/tag/torch_segnet">Pretrained Model</a></td>
+    <td><a href="/../../releases/tag/torch_segnet">Quantized Model</a></td>
+    <td>(CamVid dataset) mIOU</td>
+    <td>50.48%</td>
+    <td>50.59%</td>
+    <td>50.58%</td>
   </tr>
   <tr>
     <td>Speech Recognition</td>
@@ -469,7 +479,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <th>W4A8<sup>[7]</sup></th>
   </tr>
   <tr>
-    <td rowspan="3">Image Classification</td>
+    <td rowspan="5">Image Classification</td>
     <td><a href="aimet_zoo_tensorflow/resnet50/ResNet50.md">ResNet-50 (v1)</a></td>
     <td><a href="https://github.com/tensorflow/models/tree/master/research/slim">GitHub Repo</a></td>
     <td><a href="http://download.tensorflow.org/models/resnet_v1_50_2016_08_28.tar.gz">Pretrained Model</a></td>
@@ -481,6 +491,17 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>TBD</td>
   </tr>
   <tr>
+    <td><a href="aimet_zoo_tensorflow/resnet50_tf2/ResNet50_TF2.md">ResNet-50-tf2</a></td>
+    <td><a href="https://keras.io/api/applications/resnet/#resnet50-function">GitHub Repo</a></td>
+    <td><a href="https://keras.io/api/applications/resnet/#resnet50-function">Pretrained Model</a></td>
+    <td><a href="https://github.qualcomm.com/qualcomm-ai/aimet-model-zoo/archive/refs/tags/tensorflow2-resnet50.tar.gz">Quantized Model</a></td>
+    <td>2.4</td>
+    <td>(ImageNet) Top-1 Accuracy</td>
+    <td>74.9%</td>
+    <td>74.8%</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
     <td><a href="aimet_zoo_tensorflow/mobilenet_v2/MobileNetV2.md">MobileNet-v2-1.4</a></td>
     <td><a href="https://github.com/tensorflow/models/tree/master/research/slim">GitHub Repo</a></td>
     <td><a href="https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.4_224.tgz">Pretrained Model</a></td>
@@ -489,6 +510,17 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>(ImageNet) Top-1 Accuracy</td>
     <td>75%</td>
     <td>74.21%</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td><a href="aimet_zoo_tensorflow/mobilenet_v2_tf2/MobileNetV2_TF2.md">MobileNet-v2-tf2</a></td>
+    <td><a href="https://keras.io/api/applications/mobilenet/#mobilenetv2-function">GitHub Repo</a></td>
+    <td><a href="https://keras.io/api/applications/mobilenet/#mobilenetv2-function">Pretrained Model</a></td>
+    <td><a href="aimet_zoo_tensorflow/mobilenet_v2_tf2/evaluators/mobilenet_v2_tf2_quanteval.py">See Example</a></td>
+    <td>2.4</td>
+    <td>(ImageNet) Top-1 Accuracy</td>
+    <td>71.6%</td>
+    <td>71.0%</td>
     <td>TBD</td>
   </tr>
   <tr>
@@ -593,3 +625,4 @@ AIMET Model Zoo is a project maintained by Qualcomm Innovation Center, Inc.
 
 ## License
 Please see the [LICENSE file](LICENSE.pdf) for details.
+

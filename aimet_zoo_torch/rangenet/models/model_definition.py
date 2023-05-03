@@ -80,6 +80,7 @@ class RangeNet(Downloader):
             original_checkpoint_path = os.path.join(
                 self.parent_dir, self.extract_dir, "darknet21"
             )
+            #pylint:disable = consider-using-with
             model_orig_ARCH = yaml.safe_load(
                 open(os.path.join(self.extract_dir, "darknet21", "arch_cfg.yaml"), "r")
             )
@@ -87,9 +88,9 @@ class RangeNet(Downloader):
                 ARCH=model_orig_ARCH, nclasses=20, path=original_checkpoint_path
             )
             self.model = prepare_model(self.model)
-            ModelValidator.validate_model(self.model, self.dummy_input)
         self.model.cuda()
         self.model.eval()
+        ModelValidator.validate_model(self.model, self.dummy_input)
 
     def get_quantsim(self, quantized=False):
         """get quantsim object with pre-loaded encodings"""

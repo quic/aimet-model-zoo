@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.6
-#pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912,W0622,I1101
+# pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912,W0622,I1101
 # -*- mode: python -*-
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
@@ -9,6 +9,7 @@
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
 """Quantsim evaluation script for pose estimation"""
+# pylint: disable=wrong-import-order
 import os
 import math
 import argparse
@@ -44,9 +45,18 @@ def non_maximum_suppression(map, thresh):
     map_down = np.zeros(map_s.shape)
     map_down[:, :-1] = map_s[:, 1:]
 
-    peaks_binary = np.logical_and.reduce((map_s >= map_left, map_s >= map_right, map_s >= map_up, map_s >= map_down,
-                                          map_s > thresh))
-    peaks = zip(np.nonzero(peaks_binary)[1], np.nonzero(peaks_binary)[0]) # note reverse
+    peaks_binary = np.logical_and.reduce(
+        (
+            map_s >= map_left,
+            map_s >= map_right,
+            map_s >= map_up,
+            map_s >= map_down,
+            map_s > thresh,
+        )
+    )
+    peaks = zip(
+        np.nonzero(peaks_binary)[1], np.nonzero(peaks_binary)[0]
+    )  # note reverse
     peaks_with_score = [x + (map[x[1], x[0]],) for x in peaks]
 
     return peaks_with_score
@@ -92,8 +102,7 @@ def decode_output(data, stride, padding, input_shape, image_shape):
     output = cv2.resize(
         output, (0, 0), fx=stride, fy=stride, interpolation=cv2.INTER_CUBIC
     )
-    output = output[: input_shape[0] - padding[2],
-                    : input_shape[1] - padding[3], :]
+    output = output[: input_shape[0] - padding[2], : input_shape[1] - padding[3], :]
     output = cv2.resize(
         output, (image_shape[1], image_shape[0]), interpolation=cv2.INTER_CUBIC
     )
@@ -152,19 +161,16 @@ def run_session(session, output_names, input_name, image, fast=False):
             )
         else:
             image_encoded, pad = encode_input(image, scale, stride, padValue)
-        image_encoded_ = preprocess(
-            image_encoded, [
-                "addchannel", "normalize", "bgr"])
+        image_encoded_ = preprocess(image_encoded, ["addchannel", "normalize", "bgr"])
 
         paf, heatmap = session.run(
-            output_names, feed_dict={
-                session.graph.get_tensor_by_name(input_name): image_encoded_}, )
+            output_names,
+            feed_dict={session.graph.get_tensor_by_name(input_name): image_encoded_},
+        )
 
         if fast:
             paf = cv2.resize(paf[0], (image.shape[1], image.shape[0]))
-            heatmap = cv2.resize(
-                heatmap[0], dsize=(
-                    image.shape[1], image.shape[0]))
+            heatmap = cv2.resize(heatmap[0], dsize=(image.shape[1], image.shape[0]))
         else:
             paf = paf.transpose((0, 3, 1, 2))
             heatmap = heatmap.transpose((0, 3, 1, 2))
@@ -212,22 +218,21 @@ def get_limb_consistancy(paf, start_keypoint, end_keypoint, image_h, div_num=10)
         )
     )
 
-    vec_paf_x = np.array([paf[vec_paf[k][1], vec_paf[k][0], 0]
-                          for k in range(div_num)])
-    vec_paf_y = np.array([paf[vec_paf[k][1], vec_paf[k][0], 1]
-                          for k in range(div_num)])
+    vec_paf_x = np.array([paf[vec_paf[k][1], vec_paf[k][0], 0] for k in range(div_num)])
+    vec_paf_y = np.array([paf[vec_paf[k][1], vec_paf[k][0], 1] for k in range(div_num)])
 
-    vec_sims = np.multiply(
-        vec_paf_x, vec_key[0]) + np.multiply(vec_paf_y, vec_key[1])
+    vec_sims = np.multiply(vec_paf_x, vec_key[0]) + np.multiply(vec_paf_y, vec_key[1])
     vec_sims_prior = vec_sims.mean() + min(0.5 * image_h / vec_key_norm - 1, 0)
 
     return vec_sims, vec_sims_prior
 
-#pylint: disable=C1801
+
+# pylint: disable=len-as-condition
 def connect_keypoints(image_shape, keypoints, paf, limbs, limbsInds):
     """connect keypoints"""
     thre2 = 0.05
     connections = []
+    #pylint: disable=consider-using-enumerate
     for k in range(len(limbsInds)):
         paf_limb = paf[:, :, limbsInds[k]]
         limb_strs = keypoints[limbs[k][0]]
@@ -275,9 +280,8 @@ def create_skeletons(keypoints, connections, limbs):
     # the second last number in each row is the score of the overall
     # configuration
     skeletons = -1 * np.ones((0, 20))
-    keypoints_flatten = np.array(
-        [item for sublist in keypoints for item in sublist])
-
+    keypoints_flatten = np.array([item for sublist in keypoints for item in sublist])
+    #pylint: disable=consider-using-enumerate
     for k in range(len(limbs)):
         if connections[k] != []:
             detected_str = connections[k][:, 0]
@@ -287,6 +291,7 @@ def create_skeletons(keypoints, connections, limbs):
             for i in range(len(connections[k])):
                 found = 0
                 subset_idx = [-1, -1]
+                #pylint: disable=consider-using-enumerate
                 for j in range(len(skeletons)):
                     if (
                             skeletons[j][limb_str] == detected_str[i]
@@ -330,12 +335,15 @@ def create_skeletons(keypoints, connections, limbs):
                     row[limb_str] = detected_str[i]
                     row[limb_end] = detected_end[i]
                     row[-1] = 2
-                    row[-2] = (sum(keypoints_flatten[connections[k]
-                                                     [i, :2].astype(int), 2]) + connections[k][i][2])
+                    row[-2] = (
+                        sum(keypoints_flatten[connections[k][i, :2].astype(int), 2])
+                        + connections[k][i][2]
+                    )
                     skeletons = np.vstack([skeletons, row])
 
     # delete some rows of subset which has few parts occur
     deleteIdx = []
+    #pylint: disable=C0200
     for i in range(len(skeletons)):
         if skeletons[i][-1] < 4 or skeletons[i][-2] / skeletons[i][-1] < 0.4:
             deleteIdx.append(i)
@@ -395,23 +403,21 @@ def estimate_pose(image_shape, heatmap, paf):
 
     keypoints = get_keypoints(heatmap)
 
-    connections = connect_keypoints(
-        image_shape, keypoints, paf, limbs, limbsInd)
+    connections = connect_keypoints(image_shape, keypoints, paf, limbs, limbsInd)
 
     skeletons = create_skeletons(keypoints, connections, limbs)
 
-    return skeletons, np.array(
-        [item for sublist in keypoints for item in sublist])
+    return skeletons, np.array([item for sublist in keypoints for item in sublist])
 
 
 def parse_results(skeletons, points):
     """parse results"""
-    coco_indices = [0, -1, 6, 8, 10, 5, 7, 9,
-                    12, 14, 16, 11, 13, 15, 2, 1, 4, 3]
+    coco_indices = [0, -1, 6, 8, 10, 5, 7, 9, 12, 14, 16, 11, 13, 15, 2, 1, 4, 3]
 
     skeletons_out, scores = [], []
     for score, keypoints in zip(skeletons["scores"], skeletons["keypoints"]):
         skeleton = []
+        #pylint: disable=C0200
         for p in range(len(keypoints)):
             if p == 1:
                 continue
@@ -433,6 +439,7 @@ def parse_results(skeletons, points):
 
 class COCOWrapper:
     """Coco wrapper class"""
+
     def __init__(self, coco_path, num_imgs=None):
         self.coco_path = coco_path
         self.num_imgs = num_imgs
@@ -465,13 +472,13 @@ class COCOWrapper:
         cocoEval.accumulate()
         cocoEval.summarize()
         return cocoEval.stats[0::5]
-#pylint: disable=R0201
+
+    # pylint: disable=R0201
     def get_results_json(self, results, imgs):
         """get results json"""
         results_obj = []
         for img, result in list(zip(imgs, results)):
-            for score, skeleton in list(
-                    zip(result["scores"], result["skeletons"])):
+            for score, skeleton in list(zip(result["scores"], result["skeletons"])):
                 obj = {
                     "image_id": img["id"],
                     "category_id": 1,
@@ -493,7 +500,7 @@ class COCOWrapper:
 
     @property
     def cocoGT(self):
-        """coco ground truth """
+        """coco ground truth"""
         annType = "keypoints"
         prefix = "person_keypoints"
         print("Initializing demo for *%s* results." % (annType))
@@ -506,12 +513,12 @@ class COCOWrapper:
         cocoGT = COCO(annFile)
 
         if not cocoGT:
-            raise AttributeError(
-                "COCO ground truth demo failed to initialize!")
+            raise AttributeError("COCO ground truth demo failed to initialize!")
 
         return cocoGT
 
-#pylint: disable=W0612
+
+# pylint: disable=W0612
 def evaluate_session(
         session, coco_path, input_name, output_names, num_imgs=None, fast=False
 ):
@@ -525,8 +532,7 @@ def evaluate_session(
     for i, img in enumerate(imgs):
         image = cv2.imread(image_path + img["file_name"])  # B,G,R order
 
-        heatmap, paf = run_session(
-            session, output_names, input_name, image, fast)
+        heatmap, paf = run_session(session, output_names, input_name, image, fast)
 
         skeletons, keypoints = estimate_pose(image.shape, heatmap, paf)
         results.append(parse_results(skeletons, keypoints))
@@ -578,15 +584,14 @@ def download_weights():
 
     if not os.path.exists("./pose_estimation_tensorflow"):
         url_checkpoint = "https://github.com/quic/aimet-model-zoo/releases/download/pose_estimation/pose_estimation_tensorflow.tar.gz"
-        urllib.request.urlretrieve(
-            url_checkpoint,
-            "pose_estimation_tensorflow.tar.gz")
+        urllib.request.urlretrieve(url_checkpoint, "pose_estimation_tensorflow.tar.gz")
         with tarfile.open("pose_estimation_tensorflow.tar.gz") as pth_weights:
             pth_weights.extractall("./pose_estimation_tensorflow/")
 
 
 class ModelConfig:
     """hardcoded model configurations"""
+
     def __init__(self, args):
         """
         hardcode values added on parsearg arguments
@@ -626,6 +631,7 @@ def pose_estimation_quanteval(args):
         )
 
         if not tf.test.gpu_device_name():
+            #pylint:disable = broad-exception-raised
             raise Exception(" GPU not available")
 
         partial_eval = partial(

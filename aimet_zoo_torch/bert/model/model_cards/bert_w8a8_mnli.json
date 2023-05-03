@@ -39,7 +39,7 @@
     "artifacts": {
 	"url_pre_opt_weights":"https://github.com/quic/aimet-model-zoo/releases/download/torch_bert/mnli_fp.pth",
 	"url_post_opt_weights":"https://github.com/quic/aimet-model-zoo/releases/download/torch_bert/mnli_qat.ckpt",
-        "url_aimet_config": "https://raw.githubusercontent.com/quic/aimet/develop/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config.json"
+        "url_aimet_config": "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.23/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config.json"
     }
 }
 

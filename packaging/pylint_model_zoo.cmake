@@ -14,25 +14,54 @@ file(MAKE_DIRECTORY "${SOURCE_DIR}/packaging/results")
 message(STATUS "Source Directory: ${SOURCE_DIR}")
 message(STATUS "Result Directory: ${src_results_dir}")
 
-# TODO: temporarily set a list containing both tf and torch
-# This should move to being selectable betrween tf and/or torch 
-set(zoo-pylint_folder_list "aimet_zoo_tensorflow;aimet_zoo_torch")
+
+if(ENABLE_TENSORFLOW)
+    # Add AIMET Tensorflow package to package array list
+    list(APPEND pylint_list "aimet_zoo_tensorflow")
+endif()
+
+if(ENABLE_TORCH)
+    # Add AIMET Torch package to package array list
+    list(APPEND pylint_list "aimet_zoo_torch")
+endif()
+
+message(STATUS "Linting to proceed for: ${pylint_list}")
+
 set(MSG_FORMAT "--msg-template='{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}'")
 
 set(pylint_failed 0)
-foreach(zoo_pylint_folder IN LISTS zoo-pylint_folder_list)
+foreach(zoo_pylint_folder IN LISTS pylint_list)
     message(STATUS "Aimet Model Zoo Variant: ${zoo_pylint_folder}")
     message(STATUS "Aimet Model Zoo Path Verification: ${SOURCE_DIR}/${zoo_pylint_folder}")
+
     execute_process (
        COMMAND pylint --rcfile=${SOURCE_DIR}/.pylintrc -r n ${MSG_FORMAT} ${SOURCE_DIR}/${zoo_pylint_folder}
        OUTPUT_VARIABLE pylint_complete
        RESULT_VARIABLE pylint_return
         )
-    message(STATUS "Return Code is: ${pylint_return} -- Please correct the errors below")
+    message(STATUS "Return Code is: ${pylint_return}")
+
     if(${pylint_return} AND NOT ${pylint_return} EQUAL "0")
-       message( WARNING "Pylint failed for ${zoo_pylint_folder}")
+       if(${pylint_return} EQUAL "1")
+          message(STATUS "Return Code is: ${pylint_return} -- fatal message issued")
+       elseif(${pylint_return} EQUAL "2")
+          message(STATUS "Return Code is: ${pylint_return} -- error message issued")
+       elseif(${pylint_return} EQUAL "4")
+          message(STATUS "Return Code is: ${pylint_return} -- warning message issued")
+       elseif(${pylint_return} EQUAL "8")
+          message(STATUS "Return Code is: ${pylint_return} -- refactor message issued")
+       elseif(${pylint_return} EQUAL "16")
+          message(STATUS "Return Code is: ${pylint_return} -- convention message issued")
+       elseif(${pylint_return} EQUAL "32")
+          message(STATUS "Return Code is: ${pylint_return} -- usage error")
+       else()
+          message(STATUS "Return Code is: ${pylint_return} -- multiple messages issued")
+       endif()
+
        set(pylint_failed 1)
     endif()
+
     file(WRITE "${src_results_dir}/pylint_${zoo_pylint_folder}" ${pylint_complete})
     message(${pylint_complete})
+
 endforeach()

@@ -34,7 +34,7 @@ def seed(seed_number):
     torch.cuda.manual_seed_all(seed_number)
 
 
-def arguments():
+def arguments(raw_args):
     """argument parser"""
     parser = argparse.ArgumentParser(
         description="Evaluation script for PyTorch RangeNet++ models."
@@ -63,17 +63,19 @@ def arguments():
     parser.add_argument(
         "--use-cuda", help="Run evaluation on GPU.", type=bool, default=True
     )
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
     return args
 
 
-def main(args):
+def main(raw_args=None):
     """execute evaluation"""
+    args = arguments(raw_args)
     seed(1234)
 
     models_dir = os.path.join(
         str(pathlib.Path(os.path.abspath(__file__)).parent.parent), "models"
     )
+    #pylint:disable = consider-using-with
     DATA = yaml.safe_load(open(os.path.join(models_dir, "semantic-kitti.yaml"), "r"))
     ARCH = yaml.safe_load(open(os.path.join(models_dir, "darknet21.yaml"), "r"))
 
@@ -136,5 +138,4 @@ def main(args):
 
 
 if __name__ == "__main__":
-    args = arguments()
-    main(args)
+    main()

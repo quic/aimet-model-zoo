@@ -1,3 +1,5 @@
+# pylint: skip-file
+# pylint: skip-file
 """
 Code adapted from: https://github.com/NVIDIA/semantic-segmentation
 

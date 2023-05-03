@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912
+# pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912
 # -*- mode: python -*-
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
@@ -32,9 +32,9 @@ from deepspeech_pytorch.loader.data_loader import SpectrogramDataset, AudioDataL
 from deepspeech_pytorch.utils import load_model, load_decoder
 from deepspeech_pytorch.testing import run_evaluation
 
+
 def run_quantsim_evaluation(args):
-    """ function to run quantization evaluation
-    """
+    """function to run quantization evaluation"""
     device = get_device(args)
 
     def wrapped_forward_function(self, x, lengths=None):
@@ -47,19 +47,14 @@ def run_quantsim_evaluation(args):
     )
     deepspeech_pytorch.model.DeepSpeech.forward = wrapped_forward_function
 
-    model = load_model(
-        device=device,
-        model_path=args.model_path,
-        use_half=False)
+    model = load_model(device=device, model_path=args.model_path, use_half=False)
 
     decoder = load_decoder(labels=model.labels, cfg=LMConfig)
 
-    target_decoder = GreedyDecoder(
-        model.labels, blank_index=model.labels.index("_"))
+    target_decoder = GreedyDecoder(model.labels, blank_index=model.labels.index("_"))
 
     def eval_func(model, iterations=None, device=device):
-        """ evaluation function
-        """
+        """evaluation function"""
         model = model.to(device)
         test_dataset = SpectrogramDataset(
             audio_conf=model.audio_conf,
@@ -72,9 +67,8 @@ def run_quantsim_evaluation(args):
             test_dataset.size = iterations
 
         test_loader = AudioDataLoader(
-            test_dataset,
-            batch_size=args.batch_size,
-            num_workers=args.num_workers)
+            test_dataset, batch_size=args.batch_size, num_workers=args.num_workers
+        )
 
         wer, cer, output_data = run_evaluation(
             test_loader=test_loader,
@@ -91,7 +85,7 @@ def run_quantsim_evaluation(args):
     quant_scheme = QuantScheme.post_training_tf_enhanced
 
     # Test original model on GPU
-    #pylint: disable=W0612
+    # pylint: disable=W0612
     wer, cer, output_data = eval_func(model, None)
     print(f"Original Model | 32-bit Environment | Average WER {wer:.4f}")
 
@@ -292,7 +286,7 @@ def manually_configure_quant_ops(sim):
             "output_quantizer": True,
         },
     }
-    #pylint: disable=W0212
+    # pylint: disable=W0212
     quant_ops = QuantizationSimModel._get_qc_quantized_layers(sim.model)
     for name, op in quant_ops:
         mc = manual_config[name]
@@ -311,8 +305,7 @@ def manually_configure_quant_ops(sim):
 
 
 def arguments():
-    """argument parser
-    """
+    """argument parser"""
     parser = argparse.ArgumentParser(
         description="Evaluation script for an DeepSpeech2 network."
     )
@@ -322,16 +315,8 @@ def arguments():
         type=str,
         default="libri_test_clean_manifest.csv",
     )
-    parser.add_argument(
-        "--batch-size",
-        help="Batch size.",
-        type=int,
-        default=20)
-    parser.add_argument(
-        "--num-workers",
-        help="Number of workers.",
-        type=int,
-        default=1)
+    parser.add_argument("--batch-size", help="Batch size.", type=int, default=20)
+    parser.add_argument("--num-workers", help="Number of workers.", type=int, default=1)
     parser.add_argument(
         "--default-output-bw",
         help="Default output bitwidth for quantization.",
@@ -350,8 +335,7 @@ def arguments():
 
 
 def download_weights():
-    """Downloading model weights
-    """
+    """Downloading model weights"""
     # Download original model
     if not os.path.exists("./librispeech_pretrained_v2.pth"):
         urllib.request.urlretrieve(
@@ -368,8 +352,8 @@ def download_weights():
 
 
 class ModelConfig:
-    """Hardcoded model configuration
-    """
+    """Hardcoded model configuration"""
+
     def __init__(self, args):
         self.model_path = "librispeech_pretrained_v2.pth"
         self.quantsim_config_file = "default_config.json"
@@ -380,8 +364,7 @@ class ModelConfig:
 
 
 def main():
-    """Main function
-    """
+    """Main function"""
     args = arguments()
     config = ModelConfig(args)
     run_quantsim_evaluation(config)

@@ -12,6 +12,7 @@
 import json
 import os
 import sys
+import pathlib
 from collections import defaultdict
 import torch
 
@@ -31,7 +32,7 @@ sys.modules["baseline_models"] = baseline_models
 
 class Bert(Downloader):
     """model Bert configuration class"""
-
+    #pylint:disable = import-outside-toplevel
     def __init__(self, model_config=None):
         if model_config == "bert_w8a8_squad":
             from aimet_zoo_torch.bert.model.utils.utils_qa_dataclass import (

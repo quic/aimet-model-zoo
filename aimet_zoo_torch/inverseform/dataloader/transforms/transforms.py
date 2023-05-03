@@ -1,3 +1,4 @@
+# pylint: skip-file
 """
 # Code borrowded from:
 # https://github.com/zijundeng/pytorch-semantic-segmentation/blob/master/utils/transforms.py

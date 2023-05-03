@@ -1,3 +1,4 @@
+# pylint: skip-file
 ##+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 ## Created by: Hang Zhang
 ## ECE Department, Rutgers University

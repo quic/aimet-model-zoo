@@ -1,3 +1,4 @@
+# pylint: skip-file
 """
 Miscellanous Functions : From HRNet semantic segmentation : https://github.com/HRNet/HRNet-Semantic-Segmentation
 """

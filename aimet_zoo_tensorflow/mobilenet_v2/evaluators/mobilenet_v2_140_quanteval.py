@@ -1,5 +1,5 @@
 #!/usr/bin/env python3.6
-#pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912
+# pylint: disable=E0401,E1101,W0621,R0915,R0914,R0912
 # -*- mode: python -*-
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
@@ -9,6 +9,7 @@
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
 """mobilenevt v2 quantsim evaluation script"""
+# pylint:disable = wrong-import-order
 import os
 import argparse
 import urllib
@@ -29,12 +30,7 @@ from nets import nets_factory
 from preprocessing import preprocessing_factory
 
 
-def wrap_preprocessing(
-        preprocessing,
-        height,
-        width,
-        num_classes,
-        labels_offset):
+def wrap_preprocessing(preprocessing, height, width, num_classes, labels_offset):
     """Wrap preprocessing function to do parsing of TFrecords."""
 
     def parse(serialized_example):
@@ -57,7 +53,8 @@ def wrap_preprocessing(
 
     return parse
 
-#pylint: disable=W0612
+
+# pylint: disable=W0612
 def run_evaluation(args):
     """define evaluation and build graph definition for evaluation"""
     # Build graph definition
@@ -83,20 +80,19 @@ def run_evaluation(args):
         images, labels = iterator.get_next()
 
         network_fn = nets_factory.get_network_fn(
-            args.model_name, num_classes=(
-                1001 - args.labels_offset), is_training=False)
+            args.model_name, num_classes=(1001 - args.labels_offset), is_training=False
+        )
         with tf.device("/cpu:0"):
-            images = tf.placeholder_with_default(images, shape=(
-                None, args.image_size, args.image_size, 3), name="input")
+            images = tf.placeholder_with_default(
+                images, shape=(None, args.image_size, args.image_size, 3), name="input"
+            )
             labels = tf.placeholder_with_default(
                 labels, shape=(None, 1001 - args.labels_offset), name="labels"
             )
         logits, end_points = network_fn(images)
         confidences = tf.nn.softmax(logits, axis=1, name="confidences")
-        categorical_preds = tf.argmax(
-            confidences, axis=1, name="categorical_preds")
-        categorical_labels = tf.argmax(
-            labels, axis=1, name="categorical_labels")
+        categorical_preds = tf.argmax(confidences, axis=1, name="categorical_preds")
+        categorical_labels = tf.argmax(labels, axis=1, name="categorical_labels")
         correct_predictions = tf.equal(categorical_labels, categorical_preds)
         top1_acc = tf.reduce_mean(
             tf.cast(correct_predictions, tf.float32), name="top1-acc"
@@ -153,18 +149,18 @@ def run_evaluation(args):
     # Select the right quant_scheme
     if args.quant_scheme == "range_learning_tf":
         quant_scheme = (
-            aimet_common.defs.QuantScheme.training_range_learning_with_tf_init)
+            aimet_common.defs.QuantScheme.training_range_learning_with_tf_init
+        )
     elif args.quant_scheme == "range_learning_tf_enhanced":
         quant_scheme = (
-            aimet_common.defs.QuantScheme.training_range_learning_with_tf_enhanced_init)
+            aimet_common.defs.QuantScheme.training_range_learning_with_tf_enhanced_init
+        )
     elif args.quant_scheme == "tf":
         quant_scheme = aimet_common.defs.QuantScheme.post_training_tf
     elif args.quant_scheme == "tf_enhanced":
         quant_scheme = aimet_common.defs.QuantScheme.post_training_tf_enhanced
     else:
-        raise ValueError(
-            "Got unrecognized quant_scheme: " +
-            args.quant_scheme)
+        raise ValueError("Got unrecognized quant_scheme: " + args.quant_scheme)
     # Create QuantizationSimModel
     sim = QuantizationSimModel(
         session=sess,
@@ -210,6 +206,7 @@ def download_weights():
 
 class ModelConfig:
     """Hardcoded model configurations"""
+
     def __init__(self, args):
         self.model_name = "mobilenet_v2_140"
         if args.model_to_eval == "fp32":
@@ -230,12 +227,30 @@ class ModelConfig:
 
 def parse_args(args):
     """Parse the arguments."""
-    parser = argparse.ArgumentParser(description="Evaluation script for an MobileNetv2 network.")
-    parser.add_argument("--dataset-path", help="Imagenet validation dataset Tf-records directory.")
+    parser = argparse.ArgumentParser(
+        description="Evaluation script for an MobileNetv2 network."
+    )
+    parser.add_argument(
+        "--dataset-path", help="Imagenet validation dataset Tf-records directory."
+    )
     parser.add_argument("--batch-size", help="Batch size.", type=int, default=32)
-    parser.add_argument("--default-output-bw", help="Default output bitwidth for quantization.", type=int, default=8,)
-    parser.add_argument("--default-param-bw", help="Default parameter bitwidth for quantization.", type=int, default=8,)
-    parser.add_argument("--model-to-eval", help="which model to evaluate. There are two options: fp32 or int8 ", default="int8", choices={"fp32", "int8"},
+    parser.add_argument(
+        "--default-output-bw",
+        help="Default output bitwidth for quantization.",
+        type=int,
+        default=8,
+    )
+    parser.add_argument(
+        "--default-param-bw",
+        help="Default parameter bitwidth for quantization.",
+        type=int,
+        default=8,
+    )
+    parser.add_argument(
+        "--model-to-eval",
+        help="which model to evaluate. There are two options: fp32 or int8 ",
+        default="int8",
+        choices={"fp32", "int8"},
     )
     return parser.parse_args(args)
 

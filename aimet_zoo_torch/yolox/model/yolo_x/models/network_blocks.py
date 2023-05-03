@@ -1,3 +1,4 @@
+# pylint: skip-file
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
 # Copyright (c) Megvii Inc. All rights reserved.

@@ -1,3 +1,4 @@
+# pylint: skip-file
 # ---------------------------------------------
 # Released under Apache 2.0 License
 # https://github.com/Tramac/awesome-semantic-segmentation-pytorch/tree/b8366310de50869f89e836ed24de24edd432ece5

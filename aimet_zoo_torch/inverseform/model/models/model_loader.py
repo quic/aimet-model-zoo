@@ -1,3 +1,5 @@
+# pylint: skip-file
+# pylint: skip-file
 def load_model(net, pretrained):
     pretrained_dict = pretrained['state_dict']
     model_dict = net.state_dict()

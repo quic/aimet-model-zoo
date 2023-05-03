@@ -1,3 +1,4 @@
+# pylint: skip-file
 # from ..transforms.joint_transforms import joint_transforms
 from .transforms import transforms as extended_transforms
 from torch.utils.data import DataLoader

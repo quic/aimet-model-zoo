@@ -1,3 +1,4 @@
+# pylint: skip-file
 """
 # Code adapted from:
 # https://github.com/pytorch/pytorch/blob/master/torch/utils/data/distributed.py
