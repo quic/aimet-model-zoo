@@ -18,7 +18,7 @@ import datasets
 from accelerate import Accelerator
 from accelerate.logging import get_logger
 from accelerate.utils import set_seed
-from aimet_zoo_torch.vit.dataloader import get_dataloaders, get_dataset
+from aimet_zoo_torch.vit.dataloader import get_dataloaders,get_dataset
 from aimet_zoo_torch.vit import vit
 
 logger = get_logger(__name__)
@@ -30,7 +30,7 @@ require_version(
 )
 
 
-def parse_args():
+def parse_args(raw_args):
     """argument parser"""
     parser = argparse.ArgumentParser(
         description="Evaluating VIT/MobileVIT Transformers model on an imagenet dataset"
@@ -58,33 +58,22 @@ def parse_args():
         default=8,
         help="Batch size (per device) for the evaluation dataloader.",
     )
-    args = parser.parse_args()
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=2022,
+        help="training seed",
+    )
+    args = parser.parse_args(raw_args)
     for arg in vars(args):
         print("{:30s} : {}".format(arg, getattr(args, arg)))
 
     return args
 
 
-# pylint: disable-msg=R0902
-class DataConfig:
-    """adding hardcoded values into args from parseargs() and return config object"""
-
-    def __init__(self, args):
-        self.dataset_name = "../dataloader/utils/imagenet.py"
-        self.seed = 2022
-        self.max_eval_samples = None
-        self.max_train_samples = None
-        self.clamp_quantizer = False
-        self.per_device_train_batch_size = 8
-        self.image_normalization = True
-        for arg in vars(args):
-            setattr(self, arg, getattr(args, arg))
-
-
-def main():
+def main(raw_args=None):
     """Evaluation main function"""
-    args = parse_args()
-    config = DataConfig(args)
+    args = parse_args(raw_args)
     # Initialize the accelerator. We will let the accelerator handle device placement for us in this example.
     # If we're using tracking, we also need to initialize it here and it will by default pick up all supported trackers
     # in the environment
@@ -105,13 +94,12 @@ def main():
         transformers.utils.logging.set_verbosity_error()
 
     # If passed along, set the training seed now.
-    if config.seed is not None:
-        set_seed(config.seed)
+    if args.seed is not None:
+        set_seed(args.seed)
 
     accelerator.wait_for_everyone()
     # get dataset for gathering information to load model
-    dataset = get_dataset(config)
-
+    dataset = get_dataset(args) 
     # loading finetuned original model
     model = vit(model_config=args.model_config, quantized=False)
     model_orig = model.get_model_from_pretrained(dataset)
@@ -120,7 +108,7 @@ def main():
 
     # load modularized eval_function and dataloaders
     train_dataloader, eval_dataloader, eval_function = get_dataloaders(
-        config, feature_extractor
+        args, feature_extractor
     )
 
     # Prepare everything with our `accelerator`.

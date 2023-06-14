@@ -53,7 +53,7 @@ from src.utils import generate_dboxes, Encoder # pylint:disable = import-error
 from src.transform import SSDTransformer # pylint:disable = import-error
 from pycocotools.cocoeval import COCOeval # pylint:disable = import-error
 
-def get_args():
+def get_args(raw_args):
     """argument parser"""
     #pylint:disable = redefined-outer-name
     parser = argparse.ArgumentParser("Evaluation script for quantized SSD Res50 Model")
@@ -81,15 +81,16 @@ def get_args():
         "--use-cuda", help="Use GPU for evaluation", action="store_true"
     )
 
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
     return args
 
 
-def ssd_res50_quanteval(args):
+def main(raw_args=None):
     """
     Evaluation function for SSD Res50 quantized model
     """
     #pylint:disable = redefined-outer-name
+    args=get_args(raw_args)
     if args.use_cuda:
         if torch.cuda.is_available():
             device = torch.device("cuda")
@@ -216,5 +217,4 @@ def evaluate(model, test_loader, encoder, args, device):
 
 
 if __name__ == "__main__":
-    args = get_args()
-    ssd_res50_quanteval(args)
+    main()

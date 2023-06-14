@@ -17,7 +17,7 @@ from aimet_zoo_torch.mobilenetv2.dataloader import get_dataloaders_and_eval_func
 from aimet_zoo_torch.common.utils.utils import get_device
 
 
-def arguments():
+def arguments(raw_args):
     """argument parser"""
     parser = argparse.ArgumentParser(
         description="Evaluation script for PyTorch ImageNet networks."
@@ -50,7 +50,7 @@ def arguments():
     parser.add_argument(
         "--use-cuda", help="Run evaluation on GPU", type=bool, default=True
     )
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
     return args
 
 
@@ -63,11 +63,11 @@ def seed(seed_num):
     torch.cuda.manual_seed_all(seed_num)
 
 
-def main():
+def main(raw_args=None):
     """main evaluation function"""
     # pylint:disable = too-many-locals, unused-variable
     seed(0)
-    args = arguments()
+    args = arguments(raw_args)
     device = get_device(args)
     eval_samples = -1
     encoding_samples = 2000

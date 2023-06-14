@@ -2,11 +2,11 @@
 This document describes evaluation of optimized checkpoints for mobile vision transformer (MobileViT) for image classification 
 
 ## AIMET installation and setup
-Please [install and setup AIMET](https://github.com/quic/aimet/blob/release-aimet-1.24/packaging/install.md) (*Torch GPU* variant) before proceeding further.
+Please [install and setup AIMET](https://github.com/quic/aimet/blob/release-aimet-1.26/packaging/install.md) (*Torch GPU* variant) before proceeding further.
 
 **NOTE**
 - All AIMET releases are available here: https://github.com/quic/aimet/releases
-- This model has been tested using AIMET version *1.24.0*  (i.e. set `release_tag="1.24.0"` in the above instructions).
+- This model has been tested using AIMET version *1.24.0*  (i.e. set `release_tag="1.26.0"` in the above instructions).
 - This model is compatible with the PyTorch GPU variant of AIMET (i.e. set `AIMET_VARIANT="torch_gpu"` in the above instructions).
 
 ### Install AIMET-Model-Zoo
@@ -19,6 +19,7 @@ Clone the AIMET Model Zoo repo into your workspace:
 pip install accelerate==0.9.0
 pip install transformers==4.21.0
 pip install datasets==2.4.0
+pip install tensorboard==2.13.0
 
 ```
 
@@ -51,7 +52,7 @@ Each of the {train, valid, test} directories is then expected to have 1000 subdi
 - To run evaluation with QuantSim in AIMET, use the following
 ```bash
 
-python transformer_imageclassification.py \
+python mobilevit_quanteval.py \
     --model_config <model_configuration> \
     --per_device_eval_batch_size <batch_size> \
     --train_dir <imagenet_train_path> \

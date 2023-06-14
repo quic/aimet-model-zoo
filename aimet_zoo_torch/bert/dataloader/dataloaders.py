@@ -303,7 +303,9 @@ def get_datasets(data_args,training_args,model_args,model,tokenizer):
 
     return datasets
 
-def eval_function(model,tokenizer,datasets,data_args,training_args):
+def eval_function(model,tokenizer,datasets,data_args,training_args,max_eval_samples=None):
+    if max_eval_samples is not None:
+        data_args.max_eval_samples = max(len(datasets), max_eval_samples)
     ## case 1. when dataset  is glue 
     if hasattr(data_args,'task_name'):
         train_dataset = datasets["train"]
@@ -366,10 +368,19 @@ def eval_function(model,tokenizer,datasets,data_args,training_args):
 
         # Loop to handle MNLI double evaluation (matched, mis-matched)
         tasks = [data_args.task_name]
-        eval_datasets = [eval_dataset]
+
+        if data_args.max_eval_samples is not None:
+            # We will select subset of samples (number of samples = max_eval_samples) from the whole dataset
+            eval_dataset = eval_dataset.select(
+                range(data_args.max_eval_samples))  
+        eval_datasets = [eval_dataset]                  
         if data_args.task_name == "mnli":
             tasks.append("mnli-mm")
-            eval_datasets.append(datasets["validation_mismatched"])
+            mnli_mm_eval_dataset = datasets["validation_mismatched"]
+            if data_args.max_eval_samples is not None:
+                mnli_mm_eval_dataset = mnli_mm_eval_dataset.select(
+                    range(data_args.max_eval_samples))                  
+            eval_datasets.append(mnli_mm_eval_dataset)
         for eval_dataset, _ in zip(eval_datasets, tasks):
             eval_result = trainer.evaluate(eval_dataset=eval_dataset)
             eval_results.update(eval_result)

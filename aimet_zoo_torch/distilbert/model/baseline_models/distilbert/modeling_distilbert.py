@@ -41,7 +41,7 @@ import torch.nn as nn
 from torch.nn import CrossEntropyLoss
 
 from aimet_torch import elementwise_ops
-from aimet_zoo_torch.distilbert.utils.activations import get_activation
+from aimet_zoo_torch.distilbert.model.utils.activations import get_activation
 
 from transformers.file_utils import (
     add_code_sample_docstrings,

@@ -38,7 +38,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <th>W4A8<sup>[7]</sup></th>
   </tr>
   <tr>
-    <td rowspan="11">Image Classification</td>
+    <td rowspan="12">Image Classification</td>
     <td><a href="aimet_zoo_torch/mobilenetv2/MobilenetV2.md">MobileNetV2</a></td>
     <td><a href="https://github.com/tonylins/pytorch-mobilenet-v2">GitHub Repo</a></td>
     <td><a href="https://drive.google.com/file/d/1jlto6HRVD3ipNkAl1lNhDbkBp7HylaqR/view">Pretrained Model</a></td>
@@ -146,6 +146,16 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>(ImageNet dataset) Accuracy</td>
     <td>78.86</td>
     <td>78.42</td>
+    <td>TBD</td>
+  </tr>
+    <tr>
+    <td><a href="aimet_zoo_torch/uniformer_classification/UniformerClassification.md">Uniformer</a></td>
+    <td><a href="https://github.com/Sense-X/UniFormer">Repo</a></td>
+    <td><a href="/../../releases/tag/torch_uniformer_classification">Prepared Models </a></td>
+    <td><a href="/../../releases/tag/torch_uniformer_classification">Quantized Models</a></td>
+    <td>(ImageNet dataset) Accuracy</td>
+    <td>82.9</td>
+    <td>81.9</td>
     <td>TBD</td>
   </tr>
   <tr>
@@ -331,6 +341,17 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>50.48%</td>
     <td>50.59%</td>
     <td>50.58%</td>
+  </tr>
+  <tr>
+    <td rowspan="1">Video Understanding</td>
+    <td><a href="aimet_zoo_torch/mmaction2/mmaction2.md">mmaction2 BMN</a></td>
+    <td><a href="https://github.com/open-mmlab/mmaction2">GitHub Repo</a></td>
+    <td><a href="https://download.openmmlab.com/mmaction/v1.0/localization/bmn/bmn_2xb8-400x100-9e_activitynet-feature_20220908-79f92857.pth">Pretrained Model</a></td>
+    <td><a href="/../../releases/tag/torch_mmaction2">Quantized Model</a></td>
+    <td>(ActivityNet) auc</td>
+    <td>67.25</td>
+    <td>67.05</td>
+    <td>TBD</td>
   </tr>
   <tr>
     <td>Speech Recognition</td>

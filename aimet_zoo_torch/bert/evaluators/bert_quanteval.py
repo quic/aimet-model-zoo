@@ -33,7 +33,7 @@ from aimet_zoo_torch.bert import Bert
 from aimet_zoo_torch.bert.dataloader import get_datasets, eval_function
 
 
-def parse_args():
+def parse_args(raw_args):
     """argument parser"""
     parser = argparse.ArgumentParser(
         description="Evaluating Bert model on GLUE datasets"
@@ -53,24 +53,26 @@ def parse_args():
         "--output_dir",
         type=str,
         default=None,
+        required=True,
         help="Output directory",
-    )
-    args = parser.parse_args()
+    )  
+    args = parser.parse_args(raw_args)
     for arg in vars(args):
         print("{:30s} : {}".format(arg, getattr(args, arg)))
 
     return args
 
+DEFAULT_CONFIG = {"MAX_EVAL_SAMPLES": None}
 
-def main():
+def main(raw_args=None):
     """main function for quantization evaluation"""
-    args = parse_args()
+    args = parse_args(raw_args)
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
         datefmt="%m/%d/%Y %H:%M:%S",
         level=logging.INFO,
     )
-    model = Bert(model_config=args.model_config)
+    model = Bert(model_config=args.model_config,args=raw_args)
 
     # get original model and tokenizer
     model_orig, tokenizer = model.from_pretrained()
@@ -84,17 +86,19 @@ def main():
         tokenizer=tokenizer,
     )
 
+    logging.info("*** original model evaluation  ***")
+
     # evaluation of original model
     original_eval_results = eval_function(
-        model_orig, tokenizer, datasets, model.data_args, model.training_args
+        model_orig, tokenizer, datasets, model.data_args, model.training_args, max_eval_samples= DEFAULT_CONFIG['MAX_EVAL_SAMPLES']
     )
-
+    logging.info("*** getting quantsim  ***")
     # get quantsim object
     quantsim_model = model.get_quantsim()
-
+    logging.info("*** evaluation quantsim model  ***")
     # evaluation of quantsim model
     optimized_eval_results = eval_function(
-        quantsim_model.model, tokenizer, datasets, model.data_args, model.training_args
+        quantsim_model.model, tokenizer, datasets, model.data_args, model.training_args, max_eval_samples= DEFAULT_CONFIG['MAX_EVAL_SAMPLES']
     )
 
     logging.info(f"***** Original Eval results *****")

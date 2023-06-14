@@ -3,12 +3,12 @@
     "framework": "pytorch",
     "task": "",
     "model_args": {
-	"quantized":{"model_name_or_path": "../model/weights/downloaded_weights"},
-	"original":{"model_name_or_path": "google/vit-base-patch16-224"},
-        "dataset_name": "../model/utils/imagenet.py",
+	    "quantized":{"model_name_or_path": "weights/downloaded_weights"},
+	    "original":{"model_name_or_path": "google/vit-base-patch16-224"},
+        "dataset_name": "utils/imagenet.py",        
         "higher_resolution": "False",
 	    "ignore_mismatched_sizes": "False",
-        "config_file": "../model/weights/aimet_config",
+        "config_file": "weights/aimet_config",
         "clamp_quantizer": "False",
         "clamping_value": "30.0"
     },

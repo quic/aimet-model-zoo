@@ -31,7 +31,7 @@ sys.modules["baseline_models"] = baseline_models
 class MobileBert(Downloader):
     """model mobilebert configuration class"""
     #pylint:disable = import-outside-toplevel
-    def __init__(self, model_config=None):
+    def __init__(self, model_config=None, args=None):
         if model_config == "mobilebert_w8a8_squad":
             from aimet_zoo_torch.mobilebert.model.utils.utils_qa_dataclass import (
                 ModelArguments,
@@ -44,10 +44,12 @@ class MobileBert(Downloader):
                 DataTrainingArguments,
                 AuxArguments,
             )
-        parent_dir = str(pathlib.Path(os.path.abspath(__file__)).parent)
-        self.cfg = defaultdict(lambda: None)
+        self.parent_dir = str(pathlib.Path(os.path.abspath(__file__)).parent)
+        self.cfg = defaultdict(lambda: None)    
         if model_config:
-            config_filepath = parent_dir + "/model_cards/" + model_config + ".json"
+            config_filepath = os.path.join(
+                self.parent_dir, "model_cards", model_config + ".json"
+            )
             with open(config_filepath) as f_in:
                 self.cfg = json.load(f_in)
         Downloader.__init__(
@@ -55,7 +57,7 @@ class MobileBert(Downloader):
             url_post_opt_weights=self.cfg["artifacts"]["url_post_opt_weights"],
             url_pre_opt_weights=self.cfg["artifacts"]["url_pre_opt_weights"],
             url_aimet_config=self.cfg["artifacts"]["url_aimet_config"],
-            model_dir=parent_dir,
+            model_dir=self.parent_dir,
         )
         # Parse arguments
         parser = HfArgumentParser(
@@ -66,13 +68,15 @@ class MobileBert(Downloader):
             data_args,
             training_args,
             aux_args,
-        ) = parser.parse_args_into_dataclasses()
+        ) = parser.parse_args_into_dataclasses(args)
 
         self.model = None
         self.model_args = model_args
         self.data_args = data_args
         self.training_args = training_args
         self.aux_args = aux_args
+        self.aux_args.fmodel_path = os.path.join(self.parent_dir, self.aux_args.fmodel_path)
+        self.aux_args.qmodel_path = os.path.join(self.parent_dir, self.aux_args.qmodel_path)
         # additional setup of the argsumetns from model_config
         if model_config == "mobilebert_w8a8_squad":
             self.data_args.dataset_name = self.cfg["data_training_args"]["dataset_name"]

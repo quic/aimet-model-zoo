@@ -32,7 +32,7 @@ config.gpu_options.allow_growth = True
 session = InteractiveSession(config=config)
 
 
-def arguments():
+def arguments(raw_args):
     """argument parser"""
     parser = argparse.ArgumentParser(
         description="Evaluation script for TensorFlow MobileDet-EdgeTPU."
@@ -57,7 +57,7 @@ def arguments():
     parser.add_argument(
         "--use-cuda", help="Run evaluation on GPU", type=bool, default=True
     )
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
     return args
 
 
@@ -71,9 +71,9 @@ class ModelConfig:
             setattr(self, arg, getattr(args, arg))
 
 
-def main():
+def main(raw_args=None):
     """Evaluation main function"""
-    args = arguments()
+    args = arguments(raw_args)
     config = ModelConfig(args)
 
     dataloader = get_dataloader(

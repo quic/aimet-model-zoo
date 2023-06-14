@@ -9,31 +9,28 @@
 #
 # @@-COPYRIGHT-END-@@
 # =============================================================================
-""" acceptance test for super resolution"""
+
+""" acceptance test for image classification"""
+
 import pytest
 import torch
-from aimet_zoo_torch.quicksrnet.evaluators import quicksrnet_quanteval
+from aimet_zoo_torch.hrnet_image_classification.evaluators import hrnet_image_classification_quanteval
 
 
-@pytest.fixture()
-def model_config():
-    """model config fixture"""
-    model_config_dict = {
-        "quicksrnet": "quicksrnet_small_1.5x_w8a8",
-    }
-    return model_config_dict
-
-
+@pytest.mark.image_classification 
 @pytest.mark.cuda
 # pylint:disable = redefined-outer-name
-def test_quaneval_quicksrnet(model_config, dataset_path):
-    """quicksrnet super resolution acceptance test"""
+@pytest.mark.parametrize("model_config", ["hrnet_w32_w8a8"])
+def test_quanteval_hrnet_image_classification(model_config, tiny_imageNet_validation_path):
+    """hrnet image classification test"""
+    if tiny_imageNet_validation_path is None:
+        pytest.fail(f'Dataset path is not set')
     torch.cuda.empty_cache()
-    quicksrnet_quanteval.main(
+    hrnet_image_classification_quanteval.main(
         [
             "--model-config",
-            model_config["quicksrnet"],
+            model_config,
             "--dataset-path",
-            dataset_path["super_resolution"],
+            tiny_imageNet_validation_path,
         ]
     )

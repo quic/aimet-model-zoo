@@ -30,7 +30,7 @@ def seed(seed_number):
     torch.cuda.manual_seed_all(seed_number)
 
 
-def arguments():
+def arguments(raw_args):
     """argument parser"""
     # pylint: disable = redefined-outer-name
     parser = argparse.ArgumentParser(
@@ -55,13 +55,14 @@ def arguments():
     parser.add_argument(
         "--use-cuda", help="Run evaluation on GPU.", type=bool, default=True
     )
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
     return args
 
 
-def main(args):
+def main(raw_args=None):
     """ " main function for quantization evaluation"""
     # pylint: disable = redefined-outer-name
+    args = arguments(raw_args)
     seed(1234)
     evaluator = evaluate(
         testBatch=args.batch_size,
@@ -111,5 +112,4 @@ def main(args):
 
 
 if __name__ == "__main__":
-    args = arguments()
-    main(args)
+    main()

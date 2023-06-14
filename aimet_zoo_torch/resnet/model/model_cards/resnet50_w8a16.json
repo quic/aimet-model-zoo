@@ -1,0 +1,27 @@
+{
+    "name": "ResNet50",
+    "framework": "pytorch",
+    "task": "image classification",
+    "model_args": {
+        "num_classes": 1000
+    },
+    "input_shape": [null, 3, 224, 224],
+    "training_dataset": "ImageNet",
+    "optimization_config": {
+        "quantization_configuration":
+            {
+                "param_bw": 8,
+                "output_bw": 16,
+                "input_quantization": true,
+                "quant_scheme": "tf_enhanced",
+                "techniques": ["bnfold"]
+            }
+        },
+    "artifacts": {
+        "url_pre_opt_weights": null, 
+        "url_post_opt_weights": "https://github.com/quic/aimet-model-zoo/releases/download/torch_resnet50_w8a16/resnet50_w8a16_state_dict.pth",
+        "url_adaround_encodings": null,
+        "url_aimet_encodings": "https://github.com/quic/aimet-model-zoo/releases/download/torch_resnet50_w8a16/resnet50_w8a16_torch.encodings",
+        "url_aimet_config": "https://raw.githubusercontent.com/quic/aimet/50cfafe353b530d81c52188151c418ba16e92261/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json"        
+    }
+}

@@ -9,30 +9,26 @@
 #
 # @@-COPYRIGHT-END-@@
 # =============================================================================
-""" acceptance test for object detection"""
+
+""" acceptance test for yolox object detection"""
+
 import pytest
 import torch
 
 from aimet_zoo_torch.yolox.evaluators import yolox_quanteval
 
-
-@pytest.fixture()
-def model_config():
-    model_config_dict = {
-        "yolox": "yolox_s",
-    }
-    return model_config_dict
-
-
+@pytest.mark.object_detection 
 @pytest.mark.cuda
-def test_quaneval_yolox(model_config, dataset_path):
-    torch.cuda.empty_cache()
-
-    yolox_quanteval.main(
-        [
-            "--model-config",
-            model_config["yolox"],
-            "--dataset-path",
-            dataset_path["object_detection"],
-        ]
-    )
+@pytest.mark.parametrize("model_config",["yolox_s","yolox_l"])
+def test_quaneval_yolox(model_config, tiny_mscoco_validation_path):
+   torch.cuda.empty_cache()
+   if tiny_mscoco_validation_path is None:
+       pytest.fail('Dataset path is not set')
+   yolox_quanteval.main(
+       [
+           "--model-config",
+           model_config,
+           "--dataset-path",
+           tiny_mscoco_validation_path,
+       ]
+   )

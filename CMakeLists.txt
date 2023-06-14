@@ -10,6 +10,30 @@ cmake_minimum_required(VERSION 3.17)
 
 project(aimet-model-zoo)
 
+# -------------------------------
+# Conditional build for CUDA
+# -------------------------------
+if (NOT (DEFINED ENABLE_CUDA))
+  message("Compiling with CUDA not explicitly disabled. Enabling implicitly")
+  set(ENABLE_CUDA ON CACHE BOOL "")
+
+endif(NOT (DEFINED ENABLE_CUDA))
+
+message("Cuda: " ${ENABLE_CUDA})
+
+find_package(Python3 COMPONENTS Interpreter Development)
+message("Found python: ${Python3_FOUND}, at ${Python3_LIBRARIES}")
+
+find_package(PkgConfig)
+pkg_search_module(LAPACKE REQUIRED lapacke)
+
+if(NOT DEFINED MZ_PYTHONPATH)
+  set(MZ_PYTHONPATH "PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}:${CMAKE_BINARY_DIR}/artifacts" CACHE STRING "python path")
+endif()
+set(MZ_PYTHONPATH "${MZ_PYTHONPATH}:${CMAKE_CURRENT_SOURCE_DIR}/TrainingExtensions/common/src/python")
+
+set(ENV{PYTHONPATH} "${CMAKE_CURRENT_SOURCE_DIR}")
+
 # Set the software version from version.txt file (if not already set)
 if(NOT DEFINED SW_VERSION)
   file(STRINGS "packaging/version.txt" SW_VERSION)
@@ -89,6 +113,13 @@ add_custom_target(pylintmodelzoo
     # Run the Pylint
     COMMAND ${CMAKE_COMMAND} -DAIMET_PACKAGE_PATH=${AIMET_PACKAGE_PATH} -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DENABLE_TENSORFLOW=${ENABLE_TENSORFLOW} -DENABLE_TORCH=${ENABLE_TORCH} -DSW_VERSION=${SW_VERSION} -DPROJECT_NAME=${CMAKE_PROJECT_NAME} -P ${CMAKE_CURRENT_SOURCE_DIR}/packaging/pylint_model_zoo.cmake
 )
+
+# -------------------------------
+# Acceptance tests 
+# -------------------------------
+
+add_subdirectory(AcceptanceTests)
+
 
 # -------------------------------
 # Deployment

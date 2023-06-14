@@ -18,7 +18,7 @@ from aimet_zoo_torch.regnet.dataloader.dataloaders_and_eval_func import (
 from aimet_zoo_torch.regnet import RegNet
 
 
-def arguments():
+def arguments(raw_args):
     """Parse input arguments"""
     parser = argparse.ArgumentParser(
         description="script for classification model quantization"
@@ -35,13 +35,13 @@ def arguments():
         "--dataset-path", help="path to evaluation dataset", type=str, required=True
     )
     parser.add_argument("--use-cuda", help="Use cuda", default=True, type=bool)
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
     return args
 
 
-def main():
+def main(raw_args=None):
     """Run evaluations"""
-    args = arguments()
+    args = arguments(raw_args)
 
     # Dataloaders
     encoding_dataloader = ImageNetDataLoader(
