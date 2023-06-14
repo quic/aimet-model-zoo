@@ -9,7 +9,8 @@
 # =============================================================================
 #pylint: skip-file
 """ module for getting dataloders"""
-
+import os
+import pathlib
 from PIL import Image
 from datasets import load_dataset
 import torch
@@ -24,7 +25,24 @@ from torchvision.transforms import (
     ToTensor,
 )
 
-def get_dataloaders(config,feature_extractor,interpolate=False):
+# pylint: disable-msg=R0902
+class DataConfig:
+    """adding hardcoded values into args from parseargs() and return args"""
+
+    def __init__(self, args):
+        self.parent_dir = str(pathlib.Path(os.path.abspath(__file__)).parent.parent)
+        # import pdb
+        # pdb.set_trace()
+        self.dataset_name = os.path.join(self.parent_dir,"dataloader/utils/imagenet.py")
+        self.max_eval_samples = None
+        self.max_train_samples = None
+        self.clamp_quantizer = False
+        self.per_device_train_batch_size = 8
+        self.image_normalization = False
+        for arg in vars(args):
+            setattr(self, arg, getattr(args, arg))
+
+def get_dataloaders(args,feature_extractor,interpolate=False):
 
     """Get train_dataloader and val_dataloader 
     
@@ -33,13 +51,16 @@ def get_dataloaders(config,feature_extractor,interpolate=False):
 
     #Load aimet model
     model, feature_extractor, interpolate = load_pretrained_model(
-        config, labels, label2id, id2label
+        args, labels, label2id, id2label
     )
 
     """
-    # get dataset from config 
+    # hardcoded values for args 
+    args = DataConfig(args)
 
-    dataset = get_dataset(config)
+    # get dataset from args 
+
+    dataset = get_dataset(args)
 
     # Prepare label mappings.
     # We'll include these in the model's config to get human readable labels
@@ -63,7 +84,7 @@ def get_dataloaders(config,feature_extractor,interpolate=False):
         CenterCrop(feature_extractor.size),
         ToTensor(),
     ]
-    if config.image_normalization:
+    if args.image_normalization:
         _train_transforms.append(normalize)
         _val_transforms.append(normalize)
     train_transforms = Compose(_train_transforms)
@@ -95,19 +116,19 @@ def get_dataloaders(config,feature_extractor,interpolate=False):
                 image.convert("RGB")) for image in example_batch["image"]]
         return example_batch
 
-    if config.max_train_samples is not None:
+    if args.max_train_samples is not None:
         dataset["train"] = (
             dataset["train"]
-            .shuffle(seed=config.seed)
-            .select(range(config.max_train_samples))
+            .shuffle(seed=args.seed)
+            .select(range(args.max_train_samples))
         )
     # Set the training transforms
     train_dataset = dataset["train"].with_transform(preprocess_train)
-    if config.max_eval_samples is not None:
+    if args.max_eval_samples is not None:
         dataset["validation"] = (
             dataset["validation"]
-            .shuffle(seed=config.seed)
-            .select(range(config.max_eval_samples))
+            .shuffle(seed=args.seed)
+            .select(range(args.max_eval_samples))
         )
     # Set the validation transforms
     eval_dataset = dataset["validation"].with_transform(preprocess_val)
@@ -130,12 +151,12 @@ def get_dataloaders(config,feature_extractor,interpolate=False):
         train_dataset,
         shuffle=True,
         collate_fn=collate_fn,
-        batch_size=config.per_device_train_batch_size,
+        batch_size=args.per_device_train_batch_size,
     )
     eval_dataloader = DataLoader(
         eval_dataset,
         collate_fn=collate_fn,
-        batch_size=config.per_device_eval_batch_size,
+        batch_size=args.per_device_eval_batch_size,
     )
 
     def eval_function(model,args):
@@ -169,10 +190,10 @@ def get_dataloaders(config,feature_extractor,interpolate=False):
 
     return train_dataloader,eval_dataloader,eval_function
 
-def get_dataset(config):
+def get_dataset(args):
     """get imagenet dataset
     Parameters:
-        config: location of imagenet train and validation dataset 
+        args: location of imagenet train and validation dataset 
     Returns:
         dataset: imagenet dataset
     """
@@ -184,10 +205,10 @@ def get_dataset(config):
     # download the dataset.
     # imagenet custom script loader
     data_files = {}
-    data_files["train"] = config.train_dir
+    data_files["train"] = args.train_dir
     # if config.validation_dir is not None:
-    data_files["validation"] = config.validation_dir
+    data_files["validation"] = args.validation_dir
     # if config.dataset_name.endswith(".py"):
-    dataset = load_dataset(config.dataset_name, data_dir=data_files)
+    dataset = load_dataset(args.dataset_name, data_dir=data_files)
 
     return dataset 

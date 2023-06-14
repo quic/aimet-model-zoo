@@ -18,7 +18,7 @@
         "url_pre_opt_weights": null,
         "url_post_opt_weights": null,
         "url_adaround_encodings": null,
-        "url_aimet_encodings": "https://github.com/quic/aimet-model-zoo/releases/download/tensorflow2-resnet50/resnet50_w8a8.encodings",
+        "url_aimet_encodings": "https://github.com/quic/aimet-model-zoo/releases/download/tensorflow2_resnet50/resnet50_w8a8.encodings",
         "url_aimet_config": "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.25/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json"
     }
 }

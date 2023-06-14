@@ -1,7 +1,7 @@
 # Tensorflow ResNet50 for TensorFlow 2.4
 
 ## Setup AI Model Efficiency Toolkit (AIMET)
-Please [install and setup AIMET](https://github.com/quic/aimet/blob/release-aimet-1.25/packaging/install.md) before proceeding further. This evaluation was run using [AIMET 1.25 for TensorFlow 2.4](https://github.com/quic/aimet/releases/tag/1.25) i.e. please set `release_tag="1.25"` and `AIMET_VARIANT="tf_gpu"` in the above instructions.
+Please [install and setup AIMET](https://github.com/quic/aimet/blob/release-aimet-1.26/packaging/install.md) before proceeding further. This evaluation was run using [AIMET 1.26 for TensorFlow 2.4](https://github.com/quic/aimet/releases/tag/1.26) i.e. please set `release_tag="1.26"` and `AIMET_VARIANT="tf_gpu"` in the above instructions.
 
 ## Additional Dependencies
 pip install numpy==1.19.5

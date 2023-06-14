@@ -9,31 +9,29 @@
 #
 # @@-COPYRIGHT-END-@@
 # =============================================================================
-""" acceptance test for image classification"""
+
+""" acceptance test for uniformer image classification"""
+
 import pytest
 import torch
-from aimet_zoo_torch.resnet.evaluator import resnet_quanteval
-
-
-@pytest.fixture()
-def model_config():
-    """model config fixture"""
-    model_config_dict = {
-        "resnet18": "resnet18_w8a8",
-    }
-    return model_config_dict
-
-
+from aimet_zoo_torch.uniformer_classification.evaluators import uniformer_classification_quanteval
+ 
 @pytest.mark.cuda
+@pytest.mark.image_classification
 # pylint:disable = redefined-outer-name
-def test_quanteval_resnet18(model_config, dataset_path):
-    """resnet18 image classification test"""
+@pytest.mark.parametrize("model_config", ["uniformer_classification_w8a8"])
+def test_quanteval_resnet(model_config, tiny_imageNet_root_path):
+    """resnet image classification test"""
+ 
+    if tiny_imageNet_root_path is None:
+        pytest.fail(f'dataset path is not set')
+ 
     torch.cuda.empty_cache()
-    resnet_quanteval.main(
+    uniformer_classification_quanteval.main(
         [
             "--model-config",
-            model_config["resnet18"],
+            model_config,
             "--dataset-path",
-            dataset_path["image_classification"],
+            tiny_imageNet_root_path,
         ]
     )

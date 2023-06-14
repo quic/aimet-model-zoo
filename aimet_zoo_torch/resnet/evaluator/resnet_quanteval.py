@@ -19,7 +19,7 @@ def arguments(raw_args):
     """ Parse input arguments """
     parser = argparse.ArgumentParser(description='script for classification model quantization')
     parser.add_argument('--model-config', help='model configuration to use', default="resnet50_w8a8",
-                        choices = ['resnet18_w4a8', 'resnet18_w8a8', 'resnet50_w4a8', 'resnet50_w8a8', 'resnet101_w8a8'],
+                        choices = ['resnet18_w4a8', 'resnet18_w8a8', 'resnet50_w4a8', 'resnet50_w8a8', 'resnet50_w8a16', 'resnet101_w8a8'],
                         type=str, required=True)
     parser.add_argument('--dataset-path', help='path to evaluation dataset',type=str, required=True)
     parser.add_argument('--use-cuda', help='Use cuda', default=True, type=bool)
@@ -49,7 +49,7 @@ def main(raw_args=None):
     quant_acc = eval_func(model = sim.model.cuda(), dataloader = eval_dataloader)
     print(f'Quantized quantized accuracy: {quant_acc:0.3f}%')
 
-    return quant_acc
+    return {'fp32_acc':fp32_acc, 'quant_acc':quant_acc} 
 
 if __name__ == '__main__':
     main()

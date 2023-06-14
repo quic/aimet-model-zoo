@@ -1,0 +1,26 @@
+{
+    "name": "Uniformer Small",
+    "framework": "pytorch",
+    "task": "classification",
+    "model_args": {
+        "num_classes": 1000
+    },
+    "input_shape": [null, 3, 224, 224],
+    "trainig_dataset": "Imagenet",
+    "optimization_config": {
+        "quantization_configuration":
+            {
+                "param_bw": 8,
+                "output_bw": 8,
+                "input_quantization": true,
+                "quant_scheme": "tf_enhanced",
+                "techniques": ["qat", "bn_fold"]
+            }
+        },
+    "artifacts": {
+        "url_pre_opt_weights": "https://github.com/quic/aimet-model-zoo/releases/download/torch_uniformer_classification/uniformer_classification_fp32.pth", 
+        "url_post_opt_weights": "https://github.com/quic/aimet-model-zoo/releases/download/torch_uniformer_classification/uniformer_classification_w8a8.pth",
+        "url_aimet_encodings": "https://github.com/quic/aimet-model-zoo/releases/download/torch_uniformer_classification/uniformer_classification_w8a8.encodings",
+        "url_aimet_config": "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.22.1/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json"        
+    }
+}

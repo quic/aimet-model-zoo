@@ -13,6 +13,7 @@ import json
 import os
 import csv
 from collections import defaultdict
+import pathlib
 import torch
 from transformers import AutoConfig as Config
 from transformers import AutoFeatureExtractor as FeatureExtractor
@@ -36,25 +37,38 @@ class vit(Downloader):
         model_config
         quantized
         """
-        parent_dir = "/".join(os.path.realpath(__file__).split("/")[:-1])
+        self.parent_dir = str(pathlib.Path(os.path.abspath(__file__)).parent)
         self.cfg = defaultdict(lambda: None)
         if model_config:
-            config_filepath = parent_dir + "/model_cards/" + model_config + ".json"
+            config_filepath = os.path.join(
+                self.parent_dir, "model_cards", model_config + ".json"
+            )
             with open(config_filepath) as f_in:
                 self.cfg = json.load(f_in)
         Downloader.__init__(
             self,
             tar_url_post_opt_weights=self.cfg["artifacts"]["tar_url_post_opt_weights"],
             url_aimet_config=self.cfg["artifacts"]["url_aimet_config"],
-            model_dir=parent_dir,
+            model_dir=self.parent_dir,
         )
         self.model = None
         self.quantized = quantized
+        if self.quantized:
+            self.model_name_or_path = os.path.join(
+                self.parent_dir, self.cfg["model_args"]["quantized"]["model_name_or_path"]
+            )          
+        else:
+            self.model_name_or_path = self.cfg["model_args"]["original"]["model_name_or_path"]
 
-    def get_model_from_pretrained(self, dataset):
+        self.config_file = os.path.join(
+            self.parent_dir, self.cfg["model_args"]["config_file"]
+        )
+        self.dataset_name = os.path.join(
+            self.parent_dir, self.cfg["model_args"]["dataset_name"]
+        )         
+
+    def get_model_from_pretrained(self,dataset):
         """get original or optmized model
-        Parameters:
-            dataset:
         Return:
             model : pretrained/optmized model
         """
@@ -68,24 +82,15 @@ class vit(Downloader):
         label2id = {label: str(i) for i, label in enumerate(labels)}
         id2label = {str(i): label for i, label in enumerate(labels)}
 
-        if self.quantized:
-            model_name_or_path = self.cfg["model_args"]["quantized"][
-                "model_name_or_path"
-            ]
-        else:
-            model_name_or_path = self.cfg["model_args"]["original"][
-                "model_name_or_path"
-            ]
-
         config = Config.from_pretrained(
-            model_name_or_path,
+            self.model_name_or_path,
             label2id=label2id,
             id2label=id2label,
             finetuning_task="image-classification",
         )
         config.return_dict = False
         feature_extractor = FeatureExtractor.from_pretrained(
-            model_name_or_path,
+            self.model_name_or_path,
         )
         # pylint:disable = unused-variable
         interpolate = False
@@ -101,8 +106,8 @@ class vit(Downloader):
             )
 
         self.model = VitModel.from_pretrained(
-            model_name_or_path,
-            from_tf=bool(".ckpt" in model_name_or_path),
+            self.model_name_or_path,
+            from_tf=bool(".ckpt" in self.model_name_or_path),
             config=config,
             ignore_mismatched_sizes=ignore_mismatched_sizes,
         )
@@ -174,7 +179,7 @@ class vit(Downloader):
                 "quantization_configuration"
             ]["param_bw"],
             in_place=True,
-            config_file=self.cfg["model_args"]["config_file"],
+            config_file=self.config_file,
         )
 
         quant_sim.compute_encodings(eval_function, [10, dataloader, metric])

@@ -17,6 +17,7 @@ from shutil import copy2
 from urllib.request import urlretrieve
 import urllib.request
 import progressbar
+import requests
 import gdown# pylint: disable=import-error
 
 
@@ -98,9 +99,14 @@ class Downloader:
             if self.path_zipped_checkpoint
             else None
         )
+        # GITHUB TOKEN for internal use cases
+        self.GITHUB_TOKEN = None
+        self.INTERNAL_REPO_URL = None
 
     def _download_from_url(self, src: str, dst: str, show_progress=False):
         """Receives a source URL or path and a storage destination path, evaluates the source, fetches the file, and stores at the destination"""
+        # import pdb
+        # pdb.set_trace()
         if not os.path.exists(self._download_storage_path):
             os.makedirs(self._download_storage_path)
         if src is None:
@@ -108,16 +114,74 @@ class Downloader:
         if src.startswith("https://drive.google.com"):
             gdown.download(url=src, output=dst, quiet=True, verify=False)
         elif src.startswith("http"):
-            if show_progress:
-                urlretrieve(src, dst, DownloadProgressBar())
+            if 'qualcomm' in src:
+                self._download_from_internal(src,dst)
             else:
-                urlretrieve(src, dst)
+                if show_progress:
+                    urlretrieve(src, dst, DownloadProgressBar())
+                else:
+                    urlretrieve(src, dst)
         else:
             assert os.path.exists(
                 src
             ), "URL passed is not an http, assumed it to be a system path, but such path does not exist"
             copy2(src, dst)
         return None
+
+    def _convert_src_to_asset_url(self, src: str):
+        """convert src url to asset url 
+        """
+        # 0. get release_tag and file_name from url
+        release_tag, file_name = self._find_tag(src)    
+        # 1. read all release in to all_releases
+        headers = {
+                    'Authorization': 'token ' + self.GITHUB_TOKEN ,    
+                    'Accept': 'application/json',
+                }
+                      
+        resp = requests.get(self.INTERNAL_REPO_URL,headers = headers,timeout=(4, 30))
+
+        all_releases = resp.json()
+        # 2. check if release_tag in all_releases else report artifacts not uploade
+        content_with_tag_name = [s for s in all_releases if s['tag_name']== release_tag ]
+        if content_with_tag_name is None:
+            raise NameError('this release tag is not uploaded, check if release tag or if this release is uploaded yet')
+        # 3. check if file_name in all_releases['release_tag'], else report file not uploaded or file name is wrong
+        assets_with_tag_name = content_with_tag_name[0]['assets']
+        asset_with_file_name = [s for s in assets_with_tag_name if s['name']== file_name ]
+        if asset_with_file_name is None:
+            raise NameError('this artifact is not uploaded or naming has mismatch with release')
+        # 4. return asset_url
+        return asset_with_file_name[0]['url']
+
+    def _find_tag(self, src: str):
+        """find out release tag and file name 
+        <INTERNAL_REPO_URL>/download/tensorflow2_resnet50/resnet50_w8a8.encodings
+        return should be 
+        tensorflow2_resnet50, resnet50_w8a8.encodings
+        """
+        url_breakdown = src.split('/')
+        return url_breakdown[-2], url_breakdown[-1]
+
+    def _download_from_internal(self, src: str, dst: str):
+        """Use GITHUB_TOKEN evironment variable to download from internal github repo link 
+
+        """
+        self.GITHUB_TOKEN= os.getenv("GITHUB_TOKEN")
+        self.INTERNAL_REPO_URL= os.getenv("INTERNAL_REPO_URL")
+        if self.GITHUB_TOKEN is None:
+            raise NameError("GITHUB_TOKEN not setup, not able to download from internal github url, exit program!")
+        if self.INTERNAL_REPO_URL is None:
+            raise NameError("variable INTERNAL_REPO_URL not setup, use export INTERNAL_REPO_URL=<INTERNAL_REPO_URL> to setup before continuing")  
+        asset_url = self._convert_src_to_asset_url(src)
+        headers = {
+                    'Authorization': 'token ' + self.GITHUB_TOKEN ,    
+                    'Accept': 'application/octet-stream',
+                } 
+        resp = requests.get(asset_url,headers = headers, timeout=(4, 30) )
+        with open(dst, 'wb') as file:
+            file.write(resp.content)
+
 
     def _download_pre_opt_weights(self, show_progress=False):
         """downloads pre optimization weights"""

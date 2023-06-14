@@ -65,11 +65,11 @@ class AuxArguments:
     Auxiliary arguments pertaining to training.
     """
     fmodel_path: str = field(
-        default="../model/weights/fp.pth",
+        default="weights/fp.pth",
         metadata={"help": "Path to the full-precision model"}
     )
     qmodel_path: str = field(
-        default="../model/weights/qat.ckpt",
+        default="weights/qat.ckpt",
         metadata={"help": "Path to the quantized model"}
     )
     model_config: str = field(

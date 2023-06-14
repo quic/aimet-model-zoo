@@ -20,7 +20,7 @@ from aimet_zoo_torch.efficientnetlite0.dataloader import eval_func, forward_pass
 from aimet_zoo_torch.efficientnetlite0 import EfficientNetLite0
 
 
-def arguments():
+def arguments(raw_args):
     """add arguments"""
     parser = argparse.ArgumentParser(
         description="0725 changed script for efficientnet_lite0 quantization"
@@ -49,7 +49,7 @@ def arguments():
     parser.add_argument(
         "--use-cuda", help="Run evaluation on GPU", type=bool, default=True
     )
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
     return args
 
 
@@ -88,10 +88,10 @@ class ModelConfig:
             setattr(self, arg, getattr(args, arg))
 
 
-def main():
+def main(raw_args=None):
     """ main evaluation function"""
     #pylint:disable = no-member
-    args = arguments()
+    args = arguments(raw_args)
     config = ModelConfig(args)
     seed(seednum=23, use_cuda=args.use_cuda)
 

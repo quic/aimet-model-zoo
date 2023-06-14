@@ -30,8 +30,8 @@
         "use_auth_token":false
     },
     "aux_args":{
-        "fmodel_path":"../model/weights/pre_opt_weights",
-        "qmodel_path":"../model/weights/post_opt_weights"
+        "fmodel_path":"weights/pre_opt_weights",
+        "qmodel_path":"weights/post_opt_weights"
     },
     "optimization_config": {
         "quantization_configuration":

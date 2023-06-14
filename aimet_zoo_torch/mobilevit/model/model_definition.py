@@ -13,6 +13,7 @@ import json
 import os
 import csv
 from collections import defaultdict
+import pathlib
 import torch
 from transformers import AutoConfig as Config
 from transformers import AutoFeatureExtractor as FeatureExtractor
@@ -35,20 +36,32 @@ class mobilevit(Downloader):
         model_config
         quantized
         """
-        parent_dir = "/".join(os.path.realpath(__file__).split("/")[:-1])
+        self.parent_dir = str(pathlib.Path(os.path.abspath(__file__)).parent)
         self.cfg = defaultdict(lambda: None)
         if model_config:
-            config_filepath = parent_dir + "/model_cards/" + model_config + ".json"
+            config_filepath = os.path.join(
+                self.parent_dir, "model_cards", model_config + ".json"
+            )
             with open(config_filepath) as f_in:
                 self.cfg = json.load(f_in)
         Downloader.__init__(
             self,
             tar_url_post_opt_weights=self.cfg["artifacts"]["tar_url_post_opt_weights"],
             url_aimet_config=self.cfg["artifacts"]["url_aimet_config"],
-            model_dir=parent_dir,
+            model_dir=self.parent_dir,
         )
         self.model = None
         self.quantized = quantized
+        if self.quantized:
+            self.model_name_or_path = os.path.join(
+                self.parent_dir, self.cfg["model_args"]["quantized"]["model_name_or_path"]
+            )             
+        else:
+            self.model_name_or_path = self.cfg["model_args"]["original"]["model_name_or_path"]
+        
+        self.config_file = os.path.join(
+            self.parent_dir, self.cfg["model_args"]["config_file"]
+        )        
 
     def get_model_from_pretrained(self):
         """get original or optmized model
@@ -61,33 +74,17 @@ class mobilevit(Downloader):
             self._download_tar_post_opt_weights()
         self._download_aimet_config()
 
-        if self.quantized:
-            model_name_or_path = self.cfg["model_args"]["quantized"][
-                "model_name_or_path"
-            ]
-        else:
-            model_name_or_path = self.cfg["model_args"]["original"][
-                "model_name_or_path"
-            ]
-
-        config = Config.from_pretrained(model_name_or_path)
+        config = Config.from_pretrained(self.model_name_or_path)
         config.return_dict = False
-        self.model = MobileVitModel.from_pretrained(model_name_or_path, config=config)
+        self.model = MobileVitModel.from_pretrained(self.model_name_or_path, config=config)
 
         return self.model
 
     def get_feature_extractor_from_pretrained(self):
         """get feature extractor from pretrained model"""
-        if self.quantized:
-            model_name_or_path = self.cfg["model_args"]["quantized"][
-                "model_name_or_path"
-            ]
-        else:
-            model_name_or_path = self.cfg["model_args"]["original"][
-                "model_name_or_path"
-            ]
+
         feature_extractor = FeatureExtractor.from_pretrained(
-            model_name_or_path,
+            self.model_name_or_path,
         )
         return feature_extractor
 
@@ -100,15 +97,6 @@ class mobilevit(Downloader):
         Returns:
             quant_sim:
         """
-        if self.quantized:
-            model_name_or_path = self.cfg["model_args"]["quantized"][
-                "model_name_or_path"
-            ]
-        else:
-            model_name_or_path = self.cfg["model_args"]["original"][
-                "model_name_or_path"
-            ]
-
         metric = datasets.load_metric("accuracy")
         dummy_input = self._get_dummy_input(train_dataloader)
 
@@ -147,13 +135,13 @@ class mobilevit(Downloader):
                 "quantization_configuration"
             ]["param_bw"],
             in_place=True,
-            config_file=self.cfg["model_args"]["config_file"],
+            config_file=self.config_file,
         )
 
         quant_sim.compute_encodings(eval_function, [10, eval_dataloader, metric])
 
         # load encodings if there is encodings.csv
-        self._load_encoding_data(quant_sim, model_name_or_path)
+        self._load_encoding_data(quant_sim, self.model_name_or_path)
         return quant_sim
 
     @staticmethod

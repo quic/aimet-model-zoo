@@ -13,7 +13,7 @@ import tensorflow as tf
 from aimet_zoo_tensorflow.resnet50_tf2.model.model_definition import Resnet50
 from aimet_zoo_tensorflow.resnet50_tf2.evaluators.eval_func import get_eval_func
 
-def arguments():
+def arguments(raw_args):
     '''
     parses command line arguments
     '''
@@ -24,12 +24,12 @@ def arguments():
     parser.add_argument('--default-param-bw', help='Default parameter bitwidth for quantization.', type=int, default=8)
     parser.add_argument('--batch-size', help='batch_size for loading data', type=int, default=16)
     parser.add_argument('--use-cuda', help='Run evaluation on GPU', type=bool, default=True)
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
     return args
 
-def main():
+def main(raw_args=None):
     """ Run evaluation """
-    args = arguments()
+    args = arguments(raw_args)
 
     gpu_devices = tf.config.experimental.list_physical_devices("GPU")
     for device in gpu_devices:

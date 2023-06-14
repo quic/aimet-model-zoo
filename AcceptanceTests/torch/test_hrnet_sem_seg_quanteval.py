@@ -9,7 +9,9 @@
 #
 # @@-COPYRIGHT-END-@@
 # =============================================================================
-""" acceptance test for semantic segmentation"""
+
+""" acceptance test for hrnet semantic segmentation"""
+
 import pytest
 import torch
 
@@ -17,26 +19,23 @@ from aimet_zoo_torch.hrnet_semantic_segmentation.evaluators import (
     hrnet_sem_seg_quanteval,
 )
 
-
-@pytest.fixture()
-def model_config():
-    """model config fixture"""
-    model_config_dict = {
-        "hrnet_sem_seg": "hrnet_sem_seg_w8a8",
-    }
-    return model_config_dict
-
-
+# disable this due to hrnet's hard coded image list val.lst not able to read tiny cityscapes dataset 
+@pytest.mark.sementic_segmentation 
 @pytest.mark.cuda
 #pylint:disable = redefined-outer-name
-def test_quaneval_hrnet_sem_seg(model_config, dataset_path):
+@pytest.mark.parametrize("model_config",["hrnet_sem_seg_w4a8","hrnet_sem_seg_w4a8"])
+def test_quaneval_hrnet_sem_seg(model_config, tiny_cityscapes_path, monkeypatch):
     """acceptance test of hrnet for semantic segmentation"""
     torch.cuda.empty_cache()
+    monkeypatch.setitem(hrnet_sem_seg_quanteval.DEFAULT_CONFIG, "num_samples_cal", 2)
+    monkeypatch.setitem(hrnet_sem_seg_quanteval.DEFAULT_CONFIG, "num_samples_eval", 2)
+    if tiny_cityscapes_path is None:
+        pytest.fail(f'Dataset path is not set')
     hrnet_sem_seg_quanteval.main(
         [
             "--model-config",
-            model_config["hrnet_sem_seg"],
+            model_config,
             "--dataset-path",
-            dataset_path["semantic_segmentation"],
+            tiny_cityscapes_path,
         ]
     )

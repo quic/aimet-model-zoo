@@ -21,7 +21,7 @@ from aimet_zoo_torch.common.utils.utils import get_device
 from aimet_zoo_torch.common.utils.image_net_data_loader import ImageNetDataLoader
 
 
-def arguments():
+def arguments(raw_args):
     """parse command line arguments"""
     parser = argparse.ArgumentParser(description="Evaluation script for HRNet")
     parser.add_argument(
@@ -39,16 +39,16 @@ def arguments():
     parser.add_argument(
         "--use-cuda", help="Use GPU for evaluation", default=True, type=bool
     )
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
     return args
 
 
-def main():
+def main(raw_args=None):
     """run evaluator"""
     #pylint:disable = undefined-variable, logging-fstring-interpolation
-    args = arguments()
+    args = arguments(raw_args)
     logging.basicConfig(level=logging.DEBUG)
-    logger = logging.getLogger(_name_)
+    logger = logging.getLogger(__name__)
     device = get_device(args)
     # get imagenet validation dataloader
     eval_dataloader = ImageNetDataLoader(

@@ -71,7 +71,7 @@ def download_labels():
         )
 
 
-def arguments():
+def arguments(raw_args):
     # pylint: disable = redefined-outer-name
     """parses command line arguments"""
     parser = argparse.ArgumentParser(description="SSD Evaluation on VOC Dataset.")
@@ -90,7 +90,7 @@ def arguments():
     parser.add_argument("--default-output-bw", type=int, default=8)
     parser.add_argument("--default-param-bw", type=int, default=8)
     parser.add_argument("--use-cuda", type=bool, default=True)
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
     return args
 
 
@@ -121,11 +121,11 @@ def work_init(work_id):
     np.random.seed(seed + work_id)
 
 
-def model_eval(args, predictor, dataset):
+def model_eval(args, predictor, dataset, num_samples):
     """ model evalution function"""
     # pylint: disable = redefined-outer-name, unused-variable, unused-argument
     aimet_dataset = copy.deepcopy(dataset)
-    aimet_dataset.ids = aimet_dataset.ids[:500]
+    aimet_dataset.ids = aimet_dataset.ids[:num_samples]
     calib_dataset = CalibrationDataset(aimet_dataset)
     data_loader_kwargs = {"worker_init_fn": work_init, "num_workers": 0}
     batch_size = 1
@@ -183,6 +183,7 @@ def group_annotation_by_class(dataset):
             all_gt_boxes[class_index][image_id] = torch.stack(
                 all_gt_boxes[class_index][image_id]
             )
+    #pylint:disable = consider-using-dict-items
     for class_index in all_difficult_cases:
         for image_id in all_difficult_cases[class_index]:
             all_gt_boxes[class_index][image_id] = torch.tensor(
@@ -247,12 +248,13 @@ def compute_average_precision_per_class(
     return measurements.compute_average_precision(precision, recall)
 
 
-def evaluate_predictor(predictor):
+def evaluate_predictor(predictor,dataset,class_names,eval_path,annotation_stats,config,num_samples):
     """
     :param predictor:
     :return: Average precision per classes for the given predictor
     """
     # pylint: disable = too-many-locals, redefined-outer-name
+    true_case_stat, all_gb_boxes, all_difficult_cases = annotation_stats
     results = []
     for i in tqdm(range(len(dataset))):
         image = dataset.get_image(i)
@@ -269,6 +271,9 @@ def evaluate_predictor(predictor):
                 dim=1,
             )
         )
+        if num_samples is not None and i > num_samples:
+            break
+
     results = torch.cat(results)
     for class_index, class_name in enumerate(class_names):
         if class_index == 0:
@@ -315,20 +320,25 @@ class ModelConfig:
         for arg in vars(args):
             setattr(self, arg, getattr(args, arg))
 
+DEFAULT_CONFIG = {"num_samples_cal": 500, "num_samples_eval": None}
 
-if __name__ == "__main__":
-    args = arguments()
+#pylint:disable = too-many-local-variables 
+def main(raw_args=None):
+    """main evaluation function"""
+    args = arguments(raw_args)
     config = ModelConfig(args)
-    download_labels()
+    #download_labels()
 
     eval_path = pathlib.Path("./eval_results")
     eval_path.mkdir(exist_ok=True)
-    #pylint:disable = consider-using-with
     class_names = [name.strip() for name in open("voc-model-labels.txt").readlines()]
     device = get_device(args)
-    #pylint:disable = no-member
+    #pylint: disable = no-member
     dataset = VOCDataset(config.dataset_path, is_test=True)
-    true_case_stat, all_gb_boxes, all_difficult_cases = group_annotation_by_class(
+    #true_case_stat, all_gb_boxes, all_difficult_cases = group_annotation_by_class(
+    #    dataset
+    #)
+    annotation_stats = group_annotation_by_class(
         dataset
     )
 
@@ -339,7 +349,7 @@ if __name__ == "__main__":
         model_fp32.model, nms_method="hard", device=device
     )
     sim_fp32 = model_fp32.get_quantsim(quantized=False)
-    eval_func_fp32 = model_eval(config, predictor_orig_fp32, dataset)
+    eval_func_fp32 = model_eval(config, predictor_orig_fp32, dataset, DEFAULT_CONFIG['num_samples_cal'])
     predictor_sim_fp32 = create_mobilenetv2_ssd_lite_predictor(
         sim_fp32.model, nms_method=config.nms_method, device=device
     )
@@ -348,11 +358,12 @@ if __name__ == "__main__":
     print("Initializing Optimized Model")
     model_int8 = SSDMobileNetV2(model_config=args.model_config)
     model_int8.from_pretrained(quantized=True)
+
     predictor_orig_int8 = create_mobilenetv2_ssd_lite_predictor(
         model_int8.model, nms_method=config.nms_method, device=device
     )
     sim_int8 = model_int8.get_quantsim(quantized=True)
-    eval_func_int8 = model_eval(config, predictor_orig_int8, dataset)
+    eval_func_int8 = model_eval(config, predictor_orig_int8, dataset, DEFAULT_CONFIG['num_samples_cal'])
     predictor_sim_int8 = create_mobilenetv2_ssd_lite_predictor(
         sim_int8.model, nms_method=config.nms_method, device=device
     )
@@ -360,22 +371,22 @@ if __name__ == "__main__":
 
     # Original FP32 model on FP32 device
     print("Computing Original Model on FP32 device")
-    aps = evaluate_predictor(predictor_orig_fp32)
+    aps = evaluate_predictor(predictor_orig_fp32,dataset,class_names,eval_path,annotation_stats,config,DEFAULT_CONFIG['num_samples_eval'])
     mAP_fp32model_fp32env = sum(aps) / len(aps)
 
     # Original FP32 model on INT8 device
     print("Computing Original Model on INT8 device")
-    aps = evaluate_predictor(predictor_sim_fp32)
+    aps = evaluate_predictor(predictor_sim_fp32,dataset,class_names,eval_path,annotation_stats,config,DEFAULT_CONFIG['num_samples_eval'])
     mAP_fp32model_int8env = sum(aps) / len(aps)
 
     # Quantized INT8 model on FP32 device
     print("Computing Optimized Model on FP32 device")
-    aps = evaluate_predictor(predictor_orig_int8)
+    aps = evaluate_predictor(predictor_orig_int8,dataset,class_names,eval_path,annotation_stats,config,DEFAULT_CONFIG['num_samples_eval'])
     mAP_int8model_fp32env = sum(aps) / len(aps)
 
     # Quantized INT8 model on INT8 device
     print("Computing Optimized Model on INT8 device")
-    aps = evaluate_predictor(predictor_sim_int8)
+    aps = evaluate_predictor(predictor_sim_int8,dataset,class_names,eval_path,annotation_stats,config,DEFAULT_CONFIG['num_samples_eval'])
     mAP_int8model_int8env = sum(aps) / len(aps)
 
     print("\n\n")
@@ -384,3 +395,6 @@ if __name__ == "__main__":
     print(f"Original Model on INT8 device | mAP: {mAP_fp32model_int8env:.4f}")
     print(f"Optimized Model on FP32 device | mAP: {mAP_int8model_fp32env:.4f}")
     print(f"Optimized Model on INT8 device | mAP: {mAP_int8model_int8env:.4f}")
+
+if __name__ == "__main__":
+    main()

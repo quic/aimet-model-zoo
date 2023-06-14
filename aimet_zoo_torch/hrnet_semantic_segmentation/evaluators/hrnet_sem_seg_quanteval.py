@@ -66,6 +66,8 @@ class ModelConfig:
         for arg in vars(args):
             setattr(self, arg, getattr(args, arg))
 
+DEFAULT_CONFIG = {"num_samples_cal": 2000, "num_samples_eval": None}
+
 
 def main(raw_args=None):
     """run evaluator"""
@@ -76,8 +78,8 @@ def main(raw_args=None):
     # Load quantized model, compute encodings and evaluate
     model = HRNetSemSeg(model_config=args.model_config)
     sim = model.get_quantsim(quantized=True)
-    eval_func_calibration = model_eval(config, num_samples=2000)
-    eval_func = model_eval(config)
+    eval_func_calibration = model_eval(config, num_samples=DEFAULT_CONFIG['num_samples_cal'])
+    eval_func = model_eval(config,num_samples=DEFAULT_CONFIG['num_samples_eval'])
     sim.compute_encodings(
         forward_pass_callback=eval_func_calibration, forward_pass_callback_args=config
     )
