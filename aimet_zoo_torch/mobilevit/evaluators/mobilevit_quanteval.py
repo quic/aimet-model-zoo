@@ -63,7 +63,7 @@ def parse_args(raw_args):
         type=int,
         default=2022,
         help="training seed",
-    )    
+    )
     args = parser.parse_args(raw_args)
 
     return args
@@ -166,7 +166,7 @@ def main(raw_args=None):
     logger.info(
         f"Optimized Model |  8-bit Environment | perplexity: {quantized_model_performance_int8:.4f}"
     )
-    
+
     return {
         'original_model_performance_fp32':original_model_performance_fp32,
         'original_model_performance_int8':original_model_performance_int8,

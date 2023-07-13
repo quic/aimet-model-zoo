@@ -56,16 +56,15 @@ class vit(Downloader):
         if self.quantized:
             self.model_name_or_path = os.path.join(
                 self.parent_dir, self.cfg["model_args"]["quantized"]["model_name_or_path"]
-            )          
+            )
         else:
             self.model_name_or_path = self.cfg["model_args"]["original"]["model_name_or_path"]
-
         self.config_file = os.path.join(
             self.parent_dir, self.cfg["model_args"]["config_file"]
         )
         self.dataset_name = os.path.join(
             self.parent_dir, self.cfg["model_args"]["dataset_name"]
-        )         
+        )
 
     def get_model_from_pretrained(self,dataset):
         """get original or optmized model
@@ -104,7 +103,6 @@ class vit(Downloader):
             raise NotImplementedError(
                 "Need to quantize interpolate fn in modeling_vit.py"
             )
-
         self.model = VitModel.from_pretrained(
             self.model_name_or_path,
             from_tf=bool(".ckpt" in self.model_name_or_path),

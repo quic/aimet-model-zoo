@@ -7,4 +7,5 @@
 #
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
+"""loading AIMET test loop"""
 from .loops import AIMETTestLoop

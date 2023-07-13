@@ -77,7 +77,7 @@ def forward_pass(device, model, data_loader):
             _pred = model(inputs.to(device))
 
 
-def arguments():
+def arguments(raw_args=None):
     """ argument parser"""
     #pylint: disable=redefined-outer-name
     parser = argparse.ArgumentParser(
@@ -120,7 +120,7 @@ def arguments():
     parser.add_argument(
         "--use-cuda", help="Run evaluation on GPU.", type=bool, default=True
     )
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
     return args
 
 
@@ -137,10 +137,11 @@ class ModelConfig:
             setattr(self, arg, getattr(args, arg))
 
 
-def main(args):
+def main(raw_args=None):
     """ main evaluation function"""
     # pylint: disable=redefined-outer-name, too-many-locals, no-member
     seed(1234)
+    args = arguments(raw_args)
     config = ModelConfig(args)
     device = get_device(args)
     print(f"device: {device}")
@@ -213,7 +214,11 @@ def main(args):
         f"Optimized Model | {config.default_param_bw}-bit Environment | mIoU: {mIoU_optim_int8:.4f}"
     )
 
+    return {'mIoU_orig_fp32': mIoU_orig_fp32,
+            'mIoU_orig_int8': mIoU_orig_int8,
+            'mIoU_optim_fp32': mIoU_optim_fp32,
+            'mIoU_optim_int8': mIoU_optim_int8}
+
 
 if __name__ == "__main__":
-    args = arguments()
-    main(args)
+    main()

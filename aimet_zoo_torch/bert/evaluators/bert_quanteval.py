@@ -55,7 +55,7 @@ def parse_args(raw_args):
         default=None,
         required=True,
         help="Output directory",
-    )  
+    )
     args = parser.parse_args(raw_args)
     for arg in vars(args):
         print("{:30s} : {}".format(arg, getattr(args, arg)))

@@ -69,7 +69,7 @@ def tiny_mscoco_validation_path(test_data_path):
     else:
         tiny_mscoco_validation_path = None
 
-    yield tiny_mscoco_validation_path.as_posix()
+    yield tiny_mscoco_validation_path
 
 
 @pytest.fixture(scope='module')

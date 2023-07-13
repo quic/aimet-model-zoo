@@ -10,10 +10,10 @@
 message("Preparing Directories for Pylint Results" ...)
 set(src_results_dir "${SOURCE_DIR}/packaging/results")
 file(MAKE_DIRECTORY "${SOURCE_DIR}/packaging/results")
-
 message(STATUS "Source Directory: ${SOURCE_DIR}")
 message(STATUS "Result Directory: ${src_results_dir}")
 
+set(XDG_CACHE_HOME ${SOURCE_DIR})
 
 if(ENABLE_TENSORFLOW)
     # Add AIMET Tensorflow package to package array list
@@ -33,10 +33,11 @@ set(pylint_failed 0)
 foreach(zoo_pylint_folder IN LISTS pylint_list)
     message(STATUS "Aimet Model Zoo Variant: ${zoo_pylint_folder}")
     message(STATUS "Aimet Model Zoo Path Verification: ${SOURCE_DIR}/${zoo_pylint_folder}")
+    message(STATUS "Sending message format: ${MSG_FORMAT}")
 
     execute_process (
-       COMMAND pylint --rcfile=${SOURCE_DIR}/.pylintrc -r n ${MSG_FORMAT} ${SOURCE_DIR}/${zoo_pylint_folder}
-       OUTPUT_VARIABLE pylint_complete
+       COMMAND bash -c "pylint --rcfile=${SOURCE_DIR}/.pylintrc -r n ${MSG_FORMAT} ${SOURCE_DIR}/${zoo_pylint_folder}/ >> ${src_results_dir}/pylint_${zoo_pylint_folder} && \
+       echo 'Pylinting...' && cat ${src_results_dir}/pylint_${zoo_pylint_folder}"
        RESULT_VARIABLE pylint_return
         )
     message(STATUS "Return Code is: ${pylint_return}")
@@ -60,8 +61,5 @@ foreach(zoo_pylint_folder IN LISTS pylint_list)
 
        set(pylint_failed 1)
     endif()
-
-    file(WRITE "${src_results_dir}/pylint_${zoo_pylint_folder}" ${pylint_complete})
-    message(${pylint_complete})
 
 endforeach()

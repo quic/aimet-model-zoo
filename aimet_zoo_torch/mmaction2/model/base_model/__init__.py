@@ -7,4 +7,5 @@
 #
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
+"""import basemodel"""
 from .base_model import BaseModel

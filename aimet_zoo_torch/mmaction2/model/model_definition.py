@@ -15,6 +15,7 @@ import json
 import pathlib
 
 import torch
+#pylint:disable = import-error
 from aimet_torch.quantsim import QuantizationSimModel, load_encodings_to_sim
 
 from aimet_zoo_torch.common.downloader import Downloader

@@ -1,0 +1,30 @@
+{
+    "name": "MobileNet Edge TPU",
+    "framework": "tensorflow",
+    "task": "classification",
+    "model_args": {
+        "num_classes": 1001,
+        "starting_op_names": ["IteratorGetNext"],
+        "output_op_names": ["MobilenetEdgeTPU/Logits/output"]
+    },
+    "input_shape": [null, 224, 224, 3],
+    "trainig_dataset": "ImageNet",
+    "optimization_config": {
+        "quantization_configuration":
+            {
+                "param_bw": 8,
+                "output_bw": 8,
+                "input_quantization": true,
+                "quant_scheme": "tf_enhanced",
+                "techniques": ["bn_fold"]
+            }
+        },
+    "artifacts": {
+        "url_pre_opt_weights": null, 
+        "url_post_opt_weights": null,
+        "url_adaround_encodings": null,
+        "url_aimet_encodings": null,
+        "url_aimet_config": "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.23/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json",
+        "url_zipped_checkpoint": "https://github.com/quic/aimet-model-zoo/releases/download/mobilenetedgetpu_tf1/mobileNetEdgeTPU_ckpt.zip"        
+    }
+}

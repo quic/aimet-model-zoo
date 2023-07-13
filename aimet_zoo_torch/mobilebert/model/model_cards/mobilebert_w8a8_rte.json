@@ -32,13 +32,14 @@
                 "param_bw": 8,
                 "output_bw": 8,
                 "input_quantization": true,
-                "quant_scheme": "tf_range_learning",
+                "quant_scheme": "tf",
+                "aimet_config": "htp_per_channel_quantsim_config",
                 "techniques": ["qat"]
             }
         },
     "artifacts": {
-        "url_pre_opt_weights":"https://github.com/quic/aimet-model-zoo/releases/download/torch_mobilebert/rte_fp.pth",
-        "url_post_opt_weights":"https://github.com/quic/aimet-model-zoo/releases/download/torch_mobilebert/rte_qat.ckpt",
-        "url_aimet_config": "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.23/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config.json"
+        "url_pre_opt_weights":"https://github.com/quic/aimet-model-zoo/releases/download/mobilebert_w8a8_and_w4a8/rte_fp.pth",
+        "url_post_opt_weights":"https://github.com/quic/aimet-model-zoo/releases/download/mobilebert_w8a8_and_w4a8/rte_w8a8_qat.ckpt",
+        "url_aimet_config": "https://github.com/quic/aimet-model-zoo/releases/download/mobilebert_w8a8_and_w4a8/htp_per_channel_quantsim_config.json"
     }
 }

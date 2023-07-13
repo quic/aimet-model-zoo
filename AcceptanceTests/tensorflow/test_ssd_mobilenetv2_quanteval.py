@@ -13,7 +13,7 @@
 """ acceptance test for ssd_mobilenetv2_quanteval edgetpu"""
 
 import pytest
-from aimet_zoo_tensorflow.ssd_mobilenet_v2.evaluators import ssd_mobilenetv2_quanteval
+from aimet_zoo_tensorflow.ssd_mobilenet_v2.evaluators import ssd_mobilenet_v2_quanteval
 
 @pytest.mark.slow 
 @pytest.mark.cuda 
@@ -26,7 +26,7 @@ def test_quanteval_ssd_mobilenetv2(model_config, tiny_mscoco_tfrecords):
     if tiny_mscoco_tfrecords is None:
         pytest.fail(f'Dataset path is not set')
 
-    ssd_mobilenetv2_quanteval.main(
+    ssd_mobilenet_v2_quanteval.main(
         [
             "--model-config",
             model_config,

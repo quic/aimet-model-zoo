@@ -81,9 +81,7 @@ def main(raw_args=None):
     print(f"Original Model | FP32 Environment | Accuracy: {acc_fp32:.4f}")
     print(f"Original Model | W{param_bw}A{output_bw} Environment | Accuracy: {acc_orig:.4f}")
     print(f"Optimized Model | W{param_bw}A{output_bw} Environment | Accuracy: {acc_optim:.4f}")
-    
     return {"acc_fp32": acc_fp32, "acc_orig": acc_orig, "acc_optim": acc_optim}
 
 if __name__ == "__main__":
     scores_dict = main()
-    

@@ -30,7 +30,7 @@ def test_quanteval_resnext(model_config, tiny_imageNet_validation_path):
    resnext_quanteval.main(
        [
            "--model-config",
-           model_config["resnext"],
+           model_config,
            "--dataset-path",
            tiny_imageNet_validation_path,
        ]

@@ -49,7 +49,7 @@ def main(raw_args=None):
     quant_acc = eval_func(model = sim.model.cuda(), dataloader = eval_dataloader)
     print(f'Quantized quantized accuracy: {quant_acc:0.3f}%')
 
-    return {'fp32_acc':fp32_acc, 'quant_acc':quant_acc} 
+    return {'fp32_acc':fp32_acc, 'quant_acc':quant_acc}
 
 if __name__ == '__main__':
     main()

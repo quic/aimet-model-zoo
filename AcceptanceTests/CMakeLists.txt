@@ -15,16 +15,18 @@ if (ENABLE_TORCH)
 
 endif (ENABLE_TORCH)
 
-#if (ENABLE_TENSORFLOW)
-#    add_dependencies(AcceptanceTests
-#            AcceptanceTests.Tensorflow)
-#
-#endif (ENABLE_TENSORFLOW)
+if (ENABLE_TENSORFLOW)
+    add_dependencies(AcceptanceTests
+            AcceptanceTests.Tensorflow)
+
+endif (ENABLE_TENSORFLOW)
 
 if (ENABLE_TORCH)
+    message(STATUS "Torch has been enabled")
     add_subdirectory(torch)
 endif (ENABLE_TORCH)
 
-#if (ENABLE_TENSORFLOW)
-#    add_subdirectory(tensorflow)
-#endif (ENABLE_TENSORFLOW)
+if (ENABLE_TENSORFLOW)
+    message(STATUS "Tensorflow has been enabled")
+    add_subdirectory(tensorflow)
+endif (ENABLE_TENSORFLOW)

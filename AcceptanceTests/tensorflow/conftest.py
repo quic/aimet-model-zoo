@@ -52,4 +52,20 @@ def tiny_mscoco_tfrecords(test_data_path):
 
     yield tiny_mscoco_tfrecords
 
+@pytest.fixture(scope='module')
+def PascalVOC_segmentation_test_data_path(test_data_path):
+    if test_data_path is not None:
+        pascalVOC_segmentation_path = (test_data_path / "model_zoo_datasets/tiny_VOCdevkit").as_posix() 
+    else:
+        pascalVOC_segmentation_path = None
+ 
+    yield pascalVOC_segmentation_path
 
+#@pytest.fixture(scope='module')
+#def tiny_imageNet_tfrecords(test_data_path):
+#    if test_data_path is not None:
+#        tiny_imageNet_tfrecords = (test_data_path / "model_zoo_datasets/tiny_imageNet_tfrecords").as_posix() 
+#    else:
+#        tiny_imageNet_tfrecords = None
+
+#    yield tiny_imageNet_tfrecords
