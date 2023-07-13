@@ -45,7 +45,7 @@ class MobileBert(Downloader):
                 AuxArguments,
             )
         self.parent_dir = str(pathlib.Path(os.path.abspath(__file__)).parent)
-        self.cfg = defaultdict(lambda: None)    
+        self.cfg = defaultdict(lambda: None)
         if model_config:
             config_filepath = os.path.join(
                 self.parent_dir, "model_cards", model_config + ".json"

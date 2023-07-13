@@ -1,0 +1,24 @@
+{
+    "name": "deeplabv3plus_mbnv2_tf2",
+    "framework": "tensorflow2.x",
+    "task": "semantic segmentation",
+    "input_shape": [512, 512, 3],
+    "dataset": "PascalVOC2012",
+    "optimization_config": {
+        "quantization_configuration":
+            {
+                "param_bw": 8,
+                "output_bw": 8,
+                "input_quantization": true,
+                "quant_scheme": "tf_enhanced",
+                "techniques": ["bn_fold", "qat"]
+            }
+        },
+    "artifacts": {
+        "url_pre_opt_weights": "https://github.qualcomm.com/qualcomm-ai/aimet-model-zoo/releases/download/tensorflow2-deeplabv3plus_mbnv2/deeplabv3_mobilenetv2.h5",
+        "url_post_opt_weights": "https://github.qualcomm.com/qualcomm-ai/aimet-model-zoo/releases/download/tensorflow2-deeplabv3plus_mbnv2/deeplabv3_mbnv2_w8a8.h5",
+        "url_adaround_encodings": null,
+        "url_aimet_encodings": "https://github.qualcomm.com/qualcomm-ai/aimet-model-zoo/releases/download/tensorflow2-deeplabv3plus_mbnv2/deeplabv3_mbnv2_w8a8.encodings",
+        "url_aimet_config": "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.25/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json"
+    }
+}

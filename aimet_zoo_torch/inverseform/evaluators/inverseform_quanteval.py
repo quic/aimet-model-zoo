@@ -22,7 +22,7 @@ from aimet_zoo_torch.inverseform import HRNetInverseForm
 from aimet_zoo_torch.inverseform.dataloader.helper import get_dataloaders_and_eval_func
 
 
-def arguments():
+def arguments(raw_args=None):
     """argument parser"""
     parser = argparse.ArgumentParser(
         description="Evaluation script for PyTorch InverseForm models."
@@ -58,7 +58,7 @@ def arguments():
     parser.add_argument(
         "--use-cuda", help="Run evaluation on GPU.", type=bool, default=True
     )
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
     return args
 
 
@@ -72,9 +72,9 @@ def seed(seednum, use_cuda):
         torch.cuda.manual_seed_all(seednum)
 
 
-def main():
+def main(raw_args=None):
     """main evaluation function"""
-    args = arguments()
+    args = arguments(raw_args)
     seed(0, args.use_cuda)
 
     # Load model
@@ -86,15 +86,18 @@ def main():
         dataset_path=args.dataset_path
     )
 
+    fp32_mIoU = eval_func(model.model.cuda())
+
     sim.compute_encodings(
         forward_pass_callback=eval_func, forward_pass_callback_args=-1
     )
 
     # Evaluate quantized model
-    mIoU = eval_func(sim.model)
-    print("Quantized mIoU : {:0.4f}".format(mIoU))
+    quant_mIoU = eval_func(sim.model)
+    print(f"Original Model mIoU: {fp32_mIoU}, Quantized mIoU : {quant_mIoU:0.4f}")
+
+    return {'original_mIoU': fp32_mIoU, 'quantized_mIoU': quant_mIoU}
 
 
 if __name__ == "__main__":
-    # fire.Fire(main)
     main()

@@ -9,7 +9,7 @@
 # =============================================================================
 """Class for downloading and setting up of optimized and original mobilenetv2 model for AIMET model zoo"""
 
-# pylint:disable = import-error, wrong-import-order
+# pylint:disable = import-error, wrong-import-order, import-outside-toplevel
 # adding this due to docker image not setup yet
 
 import os
@@ -75,7 +75,7 @@ class MobileNetV2(Downloader):
             self.model.load_state_dict(quantized_state_dict["state_dict"])
             del quantized_state_dict
         else:
-            #pylint:disable=import-outside-toplevel
+            #pylint:disable = import-outside-toplevel
             try:
                 from torch.hub import load_state_dict_from_url
             except ImportError:

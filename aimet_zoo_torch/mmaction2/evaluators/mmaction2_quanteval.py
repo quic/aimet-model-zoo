@@ -12,6 +12,7 @@
 
 import argparse
 import torch
+#pylint:disable = import-error
 from mmengine.config import Config
 from mmengine.runner import Runner
 

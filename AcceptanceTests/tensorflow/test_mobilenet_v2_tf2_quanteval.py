@@ -18,7 +18,7 @@ from aimet_zoo_tensorflow.mobilenet_v2_tf2.evaluators import mobilenet_v2_tf2_qu
 @pytest.mark.cuda 
 @pytest.mark.object_detection
 # pylint:disable = redefined-outer-name
-@pytest.mark.parametrize("model_config", ["resnet50_w8a8"])
+@pytest.mark.parametrize("model_config", ["mobilenetv2_w8a8"])
 def test_quanteval_mobilenet_v2(model_config, tiny_imageNet_root_path):
     """mobilenet_v2_tf2 image classification acceptance test"""
 

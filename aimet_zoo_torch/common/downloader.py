@@ -132,13 +132,13 @@ class Downloader:
         """convert src url to asset url 
         """
         # 0. get release_tag and file_name from url
-        release_tag, file_name = self._find_tag(src)    
+        release_tag, file_name = self._find_tag(src)
         # 1. read all release in to all_releases
         headers = {
                     'Authorization': 'token ' + self.GITHUB_TOKEN ,    
                     'Accept': 'application/json',
                 }
-                      
+
         resp = requests.get(self.INTERNAL_REPO_URL,headers = headers,timeout=(4, 30))
 
         all_releases = resp.json()
@@ -172,12 +172,12 @@ class Downloader:
         if self.GITHUB_TOKEN is None:
             raise NameError("GITHUB_TOKEN not setup, not able to download from internal github url, exit program!")
         if self.INTERNAL_REPO_URL is None:
-            raise NameError("variable INTERNAL_REPO_URL not setup, use export INTERNAL_REPO_URL=<INTERNAL_REPO_URL> to setup before continuing")  
+            raise NameError("variable INTERNAL_REPO_URL not setup, use export INTERNAL_REPO_URL=<INTERNAL_REPO_URL> to setup before continuing")
         asset_url = self._convert_src_to_asset_url(src)
         headers = {
                     'Authorization': 'token ' + self.GITHUB_TOKEN ,    
                     'Accept': 'application/octet-stream',
-                } 
+                }
         resp = requests.get(asset_url,headers = headers, timeout=(4, 30) )
         with open(dst, 'wb') as file:
             file.write(resp.content)

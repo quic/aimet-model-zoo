@@ -7,4 +7,5 @@
 #
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
+""" Init file to import Aimet Anet Metric """
 from .anet_metric import AIMETANetMetric

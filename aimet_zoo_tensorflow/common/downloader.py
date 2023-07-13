@@ -3,11 +3,11 @@
 # =============================================================================
 #  @@-COPYRIGHT-START-@@
 #
-#  Copyright (c) 2023 of Qualcomm Innovation Center, Inc. All rights reserved.
+#  Copyright (c) 2022 of Qualcomm Innovation Center, Inc. All rights reserved.
 #
 #  @@-COPYRIGHT-END-@@
 # =============================================================================
-""" Downloader and downloader progress bar class for downloading and loading weights and encodings"""
+""" Downloader and downlowder progress bar class for downloading and loading weights and encodings"""
 
 import os
 import tarfile
@@ -15,15 +15,18 @@ from pathlib import Path
 import shutil
 from shutil import copy2
 from urllib.request import urlretrieve
+import urllib.request
 import progressbar
-import gdown # pylint: disable=import-error
+import requests
+import gdown# pylint: disable=import-error
+
 
 
 class Downloader:
     """
     Parent class for inheritance of utility methods used for downloading and loading weights and encodings
     """
-    # pylint: disable=too-many-instance-attributes, too-many-arguments
+    # pylint: disable=too-many-instance-attributes
     # 16 is reasonable in this case.
     def __init__(
             self,
@@ -37,7 +40,7 @@ class Downloader:
             url_zipped_checkpoint: str = None,
             model_dir: str = "",
             model_config: str = "",
-        ):
+    ):# pylint: disable=too-many-arguments
         """
         :param url_pre_opt_weights:       url hosting pre optimization weights as a state dict
         :param url_post_opt_weights:      url hosting post optimization weights as a state dict
@@ -62,32 +65,32 @@ class Downloader:
             else Path(model_dir + "/weights/")
         )
         self.path_pre_opt_weights = (
-            os.path.join(self._download_storage_path, "pre_opt_weights")
+            str(self._download_storage_path) + "/pre_opt_weights"
             if self.url_pre_opt_weights
             else None
         )
         self.path_post_opt_weights = (
-            os.path.join(self._download_storage_path, "post_opt_weights")
+            str(self._download_storage_path) + "/post_opt_weights"
             if self.url_post_opt_weights
             else None
         )
         self.path_adaround_encodings = (
-            os.path.join(self._download_storage_path, "adaround_encodings")
+            str(self._download_storage_path) + "/adaround_encodings"
             if self.url_adaround_encodings
             else None
         )
         self.path_aimet_encodings = (
-            os.path.join(self._download_storage_path, "aimet_encodings")
+            str(self._download_storage_path) + "/aimet_encodings"
             if self.url_aimet_encodings
             else None
         )
         self.path_aimet_config = (
-            os.path.join(self._download_storage_path, "aimet_config")
+            str(self._download_storage_path) + "/aimet_config"
             if self.url_aimet_config
             else None
         )
         self.path_zipped_checkpoint = (
-            os.path.join(self._download_storage_path, "zipped_checkpoint.zip")
+            str(self._download_storage_path) + "/zipped_checkpoint.zip"
             if self.url_zipped_checkpoint
             else None
         )
@@ -96,9 +99,14 @@ class Downloader:
             if self.path_zipped_checkpoint
             else None
         )
+        # GITHUB TOKEN for internal use cases
+        self.GITHUB_TOKEN = None
+        self.INTERNAL_REPO_URL = None
 
-    def _download_from_url(self, src: str, dst: str):
+    def _download_from_url(self, src: str, dst: str, show_progress=False):
         """Receives a source URL or path and a storage destination path, evaluates the source, fetches the file, and stores at the destination"""
+        # import pdb
+        # pdb.set_trace()
         if not os.path.exists(self._download_storage_path):
             os.makedirs(self._download_storage_path)
         if src is None:
@@ -106,7 +114,13 @@ class Downloader:
         if src.startswith("https://drive.google.com"):
             gdown.download(url=src, output=dst, quiet=True, verify=False)
         elif src.startswith("http"):
-            urlretrieve(src, dst)
+            if 'qualcomm' in src:
+                self._download_from_internal(src,dst)
+            else:
+                if show_progress:
+                    urlretrieve(src, dst, DownloadProgressBar())
+                else:
+                    urlretrieve(src, dst)
         else:
             assert os.path.exists(
                 src
@@ -114,16 +128,75 @@ class Downloader:
             copy2(src, dst)
         return None
 
-    def _download_pre_opt_weights(self):
+    def _convert_src_to_asset_url(self, src: str):
+        """convert src url to asset url 
+        """
+        # 0. get release_tag and file_name from url
+        release_tag, file_name = self._find_tag(src)
+        # 1. read all release in to all_releases
+        headers = {
+                    'Authorization': 'token ' + self.GITHUB_TOKEN ,    
+                    'Accept': 'application/json',
+                }
+
+        resp = requests.get(self.INTERNAL_REPO_URL,headers = headers,timeout=(4, 30))
+
+        all_releases = resp.json()
+        # 2. check if release_tag in all_releases else report artifacts not uploade
+        content_with_tag_name = [s for s in all_releases if s['tag_name']== release_tag ]
+        if content_with_tag_name is None:
+            raise NameError('this release tag is not uploaded, check if release tag or if this release is uploaded yet')
+        # 3. check if file_name in all_releases['release_tag'], else report file not uploaded or file name is wrong
+        assets_with_tag_name = content_with_tag_name[0]['assets']
+        asset_with_file_name = [s for s in assets_with_tag_name if s['name']== file_name ]
+        if asset_with_file_name is None:
+            raise NameError('this artifact is not uploaded or naming has mismatch with release')
+        # 4. return asset_url
+        return asset_with_file_name[0]['url']
+
+    def _find_tag(self, src: str):
+        """find out release tag and file name 
+        <INTERNAL_REPO_URL>/download/tensorflow2_resnet50/resnet50_w8a8.encodings
+        return should be 
+        tensorflow2_resnet50, resnet50_w8a8.encodings
+        """
+        url_breakdown = src.split('/')
+        return url_breakdown[-2], url_breakdown[-1]
+
+    def _download_from_internal(self, src: str, dst: str):
+        """Use GITHUB_TOKEN evironment variable to download from internal github repo link 
+
+        """
+        self.GITHUB_TOKEN= os.getenv("GITHUB_TOKEN")
+        self.INTERNAL_REPO_URL= os.getenv("INTERNAL_REPO_URL")
+        if self.GITHUB_TOKEN is None:
+            raise NameError("GITHUB_TOKEN not setup, not able to download from internal github url, exit program!")
+        if self.INTERNAL_REPO_URL is None:
+            raise NameError("variable INTERNAL_REPO_URL not setup, use export INTERNAL_REPO_URL=<INTERNAL_REPO_URL> to setup before continuing")
+        asset_url = self._convert_src_to_asset_url(src)
+        headers = {
+                    'Authorization': 'token ' + self.GITHUB_TOKEN ,    
+                    'Accept': 'application/octet-stream',
+                }
+        resp = requests.get(asset_url,headers = headers, timeout=(4, 30) )
+        with open(dst, 'wb') as file:
+            file.write(resp.content)
+
+
+    def _download_pre_opt_weights(self, show_progress=False):
         """downloads pre optimization weights"""
         self._download_from_url(
-            src=self.url_pre_opt_weights, dst=self.path_pre_opt_weights
+            src=self.url_pre_opt_weights,
+            dst=self.path_pre_opt_weights,
+            show_progress=show_progress,
         )
 
-    def _download_post_opt_weights(self):
+    def _download_post_opt_weights(self, show_progress=False):
         """downloads post optimization weights"""
         self._download_from_url(
-            src=self.url_post_opt_weights, dst=self.path_post_opt_weights
+            src=self.url_post_opt_weights,
+            dst=self.path_post_opt_weights,
+            show_progress=show_progress,
         )
 
     def _download_adaround_encodings(self):
@@ -169,7 +242,7 @@ class Downloader:
         download_tar_name = (
             str(self._download_storage_path) + "/downloaded_weights.tar.gz"
         )
-        urlretrieve(tar_url, download_tar_name, DownloadProgressBar())
+        urllib.request.urlretrieve(tar_url, download_tar_name, DownloadProgressBar())
         with tarfile.open(download_tar_name) as pth_weights:
             pth_weights.extractall(self._download_storage_path)
             folder_name = pth_weights.getnames()[0]

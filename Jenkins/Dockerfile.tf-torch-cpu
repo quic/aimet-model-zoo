@@ -24,7 +24,7 @@ RUN apt-get update -y > /dev/null && \
         python3-pip && \
         rm -rf /var/lib/apt/lists/*
 
-# Upgrade Python3 pip and install some more packages
-RUN python3 -m pip --no-cache-dir install --upgrade \
-        pip \
-        pylint==2.17.2
+# Upgrade Python3 pip and install some more packages 
+RUN python3 -m pip --no-cache-dir install --upgrade pip && \
+        pip install pylint==2.17.2 && \
+        pip install astroid==2.15.2

@@ -52,7 +52,7 @@ class Minilm(Downloader):
         if model_config:
             config_filepath = os.path.join(
                 self.parent_dir, "model_cards", model_config + ".json"
-            )        
+            )
             with open(config_filepath) as f_in:
                 self.cfg = json.load(f_in)
         Downloader.__init__(
@@ -79,7 +79,7 @@ class Minilm(Downloader):
         self.training_args = training_args
         self.aux_args = aux_args
         self.aux_args.fmodel_path = os.path.join(self.parent_dir, self.aux_args.fmodel_path)
-        self.aux_args.qmodel_path = os.path.join(self.parent_dir, self.aux_args.qmodel_path)        
+        self.aux_args.qmodel_path = os.path.join(self.parent_dir, self.aux_args.qmodel_path)
         # additional setup of the argsumetns from model_config
         if model_config == "minilm_w8a8_squad":
             self.data_args.dataset_name = self.cfg["data_training_args"]["dataset_name"]

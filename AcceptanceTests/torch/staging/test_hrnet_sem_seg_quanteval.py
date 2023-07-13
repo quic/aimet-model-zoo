@@ -23,7 +23,7 @@ from aimet_zoo_torch.hrnet_semantic_segmentation.evaluators import (
 @pytest.mark.sementic_segmentation 
 @pytest.mark.cuda
 #pylint:disable = redefined-outer-name
-@pytest.mark.parametrize("model_config",["hrnet_sem_seg_w4a8","hrnet_sem_seg_w4a8"])
+@pytest.mark.parametrize("model_config",["hrnet_sem_seg_w4a8"])
 def test_quaneval_hrnet_sem_seg(model_config, tiny_cityscapes_path, monkeypatch):
     """acceptance test of hrnet for semantic segmentation"""
     torch.cuda.empty_cache()

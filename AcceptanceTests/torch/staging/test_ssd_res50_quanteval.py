@@ -30,6 +30,7 @@ def test_quaneval_ssd_res50(model_config, tiny_mscoco_validation_path):
            model_config,
            "--dataset-path",
            tiny_mscoco_validation_path,
+           "--use-cuda"
        ]
    )
 

@@ -322,7 +322,7 @@ class ModelConfig:
 
 DEFAULT_CONFIG = {"num_samples_cal": 500, "num_samples_eval": None}
 
-#pylint:disable = too-many-local-variables 
+#pylint:disable = too-many-locals
 def main(raw_args=None):
     """main evaluation function"""
     args = arguments(raw_args)
@@ -331,6 +331,7 @@ def main(raw_args=None):
 
     eval_path = pathlib.Path("./eval_results")
     eval_path.mkdir(exist_ok=True)
+    #pylint:disable = consider-using-with
     class_names = [name.strip() for name in open("voc-model-labels.txt").readlines()]
     device = get_device(args)
     #pylint: disable = no-member

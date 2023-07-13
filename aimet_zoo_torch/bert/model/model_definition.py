@@ -77,7 +77,7 @@ class Bert(Downloader):
         self.training_args = training_args
         self.aux_args = aux_args
         self.aux_args.fmodel_path = os.path.join(self.parent_dir, self.aux_args.fmodel_path)
-        self.aux_args.qmodel_path = os.path.join(self.parent_dir, self.aux_args.qmodel_path)        
+        self.aux_args.qmodel_path = os.path.join(self.parent_dir, self.aux_args.qmodel_path)
         # additional setup of the argsumetns from model_config
         if model_config == "bert_w8a8_squad":
             self.data_args.dataset_name = self.cfg["data_training_args"]["dataset_name"]
@@ -88,10 +88,10 @@ class Bert(Downloader):
         self.training_args.do_eval = True
         # setup the download path from arguments
         self.path_pre_opt_weights = self.aux_args.fmodel_path
-            
+
         self.path_post_opt_weights = self.aux_args.qmodel_path
-     
-        
+
+
     def from_pretrained(self):
         """get original or optimized model
         Parameters:

@@ -99,7 +99,7 @@ def main(raw_args=None):
 
     accelerator.wait_for_everyone()
     # get dataset for gathering information to load model
-    dataset = get_dataset(args) 
+    dataset = get_dataset(args)
     # loading finetuned original model
     model = vit(model_config=args.model_config, quantized=False)
     model_orig = model.get_model_from_pretrained(dataset)

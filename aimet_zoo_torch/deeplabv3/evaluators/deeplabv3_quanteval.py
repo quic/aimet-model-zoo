@@ -20,7 +20,7 @@ from aimet_zoo_torch.deeplabv3.dataloader import get_dataloaders_and_eval_func
 
 
 
-def arguments():
+def arguments(raw_args=None):
     """ argument parser"""
     parser = argparse.ArgumentParser(
         description="Evaluation script for PyTorch ImageNet networks."
@@ -53,7 +53,7 @@ def arguments():
     parser.add_argument(
         "--use-cuda", help="Run evaluation on GPU.", type=bool, default=True
     )
-    args = parser.parse_args()
+    args = parser.parse_args(raw_args)
     return args
 
 
@@ -76,11 +76,11 @@ def get_num_classes(val_loader, device):
     num_classes = uniques.shape[0] - 1
     return num_classes
 
-
-def main():
+#pylint:disable = too-many-locals
+def main(raw_args=None):
     """ main evaluation function"""
     seed(0)
-    args = arguments()
+    args = arguments(raw_args)
     device = get_device(args)
     iterations = -1
     print(f"device: {device}")
@@ -135,6 +135,11 @@ def main():
     print(
         f"Optimized Model | {args.default_param_bw}-bit Environment | mIoU: {mIoU_optim_int8:.4f}"
     )
+
+    return {'mIoU_orig_fp32': mIoU_orig_fp32,
+            'mIoU_orig_int8': mIoU_orig_int8,
+            'mIoU_optim_fp32': mIoU_optim_fp32,
+            'mIoU_optim_int8': mIoU_optim_int8}
 
 
 if __name__ == "__main__":

@@ -619,6 +619,29 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>24.78 / 0.628
     <td>25.41 / 0.666 (INT8W / INT16Act.)</td>
   </tr>
+  <tr>
+    <td rowspan="2">Semantic Segmentation</td>
+    <td><a href="https://github.qualcomm.com/qualcomm-ai/aimet-model-zoo/blob/deeplabv3plus/aimet_zoo_tensorflow/deeplabv3plus_tf2/Deeplabv3plus_TF2.md">DeeplabV3plus_mbnv2</a></td>
+    <td><a href="https://github.com/bubbliiiing/deeplabv3-plus-tf2">GitHub Repo</a></td>
+    <td><a href="https://github.qualcomm.com/qualcomm-ai/aimet-model-zoo/releases/tag/tensorflow2-deeplabv3plus_mbnv2">Pretrained Model</a></td>
+    <td><a href="https://github.qualcomm.com/qualcomm-ai/aimet-model-zoo/blob/deeplabv3plus/aimet_zoo_tensorflow/deeplabv3plus_tf2/evaluators/deeplabv3plus_tf2_quanteval.py">See Example</a></td>
+    <td>2.4</td>
+    <td>(PascalVOC) mIOU</td>
+    <td>72.28</td>
+    <td>71.71</td>
+    <td>TBD</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.qualcomm.com/qualcomm-ai/aimet-model-zoo/blob/deeplabv3plus/aimet_zoo_tensorflow/deeplabv3plus_tf2/Deeplabv3plus_TF2.md">DeeplabV3plus_xception</a></td>
+    <td><a href="https://github.com/bubbliiiing/deeplabv3-plus-tf2">GitHub Repo</a></td>
+    <td><a href="https://github.qualcomm.com/qualcomm-ai/aimet-model-zoo/releases/tag/tensorflow2-deeplabv3plus_xception">Pretrained Model</a></td>
+    <td><a href="https://github.qualcomm.com/qualcomm-ai/aimet-model-zoo/blob/deeplabv3plus/aimet_zoo_tensorflow/deeplabv3plus_tf2/evaluators/deeplabv3plus_tf2_quanteval.py">See Example</a></td>
+    <td>2.4</td>
+    <td>(PascalVOC) mIOU</td>
+    <td>87.71</td>
+    <td>87.21</td>
+    <td>TBD</td>
+  </tr>
 </table>
 
 *<sup>[1]</sup>* <sub>Model usage documentation</sub>  

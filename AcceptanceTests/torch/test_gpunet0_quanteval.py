@@ -20,10 +20,10 @@ from aimet_zoo_torch.gpunet0.evaluator import gpunet0_quanteval
 @pytest.mark.image_classification
 # pylint:disable = redefined-outer-name
 @pytest.mark.parametrize("model_config", ["gpunet0_w8a8"])
-def test_quanteval_gpunet0_image_classification(model_config, tiny_imageNet_validation_path):
+def test_quanteval_gpunet0_image_classification(model_config, tiny_imageNet_root_path):
     """gpunet0 image classification test"""
 
-    if tiny_imageNet_validation_path is None:
+    if tiny_imageNet_root_path is None:
         pytest.fail(f'Dataset path is not set')
 
     torch.cuda.empty_cache()
@@ -32,6 +32,6 @@ def test_quanteval_gpunet0_image_classification(model_config, tiny_imageNet_vali
             "--model-config",
             model_config,
             "--dataset-path",
-            tiny_imageNet_validation_path,
+            tiny_imageNet_root_path,
         ]
     )
