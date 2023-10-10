@@ -24,11 +24,12 @@ from aimet_zoo_torch.common.downloader import Downloader
 class ResNet(Downloader):
     """ResNet parent class with automated loading of weights and providing a QuantSim with pre-computed encodings"""
     #pylint:disable = unused-argument
-    def __init__(self, model_config=None, **kwargs):
+    def __init__(self, model_config=None, device=None, **kwargs):
         """
         :param model_config:             named model config from which to obtain model artifacts and arguments.
                                          If provided, overwrites the other arguments passed to this object
         """
+        self.device = device or torch.device("cuda")
         parent_dir = "/".join(os.path.realpath(__file__).split("/")[:-1])
         self.cfg = False
         if model_config:
@@ -57,7 +58,7 @@ class ResNet(Downloader):
                 f"Only support variants in {supported_resnet_variants}"
             )
         self.model = getattr(torchvision.models, self.resnet_variant)(pretrained=True)
-        self.model.cuda()
+        self.model.to(self.device)
         self.model.eval()
 
     def from_pretrained(self, quantized=False):
@@ -73,14 +74,14 @@ class ResNet(Downloader):
         self._download_adaround_encodings()
         if quantized:
             equalize_model(self.model, self.input_shape)
-            state_dict = torch.load(self.path_post_opt_weights)
+            state_dict = torch.load(self.path_post_opt_weights, map_location=self.device)
             self.model.load_state_dict(state_dict)
-            self.model.cuda()
+            self.model.to(self.device)
         else:
             self.model = getattr(torchvision.models, self.resnet_variant)(
                 pretrained=True
             )
-            self.model.cuda()
+            self.model.to(self.device)
         self.model.eval()
 
     def get_quantsim(self, quantized=False):
@@ -93,8 +94,7 @@ class ResNet(Downloader):
             self.from_pretrained(quantized=True)
         else:
             self.from_pretrained(quantized=False)
-        device = torch.device("cuda")
-        dummy_input = torch.rand(self.input_shape, device=device)
+        dummy_input = torch.rand(self.input_shape, device=self.device)
         kwargs = {
             "quant_scheme": self.cfg["optimization_config"][
                 "quantization_configuration"
