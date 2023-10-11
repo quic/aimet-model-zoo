@@ -149,7 +149,7 @@ An original FP32 source model is quantized either using post-training quantizati
     <td>TBD</td>
   </tr>
     <tr>
-    <td><a href="aimet_zoo_torch/uniformer_classification/UniformerClassification.md">Uniformer</a></td>
+    <td><a href="aimet_zoo_torch/uniformer_classification/Uniformer.md">Uniformer</a></td>
     <td><a href="https://github.com/Sense-X/UniFormer">Repo</a></td>
     <td><a href="/../../releases/tag/torch_uniformer_classification">Prepared Models </a></td>
     <td><a href="/../../releases/tag/torch_uniformer_classification">Quantized Models</a></td>
