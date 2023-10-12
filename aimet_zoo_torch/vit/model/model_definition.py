@@ -138,15 +138,6 @@ class vit(Downloader):
         Returns:
             quant_sim:
         """
-        if self.quantized:
-            model_name_or_path = self.cfg["model_args"]["quantized"][
-                "model_name_or_path"
-            ]
-        else:
-            model_name_or_path = self.cfg["model_args"]["original"][
-                "model_name_or_path"
-            ]
-
         metric = datasets.load_metric("accuracy")
         dummy_input = self._get_dummy_input(dataloader)
         quant_scheme_config = self.cfg["optimization_config"]["quantization_configuration"]["quant_scheme"]
@@ -183,7 +174,7 @@ class vit(Downloader):
         quant_sim.compute_encodings(eval_function, [10, dataloader, metric])
 
         # load encodings if there is encodings.csv
-        self._load_encoding_data(quant_sim, model_name_or_path)
+        self._load_encoding_data(quant_sim, self.model_name_or_path)
         # remove dropout quantizers
         disable_list = []
         #pylint:disable = protected-access, unused-variable
