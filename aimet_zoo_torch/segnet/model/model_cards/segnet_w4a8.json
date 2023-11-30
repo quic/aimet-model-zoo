@@ -16,9 +16,9 @@
             }
         },
     "artifacts": {
-        "url_pre_opt_weights": "https://github.com/quic/aimet-model-zoo/releases/download/torch_segnet/SegNet.pth",
-        "url_post_opt_weights": "https://github.com/quic/aimet-model-zoo/releases/download/torch_segnet/segnet_w4a8_pc_state_dict.pth",
-        "url_adaround_encodings": "https://github.com/quic/aimet-model-zoo/releases/download/torch_segnet/segnet_w4a8_pc.encodings",
+        "url_pre_opt_weights": "https://github.com/quic/aimet-model-zoo/releases/download/torch_segnet_w8a8_w4a8/SegNet.pth",
+        "url_post_opt_weights": "https://github.com/quic/aimet-model-zoo/releases/download/torch_segnet_w8a8_w4a8/segnet_w4a8_pc_state_dict.pth",
+        "url_adaround_encodings": "https://github.com/quic/aimet-model-zoo/releases/download/torch_segnet_w8a8_w4a8/segnet_w4a8_pc.encodings",
         "url_aimet_encodings": null,
         "url_aimet_config": "https://raw.githubusercontent.com/quic/aimet/release-aimet-1.23/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config_per_channel.json"
     }
