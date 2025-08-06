@@ -3,6 +3,10 @@
 # Model Zoo for AI Model Efficiency Toolkit
 We provide a collection of popular neural network models and compare their floating point and quantized performance. Results demonstrate that quantized models can provide good accuracy, comparable to floating point models. Together with results, we also provide scripts and artifacts for users to quantize floating-point models using the [AI Model Efficiency ToolKit (AIMET)](https://github.com/quic/aimet).
 
+# Deprecation Notice
+This repo is not longer maintained.
+Please use https://github.com/quic/ai-hub-models which includes recipes for quantized models with [AIMET](https://github.com/quic/aimet).
+
 ## Table of Contents
 - [Introduction](#introduction)
 - [PyTorch Models](#pytorch-models)
