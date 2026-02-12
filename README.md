@@ -1,5 +1,23 @@
 ![Qualcomm Innovation Center, Inc.](images/logo-quic-on@h68.png)
 
+---
+
+<div align="center">
+
+## ⚠️ DEPRECATION NOTICE ⚠️
+
+### This repository is no longer actively supported.
+### Please visit [AI Hub Models](https://github.com/quic/ai-hub-models) for the latest models and updates.
+
+</div>
+
+
+
+
+---
+
+
+
 # Model Zoo for AI Model Efficiency Toolkit
 We provide a collection of popular neural network models and compare their floating point and quantized performance. Results demonstrate that quantized models can provide good accuracy, comparable to floating point models. Together with results, we also provide scripts and artifacts for users to quantize floating-point models using the [AI Model Efficiency ToolKit (AIMET)](https://github.com/quic/aimet).
 
@@ -668,5 +686,5 @@ The evaluation scripts run floating-point and quantized evaluations that demonst
 AIMET Model Zoo is a project maintained by Qualcomm Innovation Center, Inc.
 
 ## License
-Please see the [LICENSE file](LICENSE.pdf) for details.
+Please see the [LICENSE file](LICENSE.md) for details.
 
